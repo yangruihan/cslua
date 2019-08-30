@@ -69,37 +69,37 @@ namespace CsLua.Binchunk
         public bool CheckHeader()
         {
             if (ReadBytes(4).ToStr() != ChunkConst.LUA_SIGNATURE)
-                Debug.Error("not a precompiled chunk!");
+                Debug.Panic("not a precompiled chunk!");
 
             if (ReadByte() != ChunkConst.LUAC_VERSION)
-                Debug.Error("version mismatch!");
+                Debug.Panic("version mismatch!");
 
             if (ReadByte() != ChunkConst.LUAC_FORMAT)
-                Debug.Error("format mismatch!");
+                Debug.Panic("format mismatch!");
 
             if (ReadBytes(6).ToStr() != ChunkConst.LUAC_DATA)
-                Debug.Error("corrupted!");
+                Debug.Panic("corrupted!");
 
             if (ReadByte() != ChunkConst.CINT_SIZE)
-                Debug.Error("int size mismatch!");
+                Debug.Panic("int size mismatch!");
 
             if (ReadByte() != ChunkConst.CSIZET_SIZE)
-                Debug.Error("size_t size mismatch!");
+                Debug.Panic("size_t size mismatch!");
 
             if (ReadByte() != ChunkConst.INSTRUCTION_SIZE)
-                Debug.Error("instruction size mismatch!");
+                Debug.Panic("instruction size mismatch!");
 
             if (ReadByte() != ChunkConst.LUA_INTEGER_SIZE)
-                Debug.Error("lua_Integer size mismatch!");
+                Debug.Panic("lua_Integer size mismatch!");
 
             if (ReadByte() != ChunkConst.LUA_NUMBER_SIZE)
-                Debug.Error("lua_Number size mismatch!");
+                Debug.Panic("lua_Number size mismatch!");
 
             if (ReadLuaInteger() != ChunkConst.LUAC_INT)
-                Debug.Error("endianness mismatch!");
+                Debug.Panic("endianness mismatch!");
 
             if (ReadLuaNumber() != ChunkConst.LUAC_NUM)
-                Debug.Error("float format mismatch!");
+                Debug.Panic("float format mismatch!");
 
             return true;
         }
@@ -166,7 +166,7 @@ namespace CsLua.Binchunk
 
                 default:
                     // todo
-                    Debug.Error("corrupted!");
+                    Debug.Panic("corrupted!");
                     break;
             }
 

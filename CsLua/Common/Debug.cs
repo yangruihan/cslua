@@ -4,7 +4,7 @@ namespace CsLua.Common
 {
     public static class Debug
     {
-        public static void Error(string info)
+        public static void Panic(string info)
         {
             throw new Exception(info);
         }
