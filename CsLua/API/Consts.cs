@@ -13,4 +13,29 @@ namespace CsLua.API
         UserData,
         Thread,
     }
+
+    public enum EArithOp : byte
+    {
+        Add,
+        Sub,
+        Mul,
+        Mod,
+        Pow,
+        Div,
+        IDiv,
+        BAnd,
+        BOr,
+        BXor,
+        Shl,
+        Shr,
+        Unm,
+        BNot,
+    }
+
+    public enum ECompOp : byte
+    {
+        Eq,
+        Lt,
+        Le,
+    }
 }

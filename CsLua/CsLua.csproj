@@ -44,9 +44,14 @@
     <Compile Include="Binchunk\Reader.cs" />
     <Compile Include="Common\Debug.cs" />
     <Compile Include="Common\Utils.cs" />
+    <Compile Include="Number\LuaMath.cs" />
+    <Compile Include="Number\Parser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="State\APIAccess.cs" />
+    <Compile Include="State\APIArith.cs" />
+    <Compile Include="State\APIComp.cs" />
+    <Compile Include="State\APIMisc.cs" />
     <Compile Include="State\APIPush.cs" />
     <Compile Include="State\APIStack.cs" />
     <Compile Include="State\LuaStack.cs" />

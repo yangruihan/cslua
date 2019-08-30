@@ -43,5 +43,11 @@ namespace CsLua.API
         void PushInteger(Int64 n);
         void PushNumber(double n);
         void PushString(string s);
+
+        void Arith(EArithOp op);
+        bool Compare(int idx1, int idx2, ECompOp op);
+
+        void Len(int idx);
+        void Concat(int n);
     }
 }

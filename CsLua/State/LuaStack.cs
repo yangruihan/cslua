@@ -29,6 +29,19 @@ namespace CsLua.State
                 _slots.Add(LuaValue.Nil);
         }
 
+        public void Push(bool b)
+        {
+            Push(b ? LuaValue.True : LuaValue.False);
+        }
+
+        public void Push(object o)
+        {
+            if (o is null)
+                Push(LuaValue.Nil);
+            else
+                Push(new LuaValue(o));
+        }
+
         public void Push(LuaValue value)
         {
             if (Top == _slots.Capacity)

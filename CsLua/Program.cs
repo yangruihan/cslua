@@ -9,24 +9,22 @@ namespace CsLua
         public static void Main(string[] args)
         {
             var ls = new LuaState();
-            
-            ls.PushBoolean(true);
+
+            ls.PushInteger(1);
+            ls.PushString("2.0");
+            ls.PushString("3.0");
+            ls.PushNumber(4.0);
             PrintStack(ls);
-            ls.PushInteger(10);
+
+            ls.Arith(EArithOp.Add);
             PrintStack(ls);
-            ls.PushNil();
+            ls.Arith(EArithOp.BNot);
             PrintStack(ls);
-            ls.PushString("hello");
+            ls.Len(2);
             PrintStack(ls);
-            ls.PushValue(-4);
+            ls.Concat(3);
             PrintStack(ls);
-            ls.Replace(3);
-            PrintStack(ls);
-            ls.SetTop(6);
-            PrintStack(ls);
-            ls.Remove(-3);
-            PrintStack(ls);
-            ls.SetTop(-5);
+            ls.PushBoolean(ls.Compare(1, 2, ECompOp.Eq));
             PrintStack(ls);
         }
 
@@ -56,7 +54,7 @@ namespace CsLua
                         break;
                 }
             }
-            
+
             Console.WriteLine();
         }
     }
