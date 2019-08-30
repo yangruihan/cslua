@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using CsLua.Binchunk;
+using CsLua.VM;
 
 namespace CsLua
 {
@@ -108,7 +109,61 @@ namespace CsLua
                 var line = "-";
                 if (f.LineInfo.Length > 0)
                     line = f.LineInfo[pc].ToString();
-                Console.Write($"\t{pc + 1}\t[{line}]\t0x{c:X08}\n");
+
+                var i = new Instruction(c);
+                Console.Write($"\t{pc + 1}\t[{line}]\t{i.OpName()} \t");
+                PrintOperands(i);
+                Console.WriteLine();
+            }
+        }
+
+        private static void PrintOperands(Instruction i)
+        {
+            int a, b, c;
+            switch (i.OpMode())
+            {
+                case EOpMode.IABC:
+                    i.ABC(out a, out b, out c);
+                    Console.Write($"{a}");
+
+                    if (i.BMode() != EOpArgMask.OpArgN)
+                    {
+                        if (b > 0xff)
+                            Console.Write($" {-1 - (b & 0xff)}");
+                        else
+                            Console.Write($" {b}");
+                    }
+
+                    if (i.CMode() != EOpArgMask.OpArgN)
+                    {
+                        if (c > 0xff)
+                            Console.Write($" {-1 - (c & 0xff)}");
+                        else
+                            Console.Write($" {c}");
+                    }
+
+                    break;
+
+                case EOpMode.IABx:
+                    i.ABx(out a, out b);
+                    Console.Write($"{a}");
+
+                    if (i.BMode() == EOpArgMask.OpArgK)
+                        Console.Write($" {-1 - b}");
+                    else if (i.BMode() == EOpArgMask.OpArgU)
+                        Console.Write($" {b}");
+
+                    break;
+
+                case EOpMode.IAsBx:
+                    i.AsBx(out a, out b);
+                    Console.Write($"{a} {b}");
+                    break;
+
+                case EOpMode.IAx:
+                    i.Ax(out a);
+                    Console.Write($"{-1 - a}");
+                    break;
             }
         }
 

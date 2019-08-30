@@ -17,7 +17,7 @@ namespace CsLua.Binchunk
         public const double LUAC_NUM = 370.5;
     }
 
-    enum ChunkTag : byte
+    enum EChunkTag : byte
     {
         Nil = 0x00,
         Boolean = 0x01,

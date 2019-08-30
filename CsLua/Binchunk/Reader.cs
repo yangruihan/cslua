@@ -146,22 +146,22 @@ namespace CsLua.Binchunk
 
         private object ReadConstant()
         {
-            switch ((ChunkTag) ReadByte())
+            switch ((EChunkTag) ReadByte())
             {
-                case ChunkTag.Nil:
+                case EChunkTag.Nil:
                     return null;
 
-                case ChunkTag.Boolean:
+                case EChunkTag.Boolean:
                     return ReadByte() != 0;
 
-                case ChunkTag.Integer:
+                case EChunkTag.Integer:
                     return ReadLuaInteger();
 
-                case ChunkTag.Number:
+                case EChunkTag.Number:
                     return ReadLuaNumber();
 
-                case ChunkTag.ShortStr:
-                case ChunkTag.LongStr:
+                case EChunkTag.ShortStr:
+                case EChunkTag.LongStr:
                     return ReadString();
 
                 default:
