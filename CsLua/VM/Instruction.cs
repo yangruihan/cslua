@@ -1,4 +1,6 @@
 using System;
+using CsLua.API;
+using CsLua.Common;
 
 namespace CsLua.VM
 {
@@ -37,9 +39,9 @@ namespace CsLua.VM
             this._data = data;
         }
 
-        public int Opcode()
+        public EOpCode Opcode()
         {
-            return (int) (_data & 0x3f);
+            return (EOpCode) (_data & 0x3f);
         }
 
         public void ABC(out int a, out int b, out int c)
@@ -68,22 +70,31 @@ namespace CsLua.VM
 
         public string OpName()
         {
-            return OpCodes.Codes[Opcode()].Name;
+            return OpCodes.Codes[(int) Opcode()].Name;
         }
 
         public EOpMode OpMode()
         {
-            return OpCodes.Codes[Opcode()].OpMode;
+            return OpCodes.Codes[(int) Opcode()].OpMode;
         }
 
         public EOpArgMask BMode()
         {
-            return OpCodes.Codes[Opcode()].ArgBMode;
+            return OpCodes.Codes[(int) Opcode()].ArgBMode;
         }
 
         public EOpArgMask CMode()
         {
-            return OpCodes.Codes[Opcode()].ArgCMode;
+            return OpCodes.Codes[(int) Opcode()].ArgCMode;
+        }
+
+        public void Execute(ILuaVM luaVM)
+        {
+            var action = OpCodes.Codes[(int) Opcode()].Action;
+            if (!(action is null))
+                action(this, luaVM);
+            else
+                Debug.Panic(OpName());
         }
     }
 }

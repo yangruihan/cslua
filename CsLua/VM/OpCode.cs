@@ -1,7 +1,9 @@
-using System;
+using CsLua.API;
 
 namespace CsLua.VM
 {
+    using I = InstructionAction;
+
     enum EOpMode : byte
     {
         IABC,
@@ -69,6 +71,8 @@ namespace CsLua.VM
         OP_EXTRAARG,
     }
 
+    delegate void LuaAction(Instruction ins, ILuaVM vm);
+
     struct OpCode
     {
         public byte TestFlag;
@@ -77,9 +81,10 @@ namespace CsLua.VM
         public EOpArgMask ArgCMode;
         public EOpMode OpMode;
         public string Name;
+        public LuaAction Action;
 
         public OpCode(byte testFlag, byte setAFlag, EOpArgMask argBMode, EOpArgMask argCMode, EOpMode opMode,
-            string name)
+            string name, LuaAction action)
         {
             TestFlag = testFlag;
             SetAFlag = setAFlag;
@@ -87,6 +92,7 @@ namespace CsLua.VM
             ArgCMode = argCMode;
             OpMode = opMode;
             Name = name;
+            Action = action;
         }
     }
 
@@ -94,53 +100,96 @@ namespace CsLua.VM
     {
         public static OpCode[] Codes =
         {
-            	new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC , "MOVE    "), // R(A) := R(B)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgN, EOpMode.IABx , "LOADK   "), // R(A) := Kst(Bx)
-				new OpCode(0, 1, EOpArgMask.OpArgN, EOpArgMask.OpArgN, EOpMode.IABx , "LOADKX  "), // R(A) := Kst(extra arg)
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC , "LOADBOOL"), // R(A) := (bool)B; if (C) pc++
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC , "LOADNIL "), // R(A), R(A+1), ..., R(A+B) := nil
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC , "GETUPVAL"), // R(A) := UpValue[B]
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgK, EOpMode.IABC , "GETTABUP"), // R(A) := UpValue[B][RK(C)]
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC , "GETTABLE"), // R(A) := R(B)[RK(C)]
-				new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "SETTABUP"), // UpValue[A][RK(B)] := RK(C)
-				new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC , "SETUPVAL"), // UpValue[B] := R(A)
-				new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "SETTABLE"), // R(A)[RK(B)] := RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC , "NEWTABLE"), // R(A) := {} (size = B,C)
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC , "SELF    "), // R(A+1) := R(B); R(A) := R(B)[RK(C)]
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "ADD     "), // R(A) := RK(B) + RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "SUB     "), // R(A) := RK(B) - RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "MUL     "), // R(A) := RK(B) * RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "MOD     "), // R(A) := RK(B) % RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "POW     "), // R(A) := RK(B) ^ RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "DIV     "), // R(A) := RK(B) / RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "IDIV    "), // R(A) := RK(B) // RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "BAND    "), // R(A) := RK(B) & RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "BOR     "), // R(A) := RK(B) | RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "BXOR    "), // R(A) := RK(B) ~ RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "SHL     "), // R(A) := RK(B) << RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "SHR     "), // R(A) := RK(B) >> RK(C)
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC , "UNM     "), // R(A) := -R(B)
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC , "BNOT    "), // R(A) := ~R(B)
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC , "NOT     "), // R(A) := not R(B)
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC , "LEN     "), // R(A) := length of R(B)
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgR, EOpMode.IABC , "CONCAT  "), // R(A) := R(B).. ... ..R(C)
-				new OpCode(0, 0, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx, "JMP     "), // pc+=sBx; if (A) close all upvalues >= R(A - 1)
-				new OpCode(1, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "EQ      "), // if ((RK(B) == RK(C)) ~= A) then pc++
-				new OpCode(1, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "LT      "), // if ((RK(B) <  RK(C)) ~= A) then pc++
-				new OpCode(1, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC , "LE      "), // if ((RK(B) <= RK(C)) ~= A) then pc++
-				new OpCode(1, 0, EOpArgMask.OpArgN, EOpArgMask.OpArgU, EOpMode.IABC , "TEST    "), // if not (R(A) <=> C) then pc++
-				new OpCode(1, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgU, EOpMode.IABC , "TESTSET "), // if (R(B) <=> C) then R(A) := R(B) else pc++
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC , "CALL    "), // R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1))
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC , "TAILCALL"), // return R(A)(R(A+1), ... ,R(A+B-1))
-				new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC , "RETURN  "), // return R(A), ... ,R(A+B-2)
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx, "FORLOOP "), // R(A)+=R(A+2); if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) }
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx, "FORPREP "), // R(A)-=R(A+2); pc+=sBx
-				new OpCode(0, 0, EOpArgMask.OpArgN, EOpArgMask.OpArgU, EOpMode.IABC , "TFORCALL"), // R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));
-				new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx, "TFORLOOP"), // if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx }
-				new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC , "SETLIST "), // R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABx , "CLOSURE "), // R(A) := closure(KPROTO[Bx])
-				new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC , "VARARG  "), // R(A), R(A+1), ..., R(A+B-2) = vararg
-				new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IAx  , "EXTRAARG"), // extra (larger) argument for previous opcode
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC, "MOVE    ", I.Move), // R(A) := R(B)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgN, EOpMode.IABx, "LOADK   ",
+                I.LoadK), // R(A) := Kst(Bx)
+            new OpCode(0, 1, EOpArgMask.OpArgN, EOpArgMask.OpArgN, EOpMode.IABx, "LOADKX  ",
+                I.LoadKx), // R(A) := Kst(extra arg)
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
+                "LOADBOOL", I.LoadBool), // R(A) := (bool)B; if (C) pc++
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC,
+                "LOADNIL ", I.LoadNil), // R(A), R(A+1), ..., R(A+B) := nil
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC, "GETUPVAL",
+                null), // R(A) := UpValue[B]
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgK, EOpMode.IABC,
+                "GETTABUP", null), // R(A) := UpValue[B][RK(C)]
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC, "GETTABLE",
+                null), // R(A) := R(B)[RK(C)]
+            new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC,
+                "SETTABUP", null), // UpValue[A][RK(B)] := RK(C)
+            new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC, "SETUPVAL",
+                null), // UpValue[B] := R(A)
+            new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "SETTABLE",
+                null), // R(A)[RK(B)] := RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC, "NEWTABLE",
+                null), // R(A) := {} (size = B,C)
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC,
+                "SELF    ", null), // R(A+1) := R(B); R(A) := R(B)[RK(C)]
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "ADD     ",
+                I.Add), // R(A) := RK(B) + RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "SUB     ",
+                I.Sub), // R(A) := RK(B) - RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "MUL     ",
+                I.Mul), // R(A) := RK(B) * RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "MOD     ",
+                I.Mod), // R(A) := RK(B) % RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "POW     ",
+                I.Pow), // R(A) := RK(B) ^ RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "DIV     ",
+                I.Div), // R(A) := RK(B) / RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "IDIV    ",
+                I.IDiv), // R(A) := RK(B) // RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "BAND    ",
+                I.BAnd), // R(A) := RK(B) & RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "BOR     ",
+                I.BOr), // R(A) := RK(B) | RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "BXOR    ",
+                I.BXor), // R(A) := RK(B) ~ RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "SHL     ",
+                I.Shl), // R(A) := RK(B) << RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "SHR     ",
+                I.Shr), // R(A) := RK(B) >> RK(C)
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC, "UNM     ", I.Unm), // R(A) := -R(B)
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC, "BNOT    ", I.BNot), // R(A) := ~R(B)
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC, "NOT     ", I.Not), // R(A) := not R(B)
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IABC, "LEN     ",
+                I.Length), // R(A) := length of R(B)
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgR, EOpMode.IABC,
+                "CONCAT  ", I.Concat), // R(A) := R(B).. ... ..R(C)
+            new OpCode(0, 0, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx,
+                "JMP     ", I.Jump), // pc+=sBx; if (A) close all upvalues >= R(A - 1)
+            new OpCode(1, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC,
+                "EQ      ", I.Eq), // if ((RK(B) == RK(C)) ~= A) then pc++
+            new OpCode(1, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC,
+                "LT      ", I.Lt), // if ((RK(B) <  RK(C)) ~= A) then pc++
+            new OpCode(1, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC,
+                "LE      ", I.Le), // if ((RK(B) <= RK(C)) ~= A) then pc++
+            new OpCode(1, 0, EOpArgMask.OpArgN, EOpArgMask.OpArgU, EOpMode.IABC,
+                "TEST    ", I.Test), // if not (R(A) <=> C) then pc++
+            new OpCode(1, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgU, EOpMode.IABC,
+                "TESTSET ", I.TestSet), // if (R(B) <=> C) then R(A) := R(B) else pc++
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
+                "CALL    ", null), // R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1))
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
+                "TAILCALL", null), // return R(A)(R(A+1), ... ,R(A+B-1))
+            new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC,
+                "RETURN  ", null), // return R(A), ... ,R(A+B-2)
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx,
+                "FORLOOP ", I.ForLoop), // R(A)+=R(A+2); if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) }
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx, "FORPREP ",
+                I.ForPrep), // R(A)-=R(A+2); pc+=sBx
+            new OpCode(0, 0, EOpArgMask.OpArgN, EOpArgMask.OpArgU, EOpMode.IABC,
+                "TFORCALL", null), // R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));
+            new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx,
+                "TFORLOOP", null), // if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx }
+            new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
+                "SETLIST ", null), // R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABx,
+                "CLOSURE ", null), // R(A) := closure(KPROTO[Bx])
+            new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC,
+                "VARARG  ", null), // R(A), R(A+1), ..., R(A+B-2) = vararg
+            new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IAx,
+                "EXTRAARG", null), // extra (larger) argument for previous opcode
         };
     }
 }

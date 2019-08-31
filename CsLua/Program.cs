@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using CsLua.API;
+using CsLua.Binchunk;
 using CsLua.State;
+using CsLua.VM;
 
 namespace CsLua
 {
@@ -8,24 +11,34 @@ namespace CsLua
     {
         public static void Main(string[] args)
         {
-            var ls = new LuaState();
+            if (args.Length > 0)
+            {
+                var data = File.ReadAllBytes(args[0]);
+                var proto = ProtoType.Undump(data);
+                LuaMain(proto);
+            }
+        }
 
-            ls.PushInteger(1);
-            ls.PushString("2.0");
-            ls.PushString("3.0");
-            ls.PushNumber(4.0);
-            PrintStack(ls);
-
-            ls.Arith(EArithOp.Add);
-            PrintStack(ls);
-            ls.Arith(EArithOp.BNot);
-            PrintStack(ls);
-            ls.Len(2);
-            PrintStack(ls);
-            ls.Concat(3);
-            PrintStack(ls);
-            ls.PushBoolean(ls.Compare(1, 2, ECompOp.Eq));
-            PrintStack(ls);
+        private static void LuaMain(ProtoType proto)
+        {
+            var nRegs = (int) proto.MaxStackSize;
+            var ls = new LuaState(nRegs + 8, proto);
+            ls.SetTop(nRegs);
+            for (;;)
+            {
+                var pc = (UInt32) ls.PC();
+                var inst = new Instruction(ls.Fetch());
+                if (inst.Opcode() != EOpCode.OP_RETURN)
+                {
+                    inst.Execute(ls);
+                    Console.Write($"[{pc + 1:00}] {inst.OpName()}");
+                    PrintStack(ls);
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
 
         private static void PrintStack(LuaState ls)
