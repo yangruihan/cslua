@@ -35,6 +35,9 @@ namespace CsLua.State
             if (Value is string)
                 return ELuaType.String;
 
+            if (Value is LuaTable)
+                return ELuaType.Table;
+
             Debug.Panic("todo!");
             return ELuaType.None;
         }

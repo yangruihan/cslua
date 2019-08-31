@@ -2,6 +2,9 @@ using System;
 
 namespace CsLua.API
 {
+    using LuaInt = System.Int64;
+    using LuaFloat = System.Double;
+
     public interface ILuaState
     {
         int GetTop();
@@ -49,5 +52,14 @@ namespace CsLua.API
 
         void Len(int idx);
         void Concat(int n);
+
+        void NewTable();
+        void CreateTable(int nArr, int nRec);
+        ELuaType GetTable(int idx);
+        ELuaType GetField(int idx, string key);
+        ELuaType GetI(int idx, LuaInt i);
+        void SetTable(int idx);
+        void SetField(int idx, string k);
+        void SetI(int idx, LuaInt i);
     }
 }

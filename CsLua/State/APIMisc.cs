@@ -15,6 +15,10 @@ namespace CsLua.State
             {
                 _stack.Push((LuaInt) ((string) val.Value).Length);
             }
+            else if (val.Value is LuaTable t)
+            {
+                _stack.Push((LuaInt) t.Len());
+            }
             else
             {
                 Debug.Panic("length error!");

@@ -114,15 +114,15 @@ namespace CsLua.VM
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgK, EOpMode.IABC,
                 "GETTABUP", null), // R(A) := UpValue[B][RK(C)]
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC, "GETTABLE",
-                null), // R(A) := R(B)[RK(C)]
+                I.GetTable), // R(A) := R(B)[RK(C)]
             new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC,
                 "SETTABUP", null), // UpValue[A][RK(B)] := RK(C)
             new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC, "SETUPVAL",
                 null), // UpValue[B] := R(A)
             new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "SETTABLE",
-                null), // R(A)[RK(B)] := RK(C)
+                I.SetTable), // R(A)[RK(B)] := RK(C)
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC, "NEWTABLE",
-                null), // R(A) := {} (size = B,C)
+                I.NewTable), // R(A) := {} (size = B,C)
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC,
                 "SELF    ", null), // R(A+1) := R(B); R(A) := R(B)[RK(C)]
             new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "ADD     ",
@@ -183,7 +183,7 @@ namespace CsLua.VM
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx,
                 "TFORLOOP", null), // if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx }
             new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
-                "SETLIST ", null), // R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B
+                "SETLIST ", I.SetList), // R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABx,
                 "CLOSURE ", null), // R(A) := closure(KPROTO[Bx])
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC,
