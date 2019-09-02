@@ -34,7 +34,7 @@ namespace CsLua.State
         {
             if (a.Value is null)
             {
-                return b is null;
+                return b.Value is null;
             }
             else if (a.Value is bool aB)
             {

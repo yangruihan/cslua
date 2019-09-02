@@ -38,6 +38,9 @@ namespace CsLua.State
             if (Value is LuaTable)
                 return ELuaType.Table;
 
+            if (Value is Closure)
+                return ELuaType.Function;
+
             Debug.Panic("todo!");
             return ELuaType.None;
         }

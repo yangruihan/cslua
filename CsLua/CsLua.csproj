@@ -51,6 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="State\APIAccess.cs" />
     <Compile Include="State\APIArith.cs" />
+    <Compile Include="State\APICall.cs" />
     <Compile Include="State\APIComp.cs" />
     <Compile Include="State\APIGet.cs" />
     <Compile Include="State\APIMisc.cs" />
@@ -58,11 +59,13 @@
     <Compile Include="State\APISet.cs" />
     <Compile Include="State\APIStack.cs" />
     <Compile Include="State\APIVM.cs" />
+    <Compile Include="State\Closure.cs" />
     <Compile Include="State\LuaStack.cs" />
     <Compile Include="State\LuaState.cs" />
     <Compile Include="State\LuaTable.cs" />
     <Compile Include="State\LuaValue.cs" />
     <Compile Include="VM\Fpb.cs" />
+    <Compile Include="VM\InstCall.cs" />
     <Compile Include="VM\InstFor.cs" />
     <Compile Include="VM\InstLoad.cs" />
     <Compile Include="VM\InstMisc.cs" />

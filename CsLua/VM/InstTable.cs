@@ -61,6 +61,13 @@ namespace CsLua.VM
             else
                 new Instruction(vm.Fetch()).Ax(out c);
 
+            var bIsZero = b == 0;
+            if (bIsZero)
+            {
+                b = (int) vm.ToInteger(-1) - a - 1;
+                vm.Pop(1);
+            }
+
             vm.CheckStack(1);
             var idx = (LuaInt) (c * LFIELDS_PER_FLUSH);
             for (var j = 1; j <= b; j++)
@@ -68,6 +75,18 @@ namespace CsLua.VM
                 idx++;
                 vm.PushValue(a + j);
                 vm.SetI(a, idx);
+            }
+
+            if (bIsZero)
+            {
+                for (var j = vm.RegisterCount() + 1; j <= vm.GetTop(); j++)
+                {
+                    idx++;
+                    vm.PushValue(j);
+                    vm.SetI(a, idx);
+                }
+
+                vm.SetTop(vm.RegisterCount());
             }
         }
     }

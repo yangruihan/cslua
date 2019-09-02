@@ -6,7 +6,11 @@ namespace CsLua.State
     class LuaStack
     {
         private readonly List<LuaValue> _slots;
-        public int Top { get; private set; }
+        public int Top;
+        public Closure Closure;
+        public LuaValue[] Varargs;
+        public int PC;
+        public LuaStack Prev;
 
         public LuaStack(int size)
         {
@@ -58,6 +62,29 @@ namespace CsLua.State
             var val = _slots[--Top];
             _slots[Top] = null;
             return val;
+        }
+
+        public void PushN(LuaValue[] vals, int n)
+        {
+            var nVals = vals.Length;
+            if (n < 0)
+                n = nVals;
+
+            for (var i = 0; i < n; i++)
+            {
+                Push(i < nVals ? vals[i] : LuaValue.Nil);
+            }
+        }
+
+        public LuaValue[] PopN(int n)
+        {
+            var vals = new LuaValue[n];
+            for (var i = n - 1; i >= 0; i--)
+            {
+                vals[i] = Pop();
+            }
+
+            return vals;
         }
 
         public int AbsIndex(int idx)

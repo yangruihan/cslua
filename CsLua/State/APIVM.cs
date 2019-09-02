@@ -6,22 +6,24 @@ namespace CsLua.State
     {
         public int PC()
         {
-            return _pc;
+            return _stack.PC;
         }
 
         public void AddPC(int n)
         {
-            _pc += n;
+            _stack.PC += n;
         }
 
         public uint Fetch()
         {
-            return _proto.Code[_pc++];
+            var i = _stack.Closure.Proto.Code[_stack.PC];
+            _stack.PC++;
+            return i;
         }
 
         public void GetConst(int idx)
         {
-            var c = _proto.Constatns[idx];
+            var c = _stack.Closure.Proto.Constatns[idx];
             _stack.Push(c);
         }
 
@@ -31,6 +33,27 @@ namespace CsLua.State
                 GetConst(rk & 0xff);
             else
                 PushValue(rk + 1);
+        }
+
+        public int RegisterCount()
+        {
+            return (int) _stack.Closure.Proto.MaxStackSize;
+        }
+
+        public void LoadVararg(int n)
+        {
+            if (n < 0)
+                n = _stack.Varargs.Length;
+
+            _stack.Check(n);
+            _stack.PushN(_stack.Varargs, n);
+        }
+
+        public void LoadProto(int idx)
+        {
+            var proto = _stack.Closure.Proto.Protos[idx];
+            var closure = new Closure(proto);
+            _stack.Push(closure);
         }
     }
 }

@@ -61,5 +61,8 @@ namespace CsLua.API
         void SetTable(int idx);
         void SetField(int idx, string k);
         void SetI(int idx, LuaInt i);
+
+        int Load(byte[] chunk, string chunkName, string mode);
+        void Call(int nArgs, int nResults);
     }
 }

@@ -9,5 +9,9 @@ namespace CsLua.API
         UInt32 Fetch();
         void GetConst(int idx);
         void GetRK(int rk);
+
+        int RegisterCount();
+        void LoadVararg(int n);
+        void LoadProto(int idx);
     }
 }

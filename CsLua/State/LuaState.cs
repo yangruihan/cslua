@@ -6,14 +6,23 @@ namespace CsLua.State
     partial class LuaState
     {
         private LuaStack _stack;
-        private ProtoType _proto;
-        private int _pc;
 
-        public LuaState(int stackSize, ProtoType proto)
+        public LuaState()
         {
-            _stack = new LuaStack(stackSize);
-            _proto = proto;
-            _pc = 0;
+            _stack = new LuaStack(20);
+        }
+
+        public void PushLuaStack(LuaStack stack)
+        {
+            stack.Prev = _stack;
+            _stack = stack;
+        }
+
+        public void PopLuaStack()
+        {
+            var stack = _stack;
+            _stack = stack.Prev;
+            stack.Prev = null;
         }
     }
 }

@@ -124,7 +124,7 @@ namespace CsLua.VM
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC, "NEWTABLE",
                 I.NewTable), // R(A) := {} (size = B,C)
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC,
-                "SELF    ", null), // R(A+1) := R(B); R(A) := R(B)[RK(C)]
+                "SELF    ", I.Self), // R(A+1) := R(B); R(A) := R(B)[RK(C)]
             new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "ADD     ",
                 I.Add), // R(A) := RK(B) + RK(C)
             new OpCode(0, 1, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "SUB     ",
@@ -169,11 +169,11 @@ namespace CsLua.VM
             new OpCode(1, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgU, EOpMode.IABC,
                 "TESTSET ", I.TestSet), // if (R(B) <=> C) then R(A) := R(B) else pc++
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
-                "CALL    ", null), // R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1))
+                "CALL    ", I.Call), // R(A), ... ,R(A+C-2) := R(A)(R(A+1), ... ,R(A+B-1))
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
-                "TAILCALL", null), // return R(A)(R(A+1), ... ,R(A+B-1))
+                "TAILCALL", I.TailCall), // return R(A)(R(A+1), ... ,R(A+B-1))
             new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC,
-                "RETURN  ", null), // return R(A), ... ,R(A+B-2)
+                "RETURN  ", I.Return), // return R(A), ... ,R(A+B-2)
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx,
                 "FORLOOP ", I.ForLoop), // R(A)+=R(A+2); if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) }
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx, "FORPREP ",
@@ -185,9 +185,9 @@ namespace CsLua.VM
             new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
                 "SETLIST ", I.SetList), // R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABx,
-                "CLOSURE ", null), // R(A) := closure(KPROTO[Bx])
+                "CLOSURE ", I.Closure), // R(A) := closure(KPROTO[Bx])
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC,
-                "VARARG  ", null), // R(A), R(A+1), ..., R(A+B-2) = vararg
+                "VARARG  ", I.Vararg), // R(A), R(A+1), ..., R(A+B-2) = vararg
             new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IAx,
                 "EXTRAARG", null), // extra (larger) argument for previous opcode
         };
