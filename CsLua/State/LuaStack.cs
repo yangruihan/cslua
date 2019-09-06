@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CsLua.API;
 using CsLua.Common;
 
 namespace CsLua.State
@@ -7,17 +8,21 @@ namespace CsLua.State
     {
         private readonly List<LuaValue> _slots;
         public int Top;
+
+        public LuaState State;
         public Closure Closure;
         public LuaValue[] Varargs;
+        
         public int PC;
         public LuaStack Prev;
 
-        public LuaStack(int size)
+        public LuaStack(int size, LuaState state)
         {
             _slots = new List<LuaValue>(size);
             for (var i = 0; i < size; i++)
                 _slots.Add(null);
             Top = 0;
+            State = state;
         }
 
         public LuaValue this[int i]
@@ -89,6 +94,9 @@ namespace CsLua.State
 
         public int AbsIndex(int idx)
         {
+            if (idx <= Consts.LUA_REGISTRYINDEX)
+                return idx;
+            
             if (idx > 0)
                 return idx;
 
@@ -97,12 +105,18 @@ namespace CsLua.State
 
         public bool IsValid(int idx)
         {
+            if (idx == Consts.LUA_REGISTRYINDEX)
+                return true;
+            
             var absIdx = AbsIndex(idx);
             return absIdx > 0 && absIdx <= Top;
         }
 
         public LuaValue Get(int idx)
         {
+            if (idx == Consts.LUA_REGISTRYINDEX)
+                return State.GetRegistry();
+            
             var absIndex = AbsIndex(idx);
             if (absIndex > 0 && absIndex <= Top)
                 return _slots[absIndex - 1];
@@ -111,6 +125,12 @@ namespace CsLua.State
 
         public void Set(int idx, LuaValue val)
         {
+            if (idx == Consts.LUA_REGISTRYINDEX)
+            {
+                State.SetRegistry(val.Value as LuaTable);
+                return;
+            }
+            
             var absIndex = AbsIndex(idx);
             if (absIndex > 0 && absIndex <= Top)
             {

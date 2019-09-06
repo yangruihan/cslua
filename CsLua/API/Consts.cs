@@ -1,3 +1,5 @@
+using System;
+
 namespace CsLua.API
 {
     public enum ELuaType
@@ -37,5 +39,13 @@ namespace CsLua.API
         Eq,
         Lt,
         Le,
+    }
+
+    public static class Consts
+    {
+        public const int LUA_MINSTACK = 20;
+        public const int LUAI_MAXSTACK = 1000000;
+        public const int LUA_REGISTRYINDEX = -LUAI_MAXSTACK - 1000;
+        public const Int64 LUA_RIDX_GLOBALS = 2;
     }
 }

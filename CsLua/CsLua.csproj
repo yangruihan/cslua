@@ -72,6 +72,7 @@
     <Compile Include="VM\InstOperators.cs" />
     <Compile Include="VM\Instruction.cs" />
     <Compile Include="VM\InstTable.cs" />
+    <Compile Include="VM\InstUpvalue.cs" />
     <Compile Include="VM\OpCode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

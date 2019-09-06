@@ -29,6 +29,19 @@ namespace CsLua.State
             var v = _stack.Pop();
             InnerSetTable(t, new LuaValue(i), v);
         }
+        
+        public void SetGlobal(string name)
+        {
+            var t = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+            var v = _stack.Pop();
+            InnerSetTable(t, new LuaValue(name), v);
+        }
+
+        public void Register(string name, CSFunction f)
+        {
+            PushCSFunction(f);
+            SetGlobal(name);
+        }
 
         private void InnerSetTable(LuaValue t, LuaValue k, LuaValue v)
         {

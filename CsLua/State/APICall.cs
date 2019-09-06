@@ -21,8 +21,14 @@ namespace CsLua.State
             var val = _stack[-(nArgs + 1)];
             if (val.Value is Closure c)
             {
-                Console.Write($"call {c.Proto.Source}<{c.Proto.LineDefined},{c.Proto.LastLineDefined}>\n");
-                CallLuaClosure(nArgs, nResults, c);
+                if (c.Proto != null)
+                {
+                    CallLuaClosure(nArgs, nResults, c);
+                }
+                else
+                {
+                    CallCSClosure(nArgs, nResults, c);
+                }
             }
             else
             {
@@ -36,7 +42,7 @@ namespace CsLua.State
             var nParams = (int) c.Proto.NumParams;
             var isVararg = c.Proto.IsVararg == 1;
 
-            var newStack = new LuaStack(nRegs + 20) {Closure = c};
+            var newStack = new LuaStack(nRegs + Consts.LUA_MINSTACK, this) {Closure = c};
 
             // pass args, pop func
             var funcAndArgs = _stack.PopN(nArgs + 1);
@@ -54,6 +60,26 @@ namespace CsLua.State
             if (nResults != 0)
             {
                 var results = newStack.PopN(newStack.Top - nRegs);
+                _stack.Check(results.Length);
+                _stack.PushN(results, nResults);
+            }
+        }
+
+        private void CallCSClosure(int nArgs, int nResults, Closure c)
+        {
+            var newStack = new LuaStack(nArgs + Consts.LUA_MINSTACK, this) {Closure = c};
+
+            var args = _stack.PopN(nArgs);
+            newStack.PushN(args, nArgs);
+            _stack.Pop();
+
+            PushLuaStack(newStack);
+            var r = c.CSFunction(this);
+            PopLuaStack();
+
+            if (nResults != 0)
+            {
+                var results = newStack.PopN(r);
                 _stack.Check(results.Length);
                 _stack.PushN(results, nResults);
             }

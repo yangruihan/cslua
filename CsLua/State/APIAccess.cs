@@ -163,5 +163,21 @@ namespace CsLua.State
             ret = "";
             return false;
         }
+
+        public bool IsCSFunction(int idx)
+        {
+            var val = _stack[idx];
+            if (val.Value is Closure c)
+                return c.CSFunction != null;
+            return false;
+        }
+
+        public CSFunction ToCSFunction(int idx)
+        {
+            var val = _stack[idx];
+            if (val.Value is Closure c)
+                return c.CSFunction;
+            return null;
+        }
     }
 }

@@ -4,6 +4,8 @@ namespace CsLua.API
 {
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
+    
+    public delegate int CSFunction(ILuaState luaState);
 
     public interface ILuaState
     {
@@ -64,5 +66,14 @@ namespace CsLua.API
 
         int Load(byte[] chunk, string chunkName, string mode);
         void Call(int nArgs, int nResults);
+
+        void PushCSFunction(CSFunction f);
+        bool IsCSFunction(int idx);
+        CSFunction ToCSFunction(int idx);
+
+        void PushGlobalTable();
+        ELuaType GetGlobal(string name);
+        void SetGlobal(string name);
+        void Register(string name, CSFunction f);
     }
 }

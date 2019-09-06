@@ -30,6 +30,11 @@ namespace CsLua.State
             return _arr?.Count ?? 0;
         }
 
+        public LuaValue Get(object key)
+        {
+            return Get(new LuaValue(key));
+        }
+
         public LuaValue Get(LuaValue key)
         {
             LuaInt idx = 0;
@@ -43,6 +48,23 @@ namespace CsLua.State
                 return _arr[(int) (idx - 1)];
 
             return _map[key.Value];
+        }
+
+        public void Put(object k, object v)
+        {
+            LuaValue key;
+            LuaValue value;
+            if (k is LuaValue kl)
+                key = kl;
+            else
+                key = new LuaValue(k);
+
+            if (v is LuaValue vl)
+                value = vl;
+            else
+                value = new LuaValue(v);
+            
+            Put(key, value);
         }
 
         public void Put(LuaValue key, LuaValue val)

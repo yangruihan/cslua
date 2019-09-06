@@ -32,10 +32,16 @@ namespace CsLua.State
             return InnerGetTable(t, new LuaValue(key));
         }
 
-        ELuaType ILuaState.GetI(int idx, LuaInt i)
+        public ELuaType GetI(int idx, LuaInt i)
         {
             var t = _stack[idx];
             return InnerGetTable(t, new LuaValue(i));
+        }
+        
+        public ELuaType GetGlobal(string name)
+        {
+            var t = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+            return InnerGetTable(t, new LuaValue(name));
         }
 
         private ELuaType InnerGetTable(LuaValue t, LuaValue k)

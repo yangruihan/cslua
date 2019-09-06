@@ -28,5 +28,16 @@ namespace CsLua.State
         {
             _stack.Push(new LuaValue(s));
         }
+
+        public void PushCSFunction(CSFunction f)
+        {
+            _stack.Push(new Closure(f));
+        }
+
+        public void PushGlobalTable()
+        {
+            var global = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+            _stack.Push(global);
+        }
     }
 }

@@ -112,7 +112,7 @@ namespace CsLua.VM
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC, "GETUPVAL",
                 null), // R(A) := UpValue[B]
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgK, EOpMode.IABC,
-                "GETTABUP", null), // R(A) := UpValue[B][RK(C)]
+                "GETTABUP", I.GetTabUp), // R(A) := UpValue[B][RK(C)]
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC, "GETTABLE",
                 I.GetTable), // R(A) := R(B)[RK(C)]
             new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC,
