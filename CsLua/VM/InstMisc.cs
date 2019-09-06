@@ -18,13 +18,15 @@ namespace CsLua.VM
 
         /// <summary>
         /// pc += sBx
+        /// if (A) close all upvalues >= R(A - 1)
         /// </summary>
         public static void Jump(Instruction ins, ILuaVM vm)
         {
             ins.AsBx(out var a, out var sbx);
             vm.AddPC(sbx);
+
             if (a != 0)
-                Debug.Panic("todo: jump!");
+                vm.CloseUpvalues(a);
         }
     }
 }

@@ -7,11 +7,14 @@ namespace CsLua.State
     class LuaStack
     {
         private readonly List<LuaValue> _slots;
+        public List<LuaValue> Slots => _slots;
+
         public int Top;
 
         public LuaState State;
         public Closure Closure;
         public LuaValue[] Varargs;
+        public Dictionary<int, Upvalue> Openuvs;
         
         public int PC;
         public LuaStack Prev;
@@ -105,6 +108,14 @@ namespace CsLua.State
 
         public bool IsValid(int idx)
         {
+            // upvalues
+            if (idx < Consts.LUA_REGISTRYINDEX)
+            {
+                var uvIdx = Consts.LUA_REGISTRYINDEX - idx - 1;
+                return Closure != null && uvIdx < Closure.Upvals.Length;
+            }
+            
+            // registry
             if (idx == Consts.LUA_REGISTRYINDEX)
                 return true;
             
@@ -114,6 +125,17 @@ namespace CsLua.State
 
         public LuaValue Get(int idx)
         {
+            // upvalues
+            if (idx < Consts.LUA_REGISTRYINDEX)
+            {
+                var uvIdx = Consts.LUA_REGISTRYINDEX - idx - 1;
+                if (Closure is null || uvIdx > Closure.Upvals.Length)
+                    return null;
+
+                return Closure.Upvals[uvIdx].Val;
+            }
+            
+            // registry
             if (idx == Consts.LUA_REGISTRYINDEX)
                 return State.GetRegistry();
             
@@ -125,6 +147,16 @@ namespace CsLua.State
 
         public void Set(int idx, LuaValue val)
         {
+            // upvalues
+            if (idx < Consts.LUA_REGISTRYINDEX)
+            {
+                var uvIdx = Consts.LUA_REGISTRYINDEX - idx - 1;
+                if (Closure != null && uvIdx < Closure.Upvals.Length)
+                    Closure.Upvals[uvIdx].Val = val;
+                return;
+            }
+        
+            // registry
             if (idx == Consts.LUA_REGISTRYINDEX)
             {
                 State.SetRegistry(val.Value as LuaTable);

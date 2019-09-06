@@ -13,6 +13,11 @@ namespace CsLua.State
             var proto = ProtoType.Undump(chunk);
             var c = new Closure(proto);
             _stack.Push(c);
+            if (proto.Upvalues.Length > 0)
+            {
+                var env = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+                c.Upvals[0] = new Upvalue {Val = env};
+            }
             return 0;
         }
 

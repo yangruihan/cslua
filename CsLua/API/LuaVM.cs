@@ -13,5 +13,7 @@ namespace CsLua.API
         int RegisterCount();
         void LoadVararg(int n);
         void LoadProto(int idx);
+
+        void CloseUpvalues(int a);
     }
 }

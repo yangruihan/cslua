@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CsLua.API;
 
 namespace CsLua.State
@@ -54,6 +55,41 @@ namespace CsLua.State
             var proto = _stack.Closure.Proto.Protos[idx];
             var closure = new Closure(proto);
             _stack.Push(closure);
+
+            for (var i = 0; i < proto.Upvalues.Length; i++)
+            {
+                var uvInfo = proto.Upvalues[i];
+                if (uvInfo.Instack == 1)
+                {
+                    if (_stack.Openuvs is null)
+                        _stack.Openuvs = new Dictionary<int, Upvalue>();
+
+                    if (_stack.Openuvs.ContainsKey(uvInfo.Idx))
+                    {
+                        closure.Upvals[i] = _stack.Openuvs[uvInfo.Idx];
+                    }
+                    else
+                    {
+                        closure.Upvals[i] = new Upvalue {Val = _stack.Slots[uvInfo.Idx]};
+                        _stack.Openuvs[uvInfo.Idx] = closure.Upvals[i];
+                    }
+                }
+                else
+                {
+                    closure.Upvals[i] = _stack.Closure.Upvals[uvInfo.Idx];
+                }
+            }
+        }
+
+        public void CloseUpvalues(int a)
+        {
+            for (var i = 0; i < _stack.Openuvs.Count; i++)
+            {
+                if (i >= a - 1)
+                {
+                    _stack.Openuvs.Remove(i);
+                }
+            }
         }
     }
 }

@@ -41,5 +41,10 @@ namespace CsLua.State
             _registry = luaTable;
             _registryShell = new LuaValue(_registryShell);
         }
+        
+        public int LuaUpvalueIndex(int i)
+        {
+            return Consts.LUA_REGISTRYINDEX - i;
+        }
     }
 }

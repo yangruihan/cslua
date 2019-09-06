@@ -75,5 +75,9 @@ namespace CsLua.API
         ELuaType GetGlobal(string name);
         void SetGlobal(string name);
         void Register(string name, CSFunction f);
+        
+        void PushCSClosure(CSFunction f, int n);
+
+        int LuaUpvalueIndex(int i);
     }
 }

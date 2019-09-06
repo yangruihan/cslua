@@ -31,13 +31,25 @@ namespace CsLua.State
 
         public void PushCSFunction(CSFunction f)
         {
-            _stack.Push(new Closure(f));
+            _stack.Push(new Closure(f, 0));
         }
 
         public void PushGlobalTable()
         {
             var global = _registry.Get(Consts.LUA_RIDX_GLOBALS);
             _stack.Push(global);
+        }
+
+        public void PushCSClosure(CSFunction f, int n)
+        {
+            var closure = new Closure(f, n);
+            for (var i = n; i > 0; i--)
+            {
+                var val = _stack.Pop();
+                closure.Upvals[i - 1] = new Upvalue {Val = val};
+            }
+
+            _stack.Push(closure);
         }
     }
 }

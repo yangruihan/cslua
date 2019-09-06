@@ -110,15 +110,15 @@ namespace CsLua.VM
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC,
                 "LOADNIL ", I.LoadNil), // R(A), R(A+1), ..., R(A+B) := nil
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC, "GETUPVAL",
-                null), // R(A) := UpValue[B]
+                I.GetUpval), // R(A) := UpValue[B]
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgK, EOpMode.IABC,
                 "GETTABUP", I.GetTabUp), // R(A) := UpValue[B][RK(C)]
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgK, EOpMode.IABC, "GETTABLE",
                 I.GetTable), // R(A) := R(B)[RK(C)]
             new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC,
-                "SETTABUP", null), // UpValue[A][RK(B)] := RK(C)
+                "SETTABUP", I.SetTabUp), // UpValue[A][RK(B)] := RK(C)
             new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABC, "SETUPVAL",
-                null), // UpValue[B] := R(A)
+                I.SetUpval), // UpValue[B] := R(A)
             new OpCode(0, 0, EOpArgMask.OpArgK, EOpArgMask.OpArgK, EOpMode.IABC, "SETTABLE",
                 I.SetTable), // R(A)[RK(B)] := RK(C)
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC, "NEWTABLE",
