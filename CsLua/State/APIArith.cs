@@ -14,11 +14,13 @@ namespace CsLua.State
 
     struct Operator
     {
+        public string MetaMethod;
         public IntegerFunc IntegerFunc;
         public FloatFunc FloatFunc;
 
-        public Operator(IntegerFunc integerFunc, FloatFunc floatFunc)
+        public Operator(string metaMethod, IntegerFunc integerFunc, FloatFunc floatFunc)
         {
+            MetaMethod = metaMethod;
             IntegerFunc = integerFunc;
             FloatFunc = floatFunc;
         }
@@ -49,20 +51,20 @@ namespace CsLua.State
 
         public static Operator[] Ops =
         {
-            new Operator(IAdd, FAdd),
-            new Operator(ISub, FSub),
-            new Operator(IMul, FMul),
-            new Operator(IMod, FMod),
-            new Operator(null, Pow),
-            new Operator(null, Div),
-            new Operator(IIDiv, FIDiv),
-            new Operator(BAnd, null),
-            new Operator(BOr, null),
-            new Operator(BXor, null),
-            new Operator(Shl, null),
-            new Operator(Shr, null),
-            new Operator(IUnm, FUnm),
-            new Operator(BNot, null),
+            new Operator("__add", IAdd, FAdd),
+            new Operator("__sub", ISub, FSub),
+            new Operator("__mul", IMul, FMul),
+            new Operator("__mod", IMod, FMod),
+            new Operator("__pow", null, Pow),
+            new Operator("__div", null, Div),
+            new Operator("__idiv", IIDiv, FIDiv),
+            new Operator("__band", BAnd, null),
+            new Operator("__bor", BOr, null),
+            new Operator("__bxor", BXor, null),
+            new Operator("__shl", Shl, null),
+            new Operator("__shr", Shr, null),
+            new Operator("__unm", IUnm, FUnm),
+            new Operator("__bnot", BNot, null),
         };
     }
 
@@ -79,9 +81,19 @@ namespace CsLua.State
             var o = Operators.Ops[(int) op];
             var ret = InnerArith(a, b, o);
             if (ret != null)
+            {
                 _stack.Push(ret);
-            else
-                Debug.Panic("arithmetic error!");
+                return;
+            }
+
+            var mm = Operators.Ops[(int) op].MetaMethod;
+            if (LuaValue.CallMetaMethod(a, b, mm, this, out ret))
+            {
+                _stack.Push(ret);
+                return;
+            }
+            
+            Debug.Panic("arithmetic error!");
         }
 
         private LuaValue InnerArith(LuaValue a, LuaValue b, Operator op)

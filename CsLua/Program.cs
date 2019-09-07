@@ -9,6 +9,22 @@ namespace CsLua
 {
     internal class Program
     {
+        public static CSFunction GetMetaTable = ls =>
+        {
+            if (!ls.GetMetaTable(1))
+            {
+                ls.PushNil();
+            }
+
+            return 1;
+        };
+
+        public static CSFunction SetMetaTable = ls =>
+        {
+            ls.SetMetaTable(1);
+            return 1;
+        };
+
         public static CSFunction Print = ls =>
         {
             var nArgs = ls.GetTop();
@@ -37,6 +53,8 @@ namespace CsLua
 
                 var ls = new LuaState();
                 ls.Register("print", Print);
+                ls.Register("getmetatable", GetMetaTable);
+                ls.Register("setmetatable", SetMetaTable);
                 ls.Load(data, "chunk", "b");
                 ls.Call(0, 0);
             }

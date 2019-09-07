@@ -11,9 +11,13 @@ namespace CsLua.State
         public void Len(int idx)
         {
             var val = _stack[idx];
-            if (val.Value is string)
+            if (val.Value is string s)
             {
-                _stack.Push((LuaInt) ((string) val.Value).Length);
+                _stack.Push((LuaInt) s.Length);
+            }
+            else if (LuaValue.CallMetaMethod(val, val, "__len", this, out var metaMethodRet))
+            {
+                _stack.Push(metaMethodRet);
             }
             else if (val.Value is LuaTable t)
             {
@@ -42,6 +46,14 @@ namespace CsLua.State
                         _stack.Pop();
                         _stack.Pop();
                         _stack.Push(s1 + s2);
+                        continue;
+                    }
+
+                    var b = _stack.Pop();
+                    var a = _stack.Pop();
+                    if (LuaValue.CallMetaMethod(a, b, "__concat", this, out var metaMethodRet))
+                    {
+                        _stack.Push(metaMethodRet);
                         continue;
                     }
 

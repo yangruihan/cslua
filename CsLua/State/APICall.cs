@@ -18,22 +18,39 @@ namespace CsLua.State
                 var env = _registry.Get(Consts.LUA_RIDX_GLOBALS);
                 c.Upvals[0] = new Upvalue {Val = env};
             }
+
             return 0;
         }
 
         public void Call(int nArgs, int nResults)
         {
             var val = _stack[-(nArgs + 1)];
-            if (val.Value is Closure c)
+            var ok = val.Value is Closure;
+            var c = val.Value as Closure;
+
+            if (!ok)
+            {
+                var mf = LuaValue.GetMetaField(val, "__call", this);
+                if (mf != null)
+                {
+                    ok = mf.Value is Closure;
+                    c = mf.Value as Closure;
+
+                    if (ok)
+                    {
+                        _stack.Push(val);
+                        Insert(-(nArgs + 2));
+                        nArgs += 1;
+                    }
+                }
+            }
+
+            if (ok)
             {
                 if (c.Proto != null)
-                {
                     CallLuaClosure(nArgs, nResults, c);
-                }
                 else
-                {
                     CallCSClosure(nArgs, nResults, c);
-                }
             }
             else
             {

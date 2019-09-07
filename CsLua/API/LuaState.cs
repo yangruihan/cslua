@@ -79,5 +79,14 @@ namespace CsLua.API
         void PushCSClosure(CSFunction f, int n);
 
         int LuaUpvalueIndex(int i);
+
+        bool GetMetaTable(int idx);
+        void SetMetaTable(int idx);
+        uint RawLen(int idx);
+        bool RawEqual(int idx1, int idx2);
+        ELuaType RawGet(int idx);
+        void RawSet(int idx);
+        ELuaType RawGetI(int idx, LuaInt i);
+        void RawSetI(int idx, LuaInt i);
     }
 }

@@ -5,6 +5,18 @@ namespace CsLua.State
 {
     partial class LuaState : ILuaState
     {
+        public uint RawLen(int idx)
+        {
+            var val = _stack[idx];
+            if (val.Value is string s)
+                return (uint) s.Length;
+
+            if (val.Value is LuaTable lt)
+                return (uint) lt.Len();
+
+            return 0;
+        }
+
         public string TypeName(ELuaType tp)
         {
             switch (tp)

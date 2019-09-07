@@ -14,6 +14,55 @@ namespace CsLua.State
         public static readonly LuaValue True = new LuaValue(true);
         public static readonly LuaValue False = new LuaValue(false);
 
+        public static void SetMetaTable(LuaValue val, LuaTable mt, LuaState ls)
+        {
+            if (val.Value is LuaTable lt)
+            {
+                lt.MetaTable = mt;
+                return;
+            }
+
+            var key = $"_MT{val.Type()}";
+            ls.Registry.Put(key, mt);
+        }
+        
+        public static LuaTable GetMetaTable(LuaValue val, LuaState ls)
+        {
+            if (val.Value is LuaTable lt)
+                return lt.MetaTable;
+
+            var key = $"_MT{val.Type()}";
+            var mt = ls.Registry.Get(key);
+            return mt?.Value as LuaTable;
+        }
+        
+        public static bool CallMetaMethod(LuaValue a, LuaValue b, string mmName, LuaState ls, out LuaValue ret)
+        {
+            ret = null;
+            
+            var mm = GetMetaField(a, mmName, ls);
+            if (mm == null)
+            {
+                mm = GetMetaField(b, mmName, ls);
+                if (mm == null)
+                    return false;
+            }
+
+            ls.Stack.Check(4);
+            ls.Stack.Push(mm);
+            ls.Stack.Push(a);
+            ls.Stack.Push(b);
+            ls.Call(2, 1);
+            ret = ls.Stack.Pop();
+            return true;
+        }
+
+        public static LuaValue GetMetaField(LuaValue val, string fieldName, LuaState ls)
+        {
+            var mt = GetMetaTable(val, ls);
+            return mt?.Get(fieldName);
+        }
+
         public object Value { get; }
 
         public LuaValue(object value)
@@ -96,7 +145,7 @@ namespace CsLua.State
             ret = 0;
             return false;
         }
-
+        
         private bool StringToInteger(string s, out LuaInt ret)
         {
             if (Parser.ParseInteger(s, out ret))

@@ -6,9 +6,12 @@ namespace CsLua.State
     partial class LuaState
     {
         private LuaTable _registry;
+        public LuaTable Registry => _registry;
+
         private LuaValue _registryShell;
 
         private LuaStack _stack;
+        public LuaStack Stack => _stack;
 
         public LuaState()
         {

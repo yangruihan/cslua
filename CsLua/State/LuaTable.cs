@@ -11,6 +11,7 @@ namespace CsLua.State
     {
         private List<LuaValue> _arr;
         private Dictionary<object, LuaValue> _map;
+        public LuaTable MetaTable;
 
         public LuaTable(int nArr, int nRec)
         {
@@ -47,7 +48,7 @@ namespace CsLua.State
             if (idx >= 1 && idx <= Len())
                 return _arr[(int) (idx - 1)];
 
-            return _map[key.Value];
+            return _map != null && _map.TryGetValue(key.Value, out var ret) ? ret : null;
         }
 
         public void Put(object k, object v)
@@ -63,7 +64,7 @@ namespace CsLua.State
                 value = vl;
             else
                 value = new LuaValue(v);
-            
+
             Put(key, value);
         }
 
@@ -122,6 +123,11 @@ namespace CsLua.State
             {
                 _map.Remove(key.Value);
             }
+        }
+
+        public bool HasMetaField(string fieldName)
+        {
+            return MetaTable?.Get(fieldName) != null;
         }
 
         private void ShrinkArray()
