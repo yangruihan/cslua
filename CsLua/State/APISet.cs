@@ -80,7 +80,7 @@ namespace CsLua.State
         {
             if (t.Value is LuaTable table)
             {
-                if (raw || table.Get(k) != null || !table.HasMetaField("__newindex"))
+                if (raw || table.Get(k).Value != null || !table.HasMetaField("__newindex"))
                 {
                     table.Put(k, v);
                     return;

@@ -88,5 +88,7 @@ namespace CsLua.API
         void RawSet(int idx);
         ELuaType RawGetI(int idx, LuaInt i);
         void RawSetI(int idx, LuaInt i);
+
+        bool Next(int idx);
     }
 }

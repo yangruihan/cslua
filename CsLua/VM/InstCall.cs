@@ -100,6 +100,18 @@ namespace CsLua.VM
             }
         }
 
+        /// <summary>
+        /// R(A + 3, ..., R(A + 2 + C) = R(A)(R(A + 1), R(A + 2))
+        /// </summary>
+        public static void TForCall(Instruction ins, ILuaVM vm)
+        {
+            ins.ABC(out var a, out _, out var c);
+            a += 1;
+            PushFuncAndArgs(a, 3, vm);
+            vm.Call(2, c);
+            PopResults(a + 3, c + 1, vm);
+        }
+
         private static int PushFuncAndArgs(int a, int b, ILuaVM vm)
         {
             if (b >= 1)

@@ -69,5 +69,20 @@ namespace CsLua.VM
                 vm.Copy(a, a + 3);
             }
         }
+
+        /// <summary>
+        /// if R(A + 1) != null
+        ///     R(A) = R(A + 1); pc += sBx 
+        /// </summary>
+        public static void TForLoop(Instruction ins, ILuaVM vm)
+        {
+            ins.AsBx(out var a, out var sbx);
+            a += 1;
+            if (!vm.IsNil(a + 1))
+            {
+                vm.Copy(a + 1, a);
+                vm.AddPC(sbx);
+            }
+        }
     }
 }

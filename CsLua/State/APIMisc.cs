@@ -61,5 +61,26 @@ namespace CsLua.State
                 }
             }
         }
+
+        public bool Next(int idx)
+        {
+            var val = _stack[idx];
+            if (val.Value is LuaTable lt)
+            {
+                var key = _stack.Pop();
+                var nextKey = lt.NextKey(key);
+                if (nextKey.Value != null)
+                {
+                    _stack.Push(nextKey);
+                    _stack.Push(lt.Get(nextKey));
+                    return true;
+                }
+
+                return false;
+            }
+
+            Debug.Panic("table expected!");
+            return false;
+        }
     }
 }

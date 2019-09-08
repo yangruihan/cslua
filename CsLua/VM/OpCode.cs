@@ -179,9 +179,9 @@ namespace CsLua.VM
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx, "FORPREP ",
                 I.ForPrep), // R(A)-=R(A+2); pc+=sBx
             new OpCode(0, 0, EOpArgMask.OpArgN, EOpArgMask.OpArgU, EOpMode.IABC,
-                "TFORCALL", null), // R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));
+                "TFORCALL", I.TForCall), // R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2));
             new OpCode(0, 1, EOpArgMask.OpArgR, EOpArgMask.OpArgN, EOpMode.IAsBx,
-                "TFORLOOP", null), // if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx }
+                "TFORLOOP", I.TForLoop), // if R(A+1) ~= nil then { R(A)=R(A+1); pc += sBx }
             new OpCode(0, 0, EOpArgMask.OpArgU, EOpArgMask.OpArgU, EOpMode.IABC,
                 "SETLIST ", I.SetList), // R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B
             new OpCode(0, 1, EOpArgMask.OpArgU, EOpArgMask.OpArgN, EOpMode.IABx,

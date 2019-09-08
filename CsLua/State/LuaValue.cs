@@ -25,7 +25,7 @@ namespace CsLua.State
             var key = $"_MT{val.Type()}";
             ls.Registry.Put(key, mt);
         }
-        
+
         public static LuaTable GetMetaTable(LuaValue val, LuaState ls)
         {
             if (val.Value is LuaTable lt)
@@ -35,11 +35,11 @@ namespace CsLua.State
             var mt = ls.Registry.Get(key);
             return mt?.Value as LuaTable;
         }
-        
+
         public static bool CallMetaMethod(LuaValue a, LuaValue b, string mmName, LuaState ls, out LuaValue ret)
         {
             ret = null;
-            
+
             var mm = GetMetaField(a, mmName, ls);
             if (mm == null)
             {
@@ -145,7 +145,7 @@ namespace CsLua.State
             ret = 0;
             return false;
         }
-        
+
         private bool StringToInteger(string s, out LuaInt ret)
         {
             if (Parser.ParseInteger(s, out ret))

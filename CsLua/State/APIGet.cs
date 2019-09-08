@@ -76,7 +76,7 @@ namespace CsLua.State
             {
                 var v = table.Get(k);
 
-                if (raw || v != null || !table.HasMetaField("__index"))
+                if (raw || v.Value != null || !table.HasMetaField("__index"))
                 {
                     _stack.Push(v);
                     return v.Type();
