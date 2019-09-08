@@ -19,7 +19,7 @@ namespace CsLua.State
                 c.Upvals[0] = new Upvalue {Val = env};
             }
 
-            return 0;
+            return (int) EErrorCode.Ok;
         }
 
         public void Call(int nArgs, int nResults)
@@ -56,6 +56,27 @@ namespace CsLua.State
             {
                 Debug.Panic("not function!");
             }
+        }
+
+        public int PCall(int nArgs, int nResults, int msgh)
+        {
+            var caller = _stack;
+            var status = EErrorCode.ErrRun;
+
+            try
+            {
+                Call(nArgs, nResults);
+                status = EErrorCode.Ok;
+            }
+            catch (Exception e)
+            {
+                while (_stack != caller)
+                    PopLuaStack();
+                
+                _stack.Push(e.Message);
+            }
+
+            return (int) status;
         }
 
         private void CallLuaClosure(int nArgs, int nResults, Closure c)

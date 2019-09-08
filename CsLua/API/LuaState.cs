@@ -90,5 +90,8 @@ namespace CsLua.API
         void RawSetI(int idx, LuaInt i);
 
         bool Next(int idx);
+
+        int Error();
+        int PCall(int nArgs, int nResults, int msgh);
     }
 }

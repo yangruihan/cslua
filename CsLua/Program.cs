@@ -73,6 +73,17 @@ namespace CsLua
             return 0;
         };
 
+        private static CSFunction Error = ls => ls.Error();
+
+        private static CSFunction PCall = ls =>
+        {
+            var nArgs = ls.GetTop() - 1;
+            var status = ls.PCall(nArgs, -1, 0);
+            ls.PushBoolean(status == (int) EErrorCode.Ok);
+            ls.Insert(1);
+            return ls.GetTop();
+        };
+
         public static void Main(string[] args)
         {
             if (args.Length > 0)
@@ -86,6 +97,8 @@ namespace CsLua
                 ls.Register("next", Next);
                 ls.Register("pairs", Pairs);
                 ls.Register("ipairs", IPairs);
+                ls.Register("error", Error);
+                ls.Register("pcall", PCall);
                 ls.Load(data, "chunk", "b");
                 ls.Call(0, 0);
             }

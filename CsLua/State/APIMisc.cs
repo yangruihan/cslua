@@ -82,5 +82,12 @@ namespace CsLua.State
             Debug.Panic("table expected!");
             return false;
         }
+
+        public int Error()
+        {
+            var err = _stack.Pop();
+            Debug.Panic(err.ToString());
+            return -1;
+        }
     }
 }

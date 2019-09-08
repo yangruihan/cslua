@@ -70,6 +70,11 @@ namespace CsLua.State
             Value = value;
         }
 
+        public override string ToString()
+        {
+            return Value == null ? "null" : Value.ToString();
+        }
+
         public ELuaType Type()
         {
             if (Value is null)
