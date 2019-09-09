@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
 using CsLua.API;
-using CsLua.Binchunk;
+using CsLua.Compiler.Lexer;
 using CsLua.State;
-using CsLua.VM;
 
 namespace CsLua
 {
@@ -84,31 +83,46 @@ namespace CsLua
             return ls.GetTop();
         };
 
-        public static void Main(string[] args)
-        {
-            if (args.Length > 0)
-            {
-                var data = File.ReadAllBytes(args[0]);
-
-                var ls = new LuaState();
-                ls.Register("print", Print);
-                ls.Register("getmetatable", GetMetaTable);
-                ls.Register("setmetatable", SetMetaTable);
-                ls.Register("next", Next);
-                ls.Register("pairs", Pairs);
-                ls.Register("ipairs", IPairs);
-                ls.Register("error", Error);
-                ls.Register("pcall", PCall);
-                ls.Load(data, "chunk", "b");
-                ls.Call(0, 0);
-            }
-        }
-
-        private static int IPairsAux(ILuaState ls)
+        private static CSFunction IPairsAux = ls =>
         {
             var i = ls.ToInteger(2) + 1;
             ls.PushInteger(i);
             return ls.GetI(1, i) == ELuaType.Nil ? 1 : 2;
+        };
+
+        public static void Main(string[] args)
+        {
+            if (args.Length > 0)
+            {
+                var data = File.ReadAllText(args[0]);
+                TestLexer(data, args[0]);
+
+//                var data = File.ReadAllBytes(args[0]);
+//
+//                var ls = new LuaState();
+//                ls.Register("print", Print);
+//                ls.Register("getmetatable", GetMetaTable);
+//                ls.Register("setmetatable", SetMetaTable);
+//                ls.Register("next", Next);
+//                ls.Register("pairs", Pairs);
+//                ls.Register("ipairs", IPairs);
+//                ls.Register("error", Error);
+//                ls.Register("pcall", PCall);
+//                ls.Load(data, "chunk", "b");
+//                ls.Call(0, 0);
+            }
+        }
+
+        private static void TestLexer(string chunk, string chunkName)
+        {
+            var lexer = new Lexer(chunk, chunkName);
+            while (true)
+            {
+                lexer.NextToken(out var line, out var kind, out var token);
+                Console.Write($"{line:00} {kind.ToString(),-15} {token}\n");
+                if (kind == ETokenType.Eof)
+                    break;
+            }
         }
     }
 }
