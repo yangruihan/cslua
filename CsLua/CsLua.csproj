@@ -45,6 +45,9 @@
     <Compile Include="Binchunk\Reader.cs" />
     <Compile Include="Common\Debug.cs" />
     <Compile Include="Common\Utils.cs" />
+    <Compile Include="Compiler\Ast\Block.cs" />
+    <Compile Include="Compiler\Ast\Exp.cs" />
+    <Compile Include="Compiler\Ast\Stat.cs" />
     <Compile Include="Compiler\Lexer\Lexer.cs" />
     <Compile Include="Compiler\Lexer\Token.cs" />
     <Compile Include="Number\LuaMath.cs" />
