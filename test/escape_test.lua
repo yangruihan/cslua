@@ -53,3 +53,6 @@ print(a)
 
 a = 0x16p-3
 print(a)
+
+a = 10e3
+print(a)

@@ -2,6 +2,7 @@
 using System.IO;
 using CsLua.API;
 using CsLua.Compiler.Lexer;
+using CsLua.Compiler.Parser;
 using CsLua.State;
 
 namespace CsLua
@@ -115,14 +116,8 @@ namespace CsLua
 
         private static void TestLexer(string chunk, string chunkName)
         {
-            var lexer = new Lexer(chunk, chunkName);
-            while (true)
-            {
-                lexer.NextToken(out var line, out var kind, out var token);
-                Console.Write($"{line:00} {kind.ToString(),-15} {token}\n");
-                if (kind == ETokenType.Eof)
-                    break;
-            }
+            var ast = Parser.Parse(chunk, chunkName);
+            ast.Print(0);
         }
     }
 }

@@ -50,6 +50,12 @@
     <Compile Include="Compiler\Ast\Stat.cs" />
     <Compile Include="Compiler\Lexer\Lexer.cs" />
     <Compile Include="Compiler\Lexer\Token.cs" />
+    <Compile Include="Compiler\Parser\Optimizer.cs" />
+    <Compile Include="Compiler\Parser\ParseBlock.cs" />
+    <Compile Include="Compiler\Parser\ParseExp.cs" />
+    <Compile Include="Compiler\Parser\ParsePrefixExp.cs" />
+    <Compile Include="Compiler\Parser\Parser.cs" />
+    <Compile Include="Compiler\Parser\ParseStat.cs" />
     <Compile Include="Number\LuaMath.cs" />
     <Compile Include="Number\Parser.cs" />
     <Compile Include="Program.cs" />
