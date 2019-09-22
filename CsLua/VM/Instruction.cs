@@ -19,8 +19,8 @@ namespace CsLua.VM
     */
     struct Instruction
     {
-        private const int MAXARG_Bx = (1 << 18) - 1;
-        private const int MAXARG_sBx = MAXARG_Bx >> 1;
+        public const int MAXARG_Bx = (1 << 18) - 1;
+        public const int MAXARG_sBx = MAXARG_Bx >> 1;
 
         private UInt32 _data;
 

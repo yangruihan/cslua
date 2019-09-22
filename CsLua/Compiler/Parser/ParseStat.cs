@@ -56,7 +56,9 @@ namespace CsLua.Compiler.Parser
             var fdExp = ParseFuncDefExp(lexer);
 
             if (hasColon)
+            {
                 fdExp.ParList.Insert(0, "self");
+            }
 
             return new AssignStat
             {
@@ -183,7 +185,7 @@ namespace CsLua.Compiler.Parser
             return new LocalFuncDefStat
             {
                 Name = name,
-                FuncDefExp = fdExp
+                Exp = fdExp
             };
         }
 
@@ -249,7 +251,7 @@ namespace CsLua.Compiler.Parser
             var block = ParseBlock(lexer);
 
             lexer.NextTokenOfKind(ETokenType.KwEnd, out _, out _);
-            return new ForStat
+            return new ForNumStat
             {
                 LineOfFor = lineOfToken,
                 LineOfDo = lineOfDo,

@@ -23,12 +23,24 @@ namespace CsLua.Compiler.Ast
             Console.WriteLine($"[Block LastLine:{LastLine}]");
 
             if (Stats != null)
+            {
+                for (var i = 0; i < offset + 1; i++)
+                    Console.Write("\t");
+                Console.WriteLine("----- Stats -----");
+
                 foreach (var stat in Stats)
                     stat.Print(offset + 1);
+            }
 
             if (RetExps != null)
+            {
+                for (var i = 0; i < offset + 1; i++)
+                    Console.Write("\t");
+                Console.WriteLine("----- Return Exps -----");
+                
                 foreach (var retExp in RetExps)
                     retExp.Print(offset + 1);
+            }
         }
     }
 }

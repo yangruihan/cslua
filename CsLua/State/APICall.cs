@@ -10,7 +10,18 @@ namespace CsLua.State
     {
         public int Load(byte[] chunk, string chunkName, string mode)
         {
-            var proto = ProtoType.Undump(chunk);
+            ProtoType proto = null;
+            if (ProtoType.IsBinaryChunk(chunk))
+            {
+                proto = ProtoType.Undump(chunk);
+            }
+            else
+            {
+                var chars = new char[chunk.Length];
+                Array.Copy(chunk, chars, chars.Length);
+                proto = Compiler.Compiler.Compile(new string(chars), chunkName);
+            }
+
             var c = new Closure(proto);
             _stack.Push(c);
             if (proto.Upvalues.Length > 0)
@@ -72,7 +83,7 @@ namespace CsLua.State
             {
                 while (_stack != caller)
                     PopLuaStack();
-                
+
                 _stack.Push(e.Message);
             }
 

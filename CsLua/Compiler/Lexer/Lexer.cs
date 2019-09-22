@@ -521,7 +521,7 @@ namespace CsLua.Compiler.Lexer
             }
 
             var str = _chunk.Substring(openingLongBracket.Length,
-                closingLongBracketIdx - openingLongBracket.Length + 1);
+                closingLongBracketIdx - openingLongBracket.Length);
             Next(closingLongBracketIdx + closingLongBracket.Length);
             str = ReNewLine.Replace(str, "\n");
             Line += str.Count(c => c == '\n');

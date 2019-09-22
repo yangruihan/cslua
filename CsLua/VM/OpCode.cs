@@ -69,6 +69,7 @@ namespace CsLua.VM
         OP_CLOSURE,
         OP_VARARG,
         OP_EXTRAARG,
+        OP_UNKNOWN,
     }
 
     delegate void LuaAction(Instruction ins, ILuaVM vm);

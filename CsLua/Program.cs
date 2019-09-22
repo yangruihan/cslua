@@ -95,29 +95,20 @@ namespace CsLua
         {
             if (args.Length > 0)
             {
-                var data = File.ReadAllText(args[0]);
-                TestLexer(data, args[0]);
+                var data = File.ReadAllBytes(args[0]);
 
-//                var data = File.ReadAllBytes(args[0]);
-//
-//                var ls = new LuaState();
-//                ls.Register("print", Print);
-//                ls.Register("getmetatable", GetMetaTable);
-//                ls.Register("setmetatable", SetMetaTable);
-//                ls.Register("next", Next);
-//                ls.Register("pairs", Pairs);
-//                ls.Register("ipairs", IPairs);
-//                ls.Register("error", Error);
-//                ls.Register("pcall", PCall);
-//                ls.Load(data, "chunk", "b");
-//                ls.Call(0, 0);
+                var ls = new LuaState();
+                ls.Register("print", Print);
+                ls.Register("getmetatable", GetMetaTable);
+                ls.Register("setmetatable", SetMetaTable);
+                ls.Register("next", Next);
+                ls.Register("pairs", Pairs);
+                ls.Register("ipairs", IPairs);
+                ls.Register("error", Error);
+                ls.Register("pcall", PCall);
+                ls.Load(data, args[0], "bt");
+                ls.Call(0, 0);
             }
-        }
-
-        private static void TestLexer(string chunk, string chunkName)
-        {
-            var ast = Parser.Parse(chunk, chunkName);
-            ast.Print(0);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using CsLua.Compiler.Lexer;
+using CsLua.VM;
 
 namespace CsLua.Compiler.Ast
 {
@@ -115,6 +116,27 @@ namespace CsLua.Compiler.Ast
         public ETokenType Op;
         public Exp Exp;
 
+        public EOpCode GetOpCode()
+        {
+            switch (Op)
+            {
+                case ETokenType.OpUnm:
+                    return EOpCode.OP_UNM;
+
+                case ETokenType.OpBNot:
+                    return EOpCode.OP_BNOT;
+
+                case ETokenType.OpLen:
+                    return EOpCode.OP_LEN;
+
+                case ETokenType.OpNot:
+                    return EOpCode.OP_NOT;
+
+                default:
+                    return EOpCode.OP_UNKNOWN;
+            }
+        }
+
         public override void Print(int offset)
         {
             base.Print(offset);
@@ -192,9 +214,9 @@ namespace CsLua.Compiler.Ast
         {
             base.Print(offset);
             var sb = new StringBuilder();
-            if (ParList != null)
-                foreach (var parName in ParList)
-                    sb.Append(parName).Append(" ");
+
+            foreach (var parName in ParList)
+                sb.Append(parName).Append(" ");
 
             Console.WriteLine(
                 $"[FuncDefExp Line:{Line} LastLine:{LastLine} IsVararg:{IsVararg} ParList:[{sb}]]");

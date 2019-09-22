@@ -163,7 +163,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class ForStat : Stat
+    class ForNumStat : Stat
     {
         public int LineOfFor;
         public int LineOfDo;
@@ -260,7 +260,7 @@ namespace CsLua.Compiler.Ast
     class LocalFuncDefStat : Stat
     {
         public string Name;
-        public Exp FuncDefExp;
+        public FuncDefExp Exp;
 
         public override void Print(int offset)
         {
@@ -269,7 +269,7 @@ namespace CsLua.Compiler.Ast
             Console.WriteLine(
                 $"[LocalFuncDefStat Name:{Name}]");
 
-            FuncDefExp?.Print(offset + 1);
+            Exp?.Print(offset + 1);
         }
     }
 }

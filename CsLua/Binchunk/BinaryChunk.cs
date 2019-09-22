@@ -1,4 +1,5 @@
 using System;
+using CsLua.Common;
 
 namespace CsLua.Binchunk
 {
@@ -66,6 +67,16 @@ namespace CsLua.Binchunk
         public UInt32[] LineInfo;
         public LocVar[] LocVars;
         public string[] UpvalueNames;
+
+        public static bool IsBinaryChunk(byte[] data)
+        {
+            if (data.Length <= 4)
+                return false;
+
+            var sign = new byte[4];
+            Array.Copy(data, sign, 4);
+            return sign.ToStr() == ChunkConst.LUA_SIGNATURE;
+        }
 
         public static ProtoType Undump(byte[] data)
         {

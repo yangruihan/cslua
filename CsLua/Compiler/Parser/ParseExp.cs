@@ -458,7 +458,7 @@ namespace CsLua.Compiler.Parser
 
         private static void ParseParList(Lexer.Lexer lexer, out List<string> parList, out bool isVararg)
         {
-            parList = null;
+            parList = new List<string>();
             isVararg = false;
 
             switch (lexer.LookAhead())
@@ -475,7 +475,7 @@ namespace CsLua.Compiler.Parser
             }
 
             lexer.NextIdentifier(out _, out var name);
-            parList = new List<string> {name};
+            parList.Add(name);
 
             while (lexer.LookAhead() == ETokenType.SepComma)
             {
@@ -507,7 +507,13 @@ namespace CsLua.Compiler.Parser
                 if (token.Contains("p"))
                 {
                     var eIdx = token.IndexOf("p");
-                    e = LuaFloat.Parse("1" + token.Substring(eIdx).Replace("p", "e"));
+                    var t = LuaFloat.Parse("1" + token.Substring(eIdx).Replace("p", "e"));
+                    var d = t > 1 ? 0.1 : 10;
+                    while (t != 1)
+                    {
+                        e *= d > 1 ? 0.5 : 2;
+                        t *= d;
+                    }
                     token = token.Substring(0, eIdx);
                 }
 

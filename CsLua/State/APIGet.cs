@@ -92,7 +92,8 @@ namespace CsLua.State
                     {
                         return InnerGetTable(mf, k, false);
                     }
-                    else if (mf.Value is Closure c)
+
+                    if (mf.Value is Closure c)
                     {
                         _stack.Push(mf);
                         _stack.Push(t);

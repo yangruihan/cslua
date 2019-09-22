@@ -28,12 +28,22 @@ namespace CsLua.VM
             return ((e + 1) << 3) | (x - 8);
         }
 
+        public static int ToFb(this int x)
+        {
+            return Int2fb(x);
+        }
+
         public static int Fb2Int(int x)
         {
             if (x < 8)
                 return x;
             else
                 return ((x & 7) + 8) << (x >> 3) - 1;
+        }
+
+        public static int ToInt(this int x)
+        {
+            return Fb2Int(x);
         }
     }
 }

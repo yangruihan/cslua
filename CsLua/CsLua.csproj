@@ -48,6 +48,14 @@
     <Compile Include="Compiler\Ast\Block.cs" />
     <Compile Include="Compiler\Ast\Exp.cs" />
     <Compile Include="Compiler\Ast\Stat.cs" />
+    <Compile Include="Compiler\CodeGen\CgBlock.cs" />
+    <Compile Include="Compiler\CodeGen\CgExp.cs" />
+    <Compile Include="Compiler\CodeGen\CgStat.cs" />
+    <Compile Include="Compiler\CodeGen\CodeGen.cs" />
+    <Compile Include="Compiler\CodeGen\ExpHelper.cs" />
+    <Compile Include="Compiler\CodeGen\Fi2Proto.cs" />
+    <Compile Include="Compiler\CodeGen\FuncInfo.cs" />
+    <Compile Include="Compiler\Compiler.cs" />
     <Compile Include="Compiler\Lexer\Lexer.cs" />
     <Compile Include="Compiler\Lexer\Token.cs" />
     <Compile Include="Compiler\Parser\Optimizer.cs" />

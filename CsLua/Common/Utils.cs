@@ -1,4 +1,5 @@
 using System;
+using CsLua.VM;
 
 namespace CsLua.Common
 {
@@ -33,6 +34,11 @@ namespace CsLua.Common
             var ret = new T[len];
             Array.Copy(self, start, ret, 0, len);
             return ret;
+        }
+
+        public static int ToInt(this EOpCode code)
+        {
+            return (int) code;
         }
     }
 }
