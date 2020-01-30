@@ -5,15 +5,17 @@ using CsLua.Common;
 namespace CsLua.VM
 {
     /*
+      指令结构
+
      31       22       13       5    0
       +-------+^------+-^-----+-^-----
-      |b=9bits |c=9bits |a=8bits|op=6|
+      |b=9bits |c=9bits |a=8bits|op=6| iabc
       +-------+^------+-^-----+-^-----
-      |    bx=18bits    |a=8bits|op=6|
+      |    bx=18bits    |a=8bits|op=6| iabx
       +-------+^------+-^-----+-^-----
-      |   sbx=18bits    |a=8bits|op=6|
+      |   sbx=18bits    |a=8bits|op=6| iasbx
       +-------+^------+-^-----+-^-----
-      |    ax=26bits            |op=6|
+      |    ax=26bits            |op=6| iax
       +-------+^------+-^-----+-^-----
      31      23      15       7      0
     */
