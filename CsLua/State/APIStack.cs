@@ -3,6 +3,9 @@ using CsLua.Common;
 
 namespace CsLua.State
 {
+    /// <summary>
+    /// 基础栈操作方法实现
+    /// </summary>
     partial class LuaState : ILuaState
     {
         public int GetTop()

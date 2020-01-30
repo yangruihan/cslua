@@ -7,8 +7,13 @@ namespace CsLua.API
     
     public delegate int CSFunction(ILuaState luaState);
 
+    /// <summary>
+    /// Lua State 接口
+    /// 通过下面提供的 API，Lua 可以嵌入到其他宿主语言中
+    /// </summary>
     public interface ILuaState
     {
+        // ----- 基础栈操作方法 -----
         int GetTop();
         int AbsIndex(int idx);
         bool CheckStack(int n);
@@ -21,6 +26,7 @@ namespace CsLua.API
         void Rotate(int idx, int n);
         void SetTop(int idx);
 
+        // ----- 访问操作 -----
         string TypeName(ELuaType tp);
         ELuaType Type(int idx);
 
@@ -43,6 +49,7 @@ namespace CsLua.API
         string ToString(int idx);
         bool ToStringX(int idx, out string ret);
 
+        // ----- 将值推入栈中操作 -----
         void PushNil();
         void PushBoolean(bool b);
         void PushInteger(Int64 n);
