@@ -3,6 +3,12 @@ using CsLua.Common;
 
 namespace CsLua.Binchunk
 {
+    using LuaInt = System.Int64;
+    using LuaFloat = System.Double;
+
+    /// <summary>
+    /// Lua 二进制预编译块读取辅助类
+    /// </summary>
     class Reader
     {
         private byte[] _data;
@@ -41,12 +47,12 @@ namespace CsLua.Binchunk
             return ret;
         }
 
-        public Int64 ReadLuaInteger()
+        public LuaInt ReadLuaInteger()
         {
             return Convert.ToInt64(ReadUint64());
         }
 
-        public double ReadLuaNumber()
+        public LuaFloat ReadLuaNumber()
         {
             var ret = BitConverter.ToDouble(_data, _idx);
             _idx += 8;
@@ -66,6 +72,9 @@ namespace CsLua.Binchunk
             return bytes.ToStr();
         }
 
+        /// <summary>
+        /// 校验头部数据是否合法
+        /// </summary>
         public bool CheckHeader()
         {
             if (ReadBytes(4).ToStr() != ChunkConst.LUA_SIGNATURE)
@@ -104,6 +113,9 @@ namespace CsLua.Binchunk
             return true;
         }
 
+        /// <summary>
+        /// 读取函数原型
+        /// </summary>
         public ProtoType ReadProto(string parentSource)
         {
             var source = ReadString();
@@ -128,6 +140,9 @@ namespace CsLua.Binchunk
             };
         }
 
+        /// <summary>
+        /// 读取指令表
+        /// </summary>
         private UInt32[] ReadCode()
         {
             var code = new UInt32[ReadUint32()];
@@ -136,6 +151,9 @@ namespace CsLua.Binchunk
             return code;
         }
 
+        /// <summary>
+        /// 读取常量表
+        /// </summary>
         private object[] ReadConstants()
         {
             var constants = new object[ReadUint32()];
@@ -144,6 +162,9 @@ namespace CsLua.Binchunk
             return constants;
         }
 
+        /// <summary>
+        /// 根据类型读取常量
+        /// </summary>
         private object ReadConstant()
         {
             switch ((EChunkTag) ReadByte())
@@ -173,6 +194,9 @@ namespace CsLua.Binchunk
             return null;
         }
 
+        /// <summary>
+        /// 读取 Upvalue 表
+        /// </summary>
         private Upvalue[] ReadUpvalues()
         {
             var upvalues = new Upvalue[ReadUint32()];
@@ -185,6 +209,9 @@ namespace CsLua.Binchunk
             return upvalues;
         }
 
+        /// <summary>
+        /// 读取子函数原型
+        /// </summary>
         private ProtoType[] ReadProtos(string parentSource)
         {
             var protos = new ProtoType[ReadUint32()];
@@ -193,6 +220,9 @@ namespace CsLua.Binchunk
             return protos;
         }
 
+        /// <summary>
+        /// 读取行号信息
+        /// </summary>
         private UInt32[] ReadLineInfo()
         {
             var lineInfo = new UInt32[ReadUint32()];
@@ -201,6 +231,9 @@ namespace CsLua.Binchunk
             return lineInfo;
         }
 
+        /// <summary>
+        /// 读取本地变量
+        /// </summary>
         private LocVar[] ReadLocVars()
         {
             var locVars = new LocVar[ReadUint32()];
@@ -214,6 +247,9 @@ namespace CsLua.Binchunk
             return locVars;
         }
 
+        /// <summary>
+        /// 读取 Upvalue 名
+        /// </summary>
         private string[] ReadUpvalueNames()
         {
             var names = new string[ReadUint32()];
