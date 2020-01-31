@@ -3,6 +3,12 @@ using CsLua.API;
 
 namespace CsLua.State
 {
+    using LuaInt = System.Int64;
+    using LuaFloat = System.Double;
+
+    /// <summary>
+    /// 从栈里获取信息
+    /// </summary>
     partial class LuaState : ILuaState
     {
         public uint RawLen(int idx)
@@ -17,6 +23,9 @@ namespace CsLua.State
             return 0;
         }
 
+        /// <summary>
+        /// 把给定Lua类型转换成对应的字符串表示
+        /// </summary>
         public string TypeName(ELuaType tp)
         {
             switch (tp)
@@ -42,6 +51,9 @@ namespace CsLua.State
             }
         }
 
+        /// <summary>
+        /// 根据索引返回值的类型，如果索引无效，则返回 LUA_TNONE
+        /// </summary>
         public ELuaType Type(int idx)
         {
             if (_stack.IsValid(idx))
@@ -102,7 +114,7 @@ namespace CsLua.State
         public bool IsInteger(int idx)
         {
             var val = _stack[idx];
-            return val.Value is Int64;
+            return val.Value is LuaInt;
         }
 
         public bool ToBoolean(int idx)
@@ -117,32 +129,32 @@ namespace CsLua.State
             return ret;
         }
 
-        public bool ToIntegerX(int idx, out long ret)
+        public bool ToIntegerX(int idx, out LuaInt ret)
         {
             var val = _stack[idx];
-            var ok = val.Value is Int64;
-            ret = ok ? (Int64) val.Value : 0;
+            var ok = val.Value is LuaInt;
+            ret = ok ? (LuaInt) val.Value : 0;
             return ok;
         }
 
-        public double ToNumber(int idx)
+        public LuaFloat ToNumber(int idx)
         {
             ToNumberX(idx, out var ret);
             return ret;
         }
 
-        public bool ToNumberX(int idx, out double ret)
+        public bool ToNumberX(int idx, out LuaFloat ret)
         {
             var val = _stack[idx];
-            if (val.Value is double)
+            if (val.Value is LuaFloat)
             {
-                ret = (double) val.Value;
+                ret = (LuaFloat) val.Value;
                 return true;
             }
 
-            if (val.Value is Int64)
+            if (val.Value is LuaInt)
             {
-                ret = (Int64) val.Value;
+                ret = (LuaInt) val.Value;
                 return true;
             }
 
@@ -165,7 +177,7 @@ namespace CsLua.State
                 return true;
             }
 
-            if (val.Value is Int64 || val.Value is double)
+            if (val.Value is LuaInt || val.Value is LuaFloat)
             {
                 ret = val.Value.ToString();
                 _stack[idx] = new LuaValue(ret);

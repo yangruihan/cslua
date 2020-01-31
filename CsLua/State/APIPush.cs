@@ -2,6 +2,9 @@ using CsLua.API;
 
 namespace CsLua.State
 {
+    /// <summary>
+    /// 将值推入栈中方法实现
+    /// </summary>
     partial class LuaState : ILuaState
     {
         public void PushNil()
