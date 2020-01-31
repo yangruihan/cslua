@@ -5,6 +5,9 @@ namespace CsLua.Number
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
+    /// <summary>
+    /// 算数辅助类
+    /// </summary>
     static class LuaMath
     {
         public static bool FloatToInteger(LuaFloat f, out LuaInt ret)
@@ -20,13 +23,13 @@ namespace CsLua.Number
 
         public static LuaFloat FMod(LuaFloat a, LuaFloat b)
         {
-            if (a > 0 && double.IsPositiveInfinity(b) || a < 0 && double.IsNegativeInfinity(b))
+            if (a > 0 && LuaFloat.IsPositiveInfinity(b) || a < 0 && LuaFloat.IsNegativeInfinity(b))
                 return a;
 
-            if (a > 0 && double.IsNegativeInfinity(b) || a < 0 && double.IsPositiveInfinity(b))
+            if (a > 0 && LuaFloat.IsNegativeInfinity(b) || a < 0 && LuaFloat.IsPositiveInfinity(b))
                 return b;
 
-            return a - System.Math.Floor(a / b) * b;
+            return a - Math.Floor(a / b) * b;
         }
 
         public static LuaInt IFloorDiv(LuaInt a, LuaInt b)
@@ -39,7 +42,7 @@ namespace CsLua.Number
 
         public static LuaFloat FFloorDiv(LuaFloat a, LuaFloat b)
         {
-            return System.Math.Floor(a / b);
+            return Math.Floor(a / b);
         }
 
         public static LuaInt ShiftLeft(LuaInt a, LuaInt n)

@@ -6,6 +6,9 @@ namespace CsLua.State
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
+    /// <summary>
+    /// 比较运算实现
+    /// </summary>
     partial class LuaState : ILuaState
     {
         public bool RawEqual(int idx1, int idx2)
@@ -20,6 +23,9 @@ namespace CsLua.State
             return Eq(a, b, null);
         }
 
+        /// <summary>
+        /// 对指定索引处的两个值进行比较，返回结果
+        /// </summary>
         public bool Compare(int idx1, int idx2, ECompOp op)
         {
             if (!_stack.IsValid(idx1) || !_stack.IsValid(idx2))

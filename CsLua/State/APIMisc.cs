@@ -6,8 +6,15 @@ namespace CsLua.State
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
+    /// <summary>
+    /// 其他辅助操作运算实现
+    /// </summary>
     partial class LuaState : ILuaState
     {
+        /// <summary>
+        /// 访问指定索引处的值，取其长度，然后推入栈顶
+        /// </summary>
+        /// <param name="idx"></param>
         public void Len(int idx)
         {
             var val = _stack[idx];
@@ -29,6 +36,9 @@ namespace CsLua.State
             }
         }
 
+        /// <summary>
+        /// 执行字符串拼接运算
+        /// </summary>
         public void Concat(int n)
         {
             if (n == 0)

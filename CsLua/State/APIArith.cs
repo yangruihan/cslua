@@ -68,8 +68,14 @@ namespace CsLua.State
         };
     }
 
+    /// <summary>
+    /// 算数运算实现
+    /// </summary>
     partial class LuaState : ILuaState
     {
+        /// <summary>
+        /// 执行算术和按位运算
+        /// </summary>
         public void Arith(EArithOp op)
         {
             var b = _stack.Pop();

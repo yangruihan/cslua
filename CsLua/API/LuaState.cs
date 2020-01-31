@@ -56,6 +56,7 @@ namespace CsLua.API
         void PushNumber(double n);
         void PushString(string s);
 
+        // ----- 算数运算操作 -----
         void Arith(EArithOp op);
         bool Compare(int idx1, int idx2, ECompOp op);
 
