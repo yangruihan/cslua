@@ -1,4 +1,3 @@
-using System;
 using CsLua.API;
 using CsLua.Common;
 using CsLua.Number;
@@ -83,7 +82,7 @@ namespace CsLua.State
             if (Value is bool)
                 return ELuaType.Boolean;
 
-            if (Value is Int64 || Value is double)
+            if (Value is LuaInt || Value is LuaFloat)
                 return ELuaType.Number;
 
             if (Value is string)

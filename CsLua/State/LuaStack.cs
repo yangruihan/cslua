@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text;
 using CsLua.API;
 using CsLua.Common;
 
@@ -26,6 +27,16 @@ namespace CsLua.State
                 _slots.Add(null);
             Top = 0;
             State = state;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append($"*Stack* size: {_slots.Count} top: {Top} items: [");
+            for (var i = 0; i < Slots.Count - 1; i++)
+                sb.Append($"{i + 1}: {Slots[i]}, ");
+            sb.Append($"{Slots.Count}: {Slots[Slots.Count - 1]}]");
+            return sb.ToString();
         }
 
         public LuaValue this[int i]

@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using CsLua.API;
 using CsLua.Common;
 
@@ -39,6 +40,58 @@ namespace CsLua.VM
         public Instruction(UInt32 data)
         {
             this._data = data;
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            var mode = this.OpMode();
+            var name = this.OpName();
+            sb.Append($"{name:-10}\t");
+
+            if (mode == EOpMode.IABC)
+            {
+                ABC(out var a, out var b, out var c);
+                sb.Append(a);
+
+                if (BMode() != EOpArgMask.OpArgN)
+                {
+                    if (b > 0xff)
+                        sb.Append(' ').Append(-1 - (b & 0xff));
+                    else
+                        sb.Append(' ').Append(b);
+                }
+
+                if (CMode() != EOpArgMask.OpArgN)
+                {
+                    if (c > 0xff)
+                        sb.Append(' ').Append(-1 - (c & 0xff));
+                    else
+                        sb.Append(' ').Append(c);
+                }
+            }
+            else if (mode == EOpMode.IABx)
+            {
+                ABx(out var a, out var bx);
+                sb.Append(a);
+
+                if (BMode() == EOpArgMask.OpArgK)
+                    sb.Append(' ').Append(-1 - bx);
+                else if (BMode() == EOpArgMask.OpArgU)
+                    sb.Append(' ').Append(bx);
+            }
+            else if (mode == EOpMode.IAsBx)
+            {
+                AsBx(out var a, out var sbx);
+                sb.Append(a).Append(' ').Append(sbx);
+            }
+            else
+            {
+                Ax(out var ax);
+                sb.Append(-1 - ax);
+            }
+            
+            return sb.ToString();
         }
 
         public EOpCode Opcode()
