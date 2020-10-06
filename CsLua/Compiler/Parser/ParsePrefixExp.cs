@@ -4,7 +4,7 @@ using CsLua.Compiler.Lexer;
 
 namespace CsLua.Compiler.Parser
 {
-    partial class Parser
+    static partial class Parser
     {
         private static Exp ParsePrefixExp(Lexer.Lexer lexer)
         {
@@ -43,11 +43,11 @@ namespace CsLua.Compiler.Parser
             {
                 switch (lexer.LookAhead())
                 {
-                    case ETokenType.SepLBrack:
+                    case ETokenType.SepLBracket:
                     {
                         lexer.NextToken(out _, out _, out _);
                         var keyExp = ParseExp(lexer);
-                        lexer.NextTokenOfKind(ETokenType.SepRBrack, out _, out _);
+                        lexer.NextTokenOfKind(ETokenType.SepRBracket, out _, out _);
                         exp = new TableAccessExp
                         {
                             LastLine = lexer.Line,

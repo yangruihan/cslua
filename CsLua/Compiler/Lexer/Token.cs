@@ -14,8 +14,8 @@ namespace CsLua.Compiler.Lexer
         SepLabel, // ::
         SepLParen, // (
         SepRParen, // )
-        SepLBrack, // [
-        SepRBrack, // ]
+        SepLBracket, // [
+        SepRBracket, // ]
         SepLCurly, // {
         SepRCurly, // }
         OpAssign, // =

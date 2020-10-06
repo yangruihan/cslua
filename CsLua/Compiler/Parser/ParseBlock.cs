@@ -4,7 +4,7 @@ using CsLua.Compiler.Lexer;
 
 namespace CsLua.Compiler.Parser
 {
-    partial class Parser
+    static partial class Parser
     {
         private static Block ParseBlock(Lexer.Lexer lexer)
         {

@@ -8,7 +8,7 @@ namespace CsLua.Compiler.Parser
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    partial class Parser
+    static partial class Parser
     {
         private static Exp OptimizeLogicalOr(BinopExp exp)
         {

@@ -130,7 +130,7 @@ namespace CsLua.Compiler.Lexer
                 {
                     Next(1);
                     line = Line;
-                    kind = ETokenType.SepRBrack;
+                    kind = ETokenType.SepRBracket;
                     token = "]";
                     return;
                 }
@@ -405,7 +405,7 @@ namespace CsLua.Compiler.Lexer
                     {
                         Next(1);
                         line = Line;
-                        kind = ETokenType.SepLBrack;
+                        kind = ETokenType.SepLBracket;
                         token = "[";
                     }
 

@@ -9,7 +9,7 @@ namespace CsLua.Compiler.Parser
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    partial class Parser
+    static partial class Parser
     {
         private static List<Exp> ParseExpList(Lexer.Lexer lexer)
         {
@@ -408,11 +408,11 @@ namespace CsLua.Compiler.Parser
             k = null;
             v = null;
 
-            if (lexer.LookAhead() == ETokenType.SepLBrack)
+            if (lexer.LookAhead() == ETokenType.SepLBracket)
             {
                 lexer.NextToken(out _, out _, out _);
                 k = ParseExp(lexer);
-                lexer.NextTokenOfKind(ETokenType.SepRBrack, out _, out _);
+                lexer.NextTokenOfKind(ETokenType.SepRBracket, out _, out _);
                 lexer.NextTokenOfKind(ETokenType.OpAssign, out _, out _);
                 v = ParseExp(lexer);
                 return;
@@ -514,6 +514,7 @@ namespace CsLua.Compiler.Parser
                         e *= d > 1 ? 0.5 : 2;
                         t *= d;
                     }
+
                     token = token.Substring(0, eIdx);
                 }
 

@@ -6,6 +6,8 @@ using CsLua.VM;
 
 namespace CsLua.State
 {
+    using Compiler = Compiler.Compiler;
+    
     partial class LuaState : ILuaState
     {
         public int Load(byte[] chunk, string chunkName, string mode)
@@ -19,7 +21,7 @@ namespace CsLua.State
             {
                 var chars = new char[chunk.Length];
                 Array.Copy(chunk, chars, chars.Length);
-                proto = Compiler.Compiler.Compile(new string(chars), chunkName);
+                proto = Compiler.Compile(new string(chars), chunkName);
             }
 
             var c = new Closure(proto);
