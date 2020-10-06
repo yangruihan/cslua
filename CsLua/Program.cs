@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
 using CsLua.API;
-using CsLua.Compiler.Lexer;
-using CsLua.Compiler.Parser;
+using CsLua.Common;
 using CsLua.State;
 
 namespace CsLua
@@ -91,24 +90,75 @@ namespace CsLua
             return ls.GetI(1, i) == ELuaType.Nil ? 1 : 2;
         };
 
+        private static int InitSystemLib(LuaState l)
+        {
+            l.Register("print", Print);
+            l.Register("getmetatable", GetMetaTable);
+            l.Register("setmetatable", SetMetaTable);
+            l.Register("next", Next);
+            l.Register("pairs", Pairs);
+            l.Register("ipairs", IPairs);
+            l.Register("error", Error);
+            l.Register("pcall", PCall);
+
+            return (int) EErrorCode.Ok;
+        }
+
+        private static int DoFile(string filePath)
+        {
+            try
+            {
+                var data = File.ReadAllBytes(filePath);
+
+                var l = new LuaState();
+                InitSystemLib(l);
+                l.Load(data, filePath, "bt");
+                l.Call(0, 0);
+
+                return (int) EErrorCode.Ok;
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine(e);
+                return (int) EErrorCode.ErrFile;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return (int) EErrorCode.ErrRun;
+            }
+        }
+
+        private static int DoRepl()
+        {
+            var l = new LuaState();
+            InitSystemLib(l);
+
+            while (true)
+            {
+                Console.Write("> ");
+                var line = Console.ReadLine();
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                try
+                {
+                    l.Load(line.GetBytes(), "repl", "bt");
+                    l.Call(0, 0);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
         public static void Main(string[] args)
         {
             if (args.Length > 0)
-            {
-                var data = File.ReadAllBytes(args[0]);
-
-                var ls = new LuaState();
-                ls.Register("print", Print);
-                ls.Register("getmetatable", GetMetaTable);
-                ls.Register("setmetatable", SetMetaTable);
-                ls.Register("next", Next);
-                ls.Register("pairs", Pairs);
-                ls.Register("ipairs", IPairs);
-                ls.Register("error", Error);
-                ls.Register("pcall", PCall);
-                ls.Load(data, args[0], "bt");
-                ls.Call(0, 0);
-            }
+                DoFile(args[0]);
+            else
+                DoRepl();
         }
     }
 }

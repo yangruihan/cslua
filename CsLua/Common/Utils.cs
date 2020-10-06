@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using CsLua.VM;
 
 namespace CsLua.Common
@@ -7,19 +8,12 @@ namespace CsLua.Common
     {
         public static byte[] GetBytes(this string self)
         {
-            var chars = self.ToCharArray();
-            var len = chars.Length;
-            var bytes = new byte[len];
-            Array.Copy(chars, bytes, len);
-            return bytes;
+            return Encoding.UTF8.GetBytes(self);
         }
 
         public static string ToStr(this byte[] self)
         {
-            var len = self.Length;
-            var chars = new char[len];
-            Array.Copy(self, chars, len);
-            return new string(chars);
+            return Encoding.UTF8.GetString(self);
         }
 
         public static T[] Slice<T>(this T[] self, int start = 0, int end = -1)
