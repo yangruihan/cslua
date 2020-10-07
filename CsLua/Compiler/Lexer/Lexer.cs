@@ -345,14 +345,14 @@ namespace CsLua.Compiler.Lexer
                     {
                         Next(2);
                         line = Line;
-                        kind = ETokenType.OpLe;
+                        kind = ETokenType.OpGe;
                         token = ">=";
                     }
                     else
                     {
                         Next(1);
                         line = Line;
-                        kind = ETokenType.OpLt;
+                        kind = ETokenType.OpGt;
                         token = ">";
                     }
 
