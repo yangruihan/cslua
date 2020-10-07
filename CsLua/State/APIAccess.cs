@@ -14,11 +14,11 @@ namespace CsLua.State
         public uint RawLen(int idx)
         {
             var val = _stack[idx];
-            if (val.Value is string s)
-                return (uint) s.Length;
+            if (val.IsString())
+                return (uint) val.GetStrValue().Length;
 
-            if (val.Value is LuaTable lt)
-                return (uint) lt.Len();
+            if (val.IsTable())
+                return (uint) val.GetTableValue().Len();
 
             return 0;
         }
@@ -38,12 +38,16 @@ namespace CsLua.State
                     return "boolean";
                 case ELuaType.Number:
                     return "number";
+                case ELuaType.Int:
+                    return "integer";
                 case ELuaType.String:
                     return "string";
                 case ELuaType.Table:
                     return "table";
                 case ELuaType.Function:
                     return "function";
+                case ELuaType.CSFunction:
+                    return "csfunction";
                 case ELuaType.Thread:
                     return "thread";
                 default:
@@ -59,7 +63,7 @@ namespace CsLua.State
             if (_stack.IsValid(idx))
             {
                 var val = _stack[idx];
-                return val.Type();
+                return val.Type;
             }
 
             return ELuaType.None;
@@ -92,7 +96,7 @@ namespace CsLua.State
 
         public bool IsFunction(int idx)
         {
-            return Type(idx) == ELuaType.Function;
+            return Type(idx).IsFunction();
         }
 
         public bool IsThread(int idx)
@@ -103,7 +107,7 @@ namespace CsLua.State
         public bool IsString(int idx)
         {
             var t = Type(idx);
-            return t == ELuaType.String || t == ELuaType.Number;
+            return t == ELuaType.String || t.IsNumber();
         }
 
         public bool IsNumber(int idx)
@@ -113,8 +117,7 @@ namespace CsLua.State
 
         public bool IsInteger(int idx)
         {
-            var val = _stack[idx];
-            return val.Value is LuaInt;
+            return Type(idx) == ELuaType.Int;
         }
 
         public bool ToBoolean(int idx)
@@ -132,8 +135,8 @@ namespace CsLua.State
         public bool ToIntegerX(int idx, out LuaInt ret)
         {
             var val = _stack[idx];
-            var ok = val.Value is LuaInt;
-            ret = ok ? (LuaInt) val.Value : 0;
+            var ok = val.IsInt();
+            ret = ok ? val.GetIntValue() : 0;
             return ok;
         }
 
@@ -146,15 +149,15 @@ namespace CsLua.State
         public bool ToNumberX(int idx, out LuaFloat ret)
         {
             var val = _stack[idx];
-            if (val.Value is LuaFloat)
+            if (val.IsFloat())
             {
-                ret = (LuaFloat) val.Value;
+                ret = val.GetFloatValue();
                 return true;
             }
 
-            if (val.Value is LuaInt)
+            if (val.IsInt())
             {
-                ret = (LuaInt) val.Value;
+                ret = val.GetIntValue();
                 return true;
             }
 
@@ -171,16 +174,16 @@ namespace CsLua.State
         public bool ToStringX(int idx, out string ret)
         {
             var val = _stack[idx];
-            if (val.Value is string)
+            if (val.IsString())
             {
-                ret = (string) val.Value;
+                ret = val.GetStrValue();
                 return true;
             }
 
-            if (val.Value is LuaInt || val.Value is LuaFloat)
+            if (val.IsNumber())
             {
-                ret = val.Value.ToString();
-                _stack[idx] = new LuaValue(ret);
+                ret = val.ToString();
+                _stack[idx] = new LuaValue(ret, ELuaType.String);
                 return true;
             }
 
@@ -191,17 +194,13 @@ namespace CsLua.State
         public bool IsCSFunction(int idx)
         {
             var val = _stack[idx];
-            if (val.Value is Closure c)
-                return c.CSFunction != null;
-            return false;
+            return val.IsCSFunction();
         }
 
         public CSFunction ToCSFunction(int idx)
         {
             var val = _stack[idx];
-            if (val.Value is Closure c)
-                return c.CSFunction;
-            return null;
+            return val.GetCSFunctionValue();
         }
     }
 }

@@ -1,5 +1,5 @@
+using System.Globalization;
 using CsLua.API;
-using CsLua.Common;
 using CsLua.Number;
 
 namespace CsLua.State
@@ -9,30 +9,31 @@ namespace CsLua.State
 
     class LuaValue
     {
-        public static readonly LuaValue Nil = new LuaValue(null);
+        public static readonly LuaValue Nil = new LuaValue(null, ELuaType.Nil);
         public static readonly LuaValue True = new LuaValue(true);
         public static readonly LuaValue False = new LuaValue(false);
 
         public static void SetMetaTable(LuaValue val, LuaTable mt, LuaState ls)
         {
-            if (val.Value is LuaTable lt)
+            if (val.IsTable())
             {
+                var lt = val.GetTableValue();
                 lt.MetaTable = mt;
                 return;
             }
 
-            var key = $"_MT{val.Type()}";
+            var key = $"_MT{val.Type.GetParentType()}";
             ls.Registry.Put(key, mt);
         }
 
         public static LuaTable GetMetaTable(LuaValue val, LuaState ls)
         {
-            if (val.Value is LuaTable lt)
-                return lt.MetaTable;
+            if (val.IsTable())
+                return (val.GetTableValue()).MetaTable;
 
-            var key = $"_MT{val.Type()}";
+            var key = $"_MT{val.Type.GetParentType()}";
             var mt = ls.Registry.Get(key);
-            return mt?.Value as LuaTable;
+            return mt?.GetTableValue();
         }
 
         public static bool CallMetaMethod(LuaValue a, LuaValue b, string mmName, LuaState ls, out LuaValue ret)
@@ -62,68 +63,265 @@ namespace CsLua.State
             return mt?.Get(fieldName);
         }
 
-        public object Value { get; }
+        private readonly object _objValue;
+        private readonly LuaFloat _numValue;
+        private readonly bool _boolValue;
 
-        public LuaValue(object value)
+        public ELuaType Type { get; }
+
+        public LuaValue()
         {
-            Value = value;
+            Type = ELuaType.None;
+        }
+
+        public LuaValue(LuaInt value) : this()
+        {
+            _numValue = value;
+            _objValue = null;
+            _boolValue = false;
+            Type = ELuaType.Int;
+        }
+
+        public LuaValue(LuaFloat value) : this()
+        {
+            _numValue = value;
+            _objValue = null;
+            _boolValue = false;
+            Type = ELuaType.Float;
+        }
+
+        public LuaValue(bool value) : this()
+        {
+            _boolValue = value;
+            _numValue = 0;
+            _objValue = null;
+            Type = ELuaType.Boolean;
+        }
+
+        public LuaValue(object value) : this()
+        {
+            _numValue = 0;
+            _boolValue = false;
+            _objValue = null;
+
+            if (value is LuaInt l)
+            {
+                _numValue = l;
+                Type = ELuaType.Int;
+            }
+            else if (value is LuaFloat f)
+            {
+                _numValue = f;
+                Type = ELuaType.Float;
+            }
+            else if (value is bool b)
+            {
+                _boolValue = b;
+                Type = ELuaType.Boolean;
+            }
+            else if (value is string)
+            {
+                _objValue = value;
+                Type = ELuaType.String;
+            }
+            else if (value is LuaTable)
+            {
+                _objValue = value;
+                Type = ELuaType.Table;
+            }
+            else if (value is Closure c)
+            {
+                Type = c.CSFunction != null ? ELuaType.CSFunction : ELuaType.Closure;
+                _objValue = c;
+            }
+            else if (value is LuaState)
+            {
+                _objValue = value;
+                Type = ELuaType.Thread;
+            }
+            else
+            {
+                _objValue = value;
+                Type = ELuaType.LightUserData;
+            }
+        }
+
+        public LuaValue(object value, ELuaType type) : this()
+        {
+            _objValue = value;
+            _boolValue = false;
+            _numValue = 0;
+            Type = type;
+        }
+
+        public bool IsValid()
+        {
+            return Type != ELuaType.None;
+        }
+
+        public bool IsNil()
+        {
+            return Type == ELuaType.Nil;
+        }
+
+        public bool IsBool()
+        {
+            return Type == ELuaType.Boolean;
+        }
+
+        public bool IsLightUserData()
+        {
+            return Type == ELuaType.LightUserData;
+        }
+
+        public bool IsNumber()
+        {
+            return Type.IsNumber();
+        }
+
+        public bool IsInt()
+        {
+            return Type == ELuaType.Int;
+        }
+
+        public bool IsFloat()
+        {
+            return Type == ELuaType.Float;
+        }
+
+        public bool IsString()
+        {
+            return Type == ELuaType.String;
+        }
+
+        public bool IsTable()
+        {
+            return Type == ELuaType.Table;
+        }
+
+        public bool IsFunction()
+        {
+            return Type.IsFunction();
+        }
+
+        public bool IsClosure()
+        {
+            return Type == ELuaType.Closure;
+        }
+
+        public bool IsCSFunction()
+        {
+            return Type == ELuaType.CSFunction;
+        }
+
+        public bool IsUserData()
+        {
+            return Type == ELuaType.UserData;
+        }
+
+        public bool IsThread()
+        {
+            return Type == ELuaType.Thread;
+        }
+
+        public bool GetBoolValue()
+        {
+            return _boolValue;
+        }
+
+        public object GetLightUserData()
+        {
+            return _objValue;
+        }
+
+        public LuaInt GetIntValue()
+        {
+            return (LuaInt) _numValue;
+        }
+
+        public LuaFloat GetFloatValue()
+        {
+            return _numValue;
+        }
+
+        public string GetStrValue()
+        {
+            return GetObjValue<string>();
+        }
+
+        public LuaTable GetTableValue()
+        {
+            return GetObjValue<LuaTable>();
+        }
+
+        public Closure GetClosureValue()
+        {
+            return GetObjValue<Closure>();
+        }
+
+        public CSFunction GetCSFunctionValue()
+        {
+            return GetObjValue<Closure>()?.CSFunction;
+        }
+
+        public LuaState GetThreadValue()
+        {
+            return GetObjValue<LuaState>();
+        }
+
+        public object GetObjValue()
+        {
+            return _objValue;
+        }
+
+        public object GetValue()
+        {
+            if (IsBool())
+                return _boolValue;
+            else if (IsNumber())
+                return _numValue;
+
+            return _objValue;
+        }
+
+        private T GetObjValue<T>() where T : class
+        {
+            return _objValue as T;
         }
 
         public override string ToString()
         {
-            return Value == null ? "null" : Value.ToString();
-        }
+            if (IsInt())
+                return ((LuaInt) _numValue).ToString(CultureInfo.CurrentCulture);
+            else if (IsFloat())
+                return _numValue.ToString(CultureInfo.CurrentCulture);
+            else if (IsBool())
+                return _boolValue.ToString(CultureInfo.CurrentCulture);
 
-        public ELuaType Type()
-        {
-            if (Value is null)
-                return ELuaType.Nil;
-
-            if (Value is bool)
-                return ELuaType.Boolean;
-
-            if (Value is LuaInt || Value is LuaFloat)
-                return ELuaType.Number;
-
-            if (Value is string)
-                return ELuaType.String;
-
-            if (Value is LuaTable)
-                return ELuaType.Table;
-
-            if (Value is Closure)
-                return ELuaType.Function;
-
-            Debug.Panic("todo!");
-            return ELuaType.None;
+            return _objValue == null ? "null" : _objValue.ToString();
         }
 
         public bool ToBoolean()
         {
-            if (Value is null)
-                return false;
+            if (IsBool())
+                return _boolValue;
 
-            if (Value is bool value)
-                return value;
+            else if (IsNil())
+                return false;
 
             return true;
         }
 
         public bool ToFloat(out LuaFloat ret)
         {
-            if (Value is LuaInt i)
+            if (IsNumber())
             {
-                ret = i;
+                ret = _numValue;
                 return true;
             }
-            else if (Value is LuaFloat f)
+            else if (IsString())
             {
-                ret = f;
-                return true;
-            }
-            else if (Value is string s)
-            {
-                return LuaFloat.TryParse(s, out ret);
+                return LuaFloat.TryParse((string) _objValue, out ret);
             }
 
             ret = 0;
@@ -132,18 +330,18 @@ namespace CsLua.State
 
         public bool ToInteger(out LuaInt ret)
         {
-            if (Value is long i)
+            if (IsInt())
             {
-                ret = i;
+                ret = (LuaInt) _numValue;
                 return true;
             }
-            else if (Value is LuaFloat f)
+            else if (IsFloat())
             {
-                return LuaMath.FloatToInteger(f, out ret);
+                return LuaMath.FloatToInteger(_numValue, out ret);
             }
-            else if (Value is string s)
+            else if (IsString())
             {
-                return StringToInteger(s, out ret);
+                return StringToInteger((string) _objValue, out ret);
             }
 
             ret = 0;

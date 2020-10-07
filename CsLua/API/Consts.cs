@@ -14,6 +14,30 @@ namespace CsLua.API
         Function,
         UserData,
         Thread,
+
+        Float = Number | 0 << 4,
+        Int = Number | 1 << 4,
+
+        Closure = Function | 0 << 4,
+        CSFunction = Function | 1 << 4,
+    }
+
+    public static class LuaTypeEx
+    {
+        public static ELuaType GetParentType(this ELuaType type)
+        {
+            return (ELuaType) ((int) type & 0b1111);
+        }
+
+        public static bool IsNumber(this ELuaType type)
+        {
+            return type.GetParentType() == ELuaType.Number;
+        }
+
+        public static bool IsFunction(this ELuaType type)
+        {
+            return type.GetParentType() == ELuaType.Function;
+        }
     }
 
     public enum EArithOp : byte

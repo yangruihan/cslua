@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CsLua.API;
 using CsLua.Common;
 using CsLua.Number;
 
@@ -46,16 +47,16 @@ namespace CsLua.State
         public LuaValue Get(LuaValue key)
         {
             LuaInt idx = 0;
-            if (key.Value is LuaInt i)
-                idx = i;
-            else if (key.Value is LuaFloat f)
-                if (LuaMath.FloatToInteger(f, out var fi))
+            if (key.IsInt())
+                idx = key.GetIntValue();
+            else if (key.IsFloat())
+                if (LuaMath.FloatToInteger(key.GetFloatValue(), out var fi))
                     idx = fi;
 
             if (idx >= 1 && idx <= Len())
                 return _arr[(int) (idx - 1)];
 
-            return _map != null && _map.TryGetValue(key.Value, out var ret) ? ret : LuaValue.Nil;
+            return _map != null && _map.TryGetValue(key.GetValue(), out var ret) ? ret : LuaValue.Nil;
         }
 
         public void Put(object k, object v)
@@ -77,19 +78,19 @@ namespace CsLua.State
 
         public void Put(LuaValue key, LuaValue val)
         {
-            if (key is null || key.Value is null)
+            if (key is null || key.IsNil())
                 Debug.Panic("table index is nil!");
 
-            if (key.Value is LuaFloat f && LuaFloat.IsNaN(f))
+            if (key.IsFloat() && LuaFloat.IsNaN(key.GetFloatValue()))
                 Debug.Panic("table index is Nan!");
 
             _changed = true;
 
             LuaInt idx = 0;
-            if (key.Value is LuaInt i)
-                idx = i;
-            else if (key.Value is LuaFloat vf)
-                if (LuaMath.FloatToInteger(vf, out var fi))
+            if (key.IsInt())
+                idx = key.GetIntValue();
+            else if (key.IsFloat())
+                if (LuaMath.FloatToInteger(key.GetFloatValue(), out var fi))
                     idx = fi;
 
             if (idx >= 1)
@@ -105,8 +106,8 @@ namespace CsLua.State
 
                 if (idx == arrLen + 1)
                 {
-                    if (_map != null && _map.ContainsKey(key.Value))
-                        _map.Remove(key.Value);
+                    if (_map != null && _map.ContainsKey(key.GetIntValue()))
+                        _map.Remove(key.GetIntValue());
 
                     if (val != null)
                     {
@@ -121,16 +122,16 @@ namespace CsLua.State
                 }
             }
 
-            if (val.Value != null)
+            if (!val.IsNil())
             {
                 if (_map == null)
                     _map = new Dictionary<object, LuaValue>();
 
-                _map[key.Value] = val;
+                _map[key.GetValue()] = val;
             }
             else
             {
-                _map.Remove(key.Value);
+                _map.Remove(key.GetValue());
             }
         }
 
@@ -141,19 +142,19 @@ namespace CsLua.State
 
         public LuaValue NextKey(LuaValue key)
         {
-            if (_keys == null || key.Value is null && _changed)
+            if (_keys == null || key.IsNil() && _changed)
             {
                 InitKeys();
                 _changed = false;
             }
 
             var nextKey = LuaValue.Nil;
-            if (key.Value is null)
+            if (key.IsNil())
                 nextKey = _keys[KeysHead];
-            else if (_keys.ContainsKey(key.Value))
-                nextKey = _keys[key.Value];
+            else if (_keys.ContainsKey(key.GetValue()))
+                nextKey = _keys[key.GetValue()];
 
-            if (nextKey.Value is null && key.Value != null && key.Value != _lastKey)
+            if (nextKey.IsNil() && key.GetValue() != null && key.GetValue() != _lastKey)
             {
                 Debug.Panic("invalid key to 'next'");
             }
@@ -200,12 +201,12 @@ namespace CsLua.State
                 for (var i = 0; i < _arr.Count; i++)
                 {
                     var value = _arr[i];
-                    if (value.Value != null)
+                    if (value.GetValue() != null)
                     {
                         var newValue = new LuaValue((LuaInt) (i + 1));
                         ;
                         _keys.Add(key, newValue);
-                        key = newValue.Value;
+                        key = newValue.GetValue();
                     }
                 }
             }
@@ -218,7 +219,7 @@ namespace CsLua.State
                     {
                         var value = new LuaValue(kv.Key);
                         _keys.Add(key, value);
-                        key = value.Value;
+                        key = value.GetValue();
                     }
                 }
             }

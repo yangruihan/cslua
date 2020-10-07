@@ -170,7 +170,7 @@ namespace CsLua.State
             // registry
             if (idx == Consts.LUA_REGISTRYINDEX)
             {
-                State.SetRegistry(val.Value as LuaTable);
+                State.SetRegistry(val.GetTableValue());
                 return;
             }
             

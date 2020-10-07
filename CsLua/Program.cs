@@ -61,6 +61,10 @@ namespace CsLua
                     Console.Write(ls.ToBoolean(i).ToString());
                 else if (ls.IsString(i))
                     Console.Write(ls.ToString(i));
+                else if (ls.IsInteger(i))
+                    Console.Write(ls.ToInteger(i));
+                else if (ls.IsNumber(i))
+                    Console.Write(ls.ToNumber(i));
                 else
                     Console.Write(ls.TypeName(ls.Type(i)));
 
@@ -119,12 +123,12 @@ namespace CsLua
             }
             catch (IOException e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.ToString());
                 return (int) EErrorCode.ErrFile;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine(e.ToString());
                 return (int) EErrorCode.ErrRun;
             }
         }
@@ -148,7 +152,7 @@ namespace CsLua
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(e.ToString());
                 }
             }
         }

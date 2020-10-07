@@ -1,3 +1,4 @@
+using System;
 using CsLua.API;
 using CsLua.Common;
 
@@ -50,72 +51,62 @@ namespace CsLua.State
 
         private bool Eq(LuaValue a, LuaValue b, LuaState ls)
         {
-            if (a.Value is null)
+            if (a.IsNil())
             {
-                return b.Value is null;
+                return b.IsNil();
             }
-            else if (a.Value is bool aB)
+            else if (a.IsBool())
             {
-                return b.Value is bool bB && aB == bB;
+                return b.IsBool() && a.GetBoolValue() == b.GetBoolValue();
             }
-            else if (a.Value is string aS)
+            else if (a.IsString())
             {
-                return b.Value is string bS && aS == bS;
+                return b.IsString() && a.GetStrValue() == b.GetStrValue();
             }
-            else if (a.Value is LuaInt aI)
+            else if (a.IsInt())
             {
-                if (b.Value is LuaInt bI)
-                    return aI == bI;
-                else if (b.Value is LuaFloat bF)
-                    return aI == bF;
+                if (b.IsInt())
+                    return a.GetIntValue() == b.GetIntValue();
+                else if (b.IsFloat())
+                    return a.GetIntValue() == b.GetFloatValue();
                 else
                     return false;
             }
-            else if (a.Value is LuaFloat aF)
+            else if (a.IsFloat())
             {
-                if (b.Value is LuaFloat bF)
-                    return aF == bF;
-                else if (b.Value is LuaInt bI)
-                    return aF == bI;
+                if (b.IsFloat())
+                    return a.GetFloatValue() == b.GetFloatValue();
+                else if (b.IsInt())
+                    return a.GetFloatValue() == b.GetIntValue();
                 else
                     return false;
             }
-            else if (a.Value is LuaTable al
-                     && b.Value is LuaTable bl
-                     && al != bl && ls != null)
+            else if (a.IsTable()
+                     && b.IsTable()
+                     && a.GetTableValue() != b.GetTableValue() && ls != null)
             {
                 if (LuaValue.CallMetaMethod(a, b, "__eq", ls, out var metaMethodRet))
                 {
                     return metaMethodRet.ToBoolean();
                 }
 
-                return a.Value == b.Value;
+                return a.GetValue() == b.GetValue();
             }
             else
             {
-                return a.Value == b.Value;
+                return a.GetValue() == b.GetValue();
             }
         }
 
         private bool Lt(LuaValue a, LuaValue b, LuaState ls)
         {
-            if (a.Value is string aS)
+            if (a.IsString())
             {
-                return b.Value is string bS && aS.CompareTo(bS) < 0;
+                return b.IsString() && string.Compare(a.GetStrValue(), b.GetStrValue(), StringComparison.Ordinal) < 0;
             }
-            else if (a.Value is LuaInt aI)
+            else if (a.IsNumber() && b.IsNumber())
             {
-                if (b.Value is LuaInt bI)
-                    return aI < bI;
-                else if (b.Value is LuaFloat bF)
-                    return aI < bF;
-            }
-            else if (a.Value is LuaFloat aF)
-            {
-                if (b.Value is LuaFloat bF)
-                    return aF < bF;
-                else if (b.Value is LuaInt bI)
-                    return aF < bI;
+                return a.GetFloatValue() < b.GetFloatValue();
             }
 
             if (LuaValue.CallMetaMethod(a, b, "__lt", ls, out var metaMethodRet))
@@ -129,23 +120,13 @@ namespace CsLua.State
 
         private bool Le(LuaValue a, LuaValue b, LuaState ls)
         {
-            if (a.Value is string aS)
+            if (a.IsString())
             {
-                return b.Value is string bS && aS.CompareTo(bS) <= 0;
+                return b.IsString() && string.Compare(a.GetStrValue(), b.GetStrValue(), StringComparison.Ordinal) <= 0;
             }
-            else if (a.Value is LuaInt aI)
+            else if (a.IsNumber() && b.IsNumber())
             {
-                if (b.Value is LuaInt bI)
-                    return aI <= bI;
-                else if (b.Value is LuaFloat bF)
-                    return aI <= bF;
-            }
-            else if (a.Value is LuaFloat aF)
-            {
-                if (b.Value is LuaFloat bF)
-                    return aF <= bF;
-                else if (b.Value is LuaInt bI)
-                    return aF <= bI;
+                return a.GetFloatValue() <= b.GetFloatValue();
             }
 
             if (LuaValue.CallMetaMethod(a, b, "__le", ls, out var metaMethodRet))

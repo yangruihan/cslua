@@ -18,17 +18,17 @@ namespace CsLua.State
         public void Len(int idx)
         {
             var val = _stack[idx];
-            if (val.Value is string s)
+            if (val.IsString())
             {
-                _stack.Push((LuaInt) s.Length);
+                _stack.Push((LuaInt) val.GetStrValue().Length);
             }
             else if (LuaValue.CallMetaMethod(val, val, "__len", this, out var metaMethodRet))
             {
                 _stack.Push(metaMethodRet);
             }
-            else if (val.Value is LuaTable t)
+            else if (val.IsTable())
             {
-                _stack.Push((LuaInt) t.Len());
+                _stack.Push((LuaInt) val.GetTableValue().Len());
             }
             else
             {
@@ -75,11 +75,12 @@ namespace CsLua.State
         public bool Next(int idx)
         {
             var val = _stack[idx];
-            if (val.Value is LuaTable lt)
+            if (val.IsTable())
             {
+                var lt = val.GetTableValue();
                 var key = _stack.Pop();
                 var nextKey = lt.NextKey(key);
-                if (nextKey.Value != null)
+                if (!nextKey.IsNil())
                 {
                     _stack.Push(nextKey);
                     _stack.Push(lt.Get(nextKey));

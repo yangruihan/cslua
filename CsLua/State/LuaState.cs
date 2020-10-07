@@ -16,7 +16,7 @@ namespace CsLua.State
         public LuaState()
         {
             _registry = new LuaTable(0, 0);
-            _registryShell = new LuaValue(_registry);
+            _registryShell = new LuaValue(_registry, ELuaType.Table);
             _registry.Put(Consts.LUA_RIDX_GLOBALS, new LuaTable(0, 0));
             PushLuaStack(new LuaStack(Consts.LUA_MINSTACK, this));
         }
@@ -42,7 +42,7 @@ namespace CsLua.State
         public void SetRegistry(LuaTable luaTable)
         {
             _registry = luaTable;
-            _registryShell = new LuaValue(_registryShell);
+            _registryShell = new LuaValue(_registry, ELuaType.Table);
         }
         
         public int LuaUpvalueIndex(int i)

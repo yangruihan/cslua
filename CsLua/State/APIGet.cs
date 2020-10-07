@@ -29,7 +29,7 @@ namespace CsLua.State
         public ELuaType GetField(int idx, string key)
         {
             var t = _stack[idx];
-            return InnerGetTable(t, new LuaValue(key), false);
+            return InnerGetTable(t, new LuaValue(key, ELuaType.String), false);
         }
 
         public ELuaType RawGet(int idx)
@@ -54,7 +54,7 @@ namespace CsLua.State
         public ELuaType GetGlobal(string name)
         {
             var t = _registry.Get(Consts.LUA_RIDX_GLOBALS);
-            return InnerGetTable(t, new LuaValue(name), false);
+            return InnerGetTable(t, new LuaValue(name, ELuaType.String), false);
         }
 
         public bool GetMetaTable(int idx)
@@ -72,14 +72,15 @@ namespace CsLua.State
 
         private ELuaType InnerGetTable(LuaValue t, LuaValue k, bool raw)
         {
-            if (t.Value is LuaTable table)
+            if (t.IsTable())
             {
+                var table = t.GetTableValue();
                 var v = table.Get(k);
 
-                if (raw || v.Value != null || !table.HasMetaField("__index"))
+                if (raw || !v.IsNil() || !table.HasMetaField("__index"))
                 {
                     _stack.Push(v);
-                    return v.Type();
+                    return v.Type;
                 }
             }
 
@@ -88,19 +89,19 @@ namespace CsLua.State
                 var mf = LuaValue.GetMetaField(t, "__index", this);
                 if (mf != null)
                 {
-                    if (mf.Value is LuaTable lt)
+                    if (mf.IsTable())
                     {
                         return InnerGetTable(mf, k, false);
                     }
 
-                    if (mf.Value is Closure c)
+                    if (mf.IsFunction())
                     {
                         _stack.Push(mf);
                         _stack.Push(t);
                         _stack.Push(k);
                         Call(2, 1);
                         var v = _stack.Get(-1);
-                        return v.Type();
+                        return v.Type;
                     }
                 }
             }

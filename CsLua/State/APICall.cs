@@ -38,16 +38,16 @@ namespace CsLua.State
         public void Call(int nArgs, int nResults)
         {
             var val = _stack[-(nArgs + 1)];
-            var ok = val.Value is Closure;
-            var c = val.Value as Closure;
+            var ok = val.IsFunction();
+            var c = val.GetClosureValue();
 
             if (!ok)
             {
                 var mf = LuaValue.GetMetaField(val, "__call", this);
                 if (mf != null)
                 {
-                    ok = mf.Value is Closure;
-                    c = mf.Value as Closure;
+                    ok = mf.IsFunction();
+                    c = mf.GetClosureValue();
 
                     if (ok)
                     {

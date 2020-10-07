@@ -29,7 +29,7 @@ namespace CsLua.State
 
         public void PushString(string s)
         {
-            _stack.Push(new LuaValue(s));
+            _stack.Push(new LuaValue(s, ELuaType.String));
         }
 
         public void PushCSFunction(CSFunction f)

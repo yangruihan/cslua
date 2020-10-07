@@ -12,6 +12,9 @@ namespace CsLua.Compiler.CodeGen
 
         private static List<Exp> RemoveTailNil(List<Exp> exps)
         {
+            if (exps == null)
+                return new List<Exp>();
+
             for (var i = exps.Count - 1; i >= 0; i--)
             {
                 if (!(exps[i] is NilExp))

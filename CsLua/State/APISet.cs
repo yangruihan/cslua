@@ -20,7 +20,7 @@ namespace CsLua.State
         {
             var t = _stack[idx];
             var v = _stack.Pop();
-            InnerSetTable(t, new LuaValue(k), v, false);
+            InnerSetTable(t, new LuaValue(k, ELuaType.String), v, false);
         }
 
         public void RawSet(int idx)
@@ -49,7 +49,7 @@ namespace CsLua.State
         {
             var t = _registry.Get(Consts.LUA_RIDX_GLOBALS);
             var v = _stack.Pop();
-            InnerSetTable(t, new LuaValue(name), v, false);
+            InnerSetTable(t, new LuaValue(name, ELuaType.String), v, false);
         }
 
         public void Register(string name, CSFunction f)
@@ -66,9 +66,9 @@ namespace CsLua.State
             {
                 LuaValue.SetMetaTable(val, null, this);
             }
-            else if (mtVal.Value is LuaTable lt)
+            else if (mtVal.IsTable())
             {
-                LuaValue.SetMetaTable(val, lt, this);
+                LuaValue.SetMetaTable(val, mtVal.GetTableValue(), this);
             }
             else
             {
@@ -78,9 +78,10 @@ namespace CsLua.State
 
         private void InnerSetTable(LuaValue t, LuaValue k, LuaValue v, bool raw)
         {
-            if (t.Value is LuaTable table)
+            if (t.IsTable())
             {
-                if (raw || table.Get(k).Value != null || !table.HasMetaField("__newindex"))
+                var table = t.GetTableValue();
+                if (raw || !table.Get(k).IsNil() || !table.HasMetaField("__newindex"))
                 {
                     table.Put(k, v);
                     return;
@@ -92,11 +93,11 @@ namespace CsLua.State
                 var mf = LuaValue.GetMetaField(t, "__newindex", this);
                 if (mf != null)
                 {
-                    if (mf.Value is LuaTable lt)
+                    if (mf.IsTable())
                     {
                         InnerSetTable(mf, k, v, false);
                     }
-                    else if (mf.Value is Closure c)
+                    else if (mf.IsFunction())
                     {
                         _stack.Push(mf);
                         _stack.Push(t);
