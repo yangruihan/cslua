@@ -54,5 +54,10 @@ namespace CsLua.State
 
             _stack.Push(closure);
         }
+
+        public void PushLightUserdata(object userdata)
+        {
+            _stack.Push(new LuaValue(userdata, ELuaType.LightUserData));
+        }
     }
 }

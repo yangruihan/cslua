@@ -38,6 +38,11 @@ namespace CsLua.API
         {
             return type.GetParentType() == ELuaType.Function;
         }
+
+        public static bool IsUserdata(this ELuaType type)
+        {
+            return type == ELuaType.UserData || type == ELuaType.LightUserData;
+        }
     }
 
     public enum EArithOp : byte

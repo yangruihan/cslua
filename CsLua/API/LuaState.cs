@@ -40,6 +40,7 @@ namespace CsLua.API
         bool IsTable(int idx);
         bool IsThread(int idx);
         bool IsFunction(int idx);
+        bool IsUserdata(int idx);
 
         bool ToBoolean(int idx);
         Int64 ToInteger(int idx);
@@ -48,6 +49,7 @@ namespace CsLua.API
         bool ToNumberX(int idx, out double ret);
         string ToString(int idx);
         bool ToStringX(int idx, out string ret);
+        object ToUserdata(int idx);
 
         // ----- 将值推入栈中操作 -----
         void PushNil();
@@ -55,6 +57,10 @@ namespace CsLua.API
         void PushInteger(Int64 n);
         void PushNumber(double n);
         void PushString(string s);
+        void PushCSFunction(CSFunction f);
+        void PushGlobalTable();
+        void PushCSClosure(CSFunction f, int n);
+        void PushLightUserdata(object userdata);
 
         // ----- 算数运算操作 -----
         void Arith(EArithOp op);
@@ -75,16 +81,12 @@ namespace CsLua.API
         int Load(byte[] chunk, string chunkName, string mode);
         void Call(int nArgs, int nResults);
 
-        void PushCSFunction(CSFunction f);
         bool IsCSFunction(int idx);
         CSFunction ToCSFunction(int idx);
 
-        void PushGlobalTable();
         ELuaType GetGlobal(string name);
         void SetGlobal(string name);
         void Register(string name, CSFunction f);
-        
-        void PushCSClosure(CSFunction f, int n);
 
         int LuaUpvalueIndex(int i);
 

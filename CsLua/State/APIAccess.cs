@@ -120,6 +120,17 @@ namespace CsLua.State
             return Type(idx) == ELuaType.Int;
         }
 
+        public bool IsCSFunction(int idx)
+        {
+            var val = _stack[idx];
+            return val.IsCSFunction();
+        }
+
+        public bool IsUserdata(int idx)
+        {
+            return Type(idx).IsUserdata();
+        }
+
         public bool ToBoolean(int idx)
         {
             var val = _stack[idx];
@@ -191,16 +202,15 @@ namespace CsLua.State
             return false;
         }
 
-        public bool IsCSFunction(int idx)
-        {
-            var val = _stack[idx];
-            return val.IsCSFunction();
-        }
-
         public CSFunction ToCSFunction(int idx)
         {
             var val = _stack[idx];
             return val.GetCSFunctionValue();
+        }
+
+        public object ToUserdata(int idx)
+        {
+            return _stack[idx].GetObjValue();
         }
     }
 }
