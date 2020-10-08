@@ -41,6 +41,7 @@ namespace CsLua.API
         bool IsThread(int idx);
         bool IsFunction(int idx);
         bool IsUserdata(int idx);
+        bool IsArray(int idx);
 
         bool ToBoolean(int idx);
         Int64 ToInteger(int idx);

@@ -131,6 +131,12 @@ namespace CsLua.State
             return Type(idx).IsUserdata();
         }
 
+        public bool IsArray(int idx)
+        {
+            if (!IsTable(idx)) return false;
+            return _stack[idx].GetTableValue().IsArray();
+        }
+
         public bool ToBoolean(int idx)
         {
             var val = _stack[idx];

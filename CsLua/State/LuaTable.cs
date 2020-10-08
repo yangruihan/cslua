@@ -37,7 +37,7 @@ namespace CsLua.State
             return _arr?.Count ?? 0;
         }
 
-        public bool IsArr()
+        public bool IsArray()
         {
             return _map == null || _map != null && _map.Count == 0;
         }
