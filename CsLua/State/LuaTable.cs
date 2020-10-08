@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using CsLua.API;
 using CsLua.Common;
 using CsLua.Number;
 
@@ -11,7 +9,7 @@ namespace CsLua.State
 
     class LuaTable
     {
-        private static object KeysHead = new Byte();
+        private static readonly object KeysHead = new byte();
 
         public LuaTable MetaTable;
 
@@ -39,9 +37,14 @@ namespace CsLua.State
             return _arr?.Count ?? 0;
         }
 
+        public bool IsArr()
+        {
+            return _map == null || _map != null && _map.Count == 0;
+        }
+
         public LuaValue Get(object key)
         {
-            return Get(new LuaValue(key));
+            return Get(LuaValue.Create(key));
         }
 
         public LuaValue Get(LuaValue key)
@@ -66,12 +69,12 @@ namespace CsLua.State
             if (k is LuaValue kl)
                 key = kl;
             else
-                key = new LuaValue(k);
+                key = LuaValue.Create(k);
 
             if (v is LuaValue vl)
                 value = vl;
             else
-                value = new LuaValue(v);
+                value = LuaValue.Create(v);
 
             Put(key, value);
         }
@@ -99,7 +102,7 @@ namespace CsLua.State
                 if (idx <= arrLen)
                 {
                     _arr[(int) (idx - 1)] = val;
-                    if (idx == arrLen && val is null)
+                    if (idx == arrLen && val.IsNil())
                         ShrinkArray();
                     return;
                 }
@@ -109,7 +112,7 @@ namespace CsLua.State
                     if (_map != null && _map.ContainsKey(key.GetIntValue()))
                         _map.Remove(key.GetIntValue());
 
-                    if (val != null)
+                    if (!val.IsNil())
                     {
                         if (_arr == null)
                             _arr = new List<LuaValue>();
@@ -217,7 +220,7 @@ namespace CsLua.State
                 {
                     if (kv.Value != null)
                     {
-                        var value = new LuaValue(kv.Key);
+                        var value = LuaValue.Create(kv.Key);
                         _keys.Add(key, value);
                         key = value.GetValue();
                     }

@@ -16,7 +16,7 @@ namespace CsLua.State
         public Closure Closure;
         public LuaValue[] Varargs;
         public Dictionary<int, Upvalue> Openuvs;
-        
+
         public int PC;
         public LuaStack Prev;
 
@@ -59,10 +59,7 @@ namespace CsLua.State
 
         public void Push(object o)
         {
-            if (o is null)
-                Push(LuaValue.Nil);
-            else
-                Push(new LuaValue(o));
+            Push(LuaValue.Create(o));
         }
 
         public void Push(LuaValue value)
@@ -110,7 +107,7 @@ namespace CsLua.State
         {
             if (idx <= Consts.LUA_REGISTRYINDEX)
                 return idx;
-            
+
             if (idx > 0)
                 return idx;
 
@@ -125,11 +122,11 @@ namespace CsLua.State
                 var uvIdx = Consts.LUA_REGISTRYINDEX - idx - 1;
                 return Closure != null && uvIdx < Closure.Upvals.Length;
             }
-            
+
             // registry
             if (idx == Consts.LUA_REGISTRYINDEX)
                 return true;
-            
+
             var absIdx = AbsIndex(idx);
             return absIdx > 0 && absIdx <= Top;
         }
@@ -145,11 +142,11 @@ namespace CsLua.State
 
                 return Closure.Upvals[uvIdx].Val;
             }
-            
+
             // registry
             if (idx == Consts.LUA_REGISTRYINDEX)
                 return State.GetRegistry();
-            
+
             var absIndex = AbsIndex(idx);
             if (absIndex > 0 && absIndex <= Top)
                 return _slots[absIndex - 1];
@@ -166,14 +163,14 @@ namespace CsLua.State
                     Closure.Upvals[uvIdx].Val = val;
                 return;
             }
-        
+
             // registry
             if (idx == Consts.LUA_REGISTRYINDEX)
             {
                 State.SetRegistry(val.GetTableValue());
                 return;
             }
-            
+
             var absIndex = AbsIndex(idx);
             if (absIndex > 0 && absIndex <= Top)
             {

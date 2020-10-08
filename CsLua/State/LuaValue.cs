@@ -13,6 +13,16 @@ namespace CsLua.State
         public static readonly LuaValue True = new LuaValue(true);
         public static readonly LuaValue False = new LuaValue(false);
 
+        public static LuaValue Create(object value)
+        {
+            if (value == null)
+                return Nil;
+            else if (value is bool b)
+                return b ? True : False;
+            else
+                return new LuaValue(value);
+        }
+
         public static void SetMetaTable(LuaValue val, LuaTable mt, LuaState ls)
         {
             if (val.IsTable())
@@ -98,7 +108,7 @@ namespace CsLua.State
             Type = ELuaType.Boolean;
         }
 
-        public LuaValue(object value) : this()
+        private LuaValue(object value) : this()
         {
             _numValue = 0;
             _boolValue = false;
@@ -113,11 +123,6 @@ namespace CsLua.State
             {
                 _numValue = f;
                 Type = ELuaType.Float;
-            }
-            else if (value is bool b)
-            {
-                _boolValue = b;
-                Type = ELuaType.Boolean;
             }
             else if (value is string)
             {
