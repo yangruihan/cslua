@@ -21,6 +21,23 @@ namespace CsLua.Libs
             return 1;
         };
 
+        private static CSFunction RawGet = ls =>
+        {
+            ls.PushValue(-2); // table
+            ls.PushValue(-2); // key
+            ls.RawGet(-2);
+            return 1;
+        };
+
+        private static CSFunction RawSet = ls =>
+        {
+            ls.PushValue(-3); // table
+            ls.PushValue(-3); // key
+            ls.PushValue(-3); // value
+            ls.RawSet(-3);
+            return 0;
+        };
+
         private static CSFunction Next = ls =>
         {
             ls.SetTop(2);
@@ -96,6 +113,8 @@ namespace CsLua.Libs
             ls.Register("print", Print);
             ls.Register("getmetatable", GetMetaTable);
             ls.Register("setmetatable", SetMetaTable);
+            ls.Register("rawget", RawGet);
+            ls.Register("rawset", RawSet);
             ls.Register("next", Next);
             ls.Register("pairs", Pairs);
             ls.Register("ipairs", IPairs);
