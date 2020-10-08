@@ -4,7 +4,7 @@ namespace CsLua.API
 {
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
-    
+
     public delegate int CSFunction(ILuaState luaState);
 
     /// <summary>

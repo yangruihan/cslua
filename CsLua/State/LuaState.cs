@@ -1,5 +1,4 @@
 using CsLua.API;
-using CsLua.Binchunk;
 
 namespace CsLua.State
 {
