@@ -5,7 +5,7 @@ namespace CsLua.Libs
 {
     public static class BaseLib
     {
-        private static CSFunction GetMetaTable = ls =>
+        private static readonly CSFunction GetMetaTable = ls =>
         {
             if (!ls.GetMetaTable(1))
             {
@@ -15,13 +15,13 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static CSFunction SetMetaTable = ls =>
+        private static readonly CSFunction SetMetaTable = ls =>
         {
             ls.SetMetaTable(1);
             return 1;
         };
 
-        private static CSFunction RawGet = ls =>
+        private static readonly CSFunction RawGet = ls =>
         {
             ls.PushValue(-2); // table
             ls.PushValue(-2); // key
@@ -29,7 +29,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static CSFunction RawSet = ls =>
+        private static readonly CSFunction RawSet = ls =>
         {
             ls.PushValue(-3); // table
             ls.PushValue(-3); // key
@@ -38,7 +38,7 @@ namespace CsLua.Libs
             return 0;
         };
 
-        private static CSFunction Next = ls =>
+        private static readonly CSFunction Next = ls =>
         {
             ls.SetTop(2);
             if (ls.Next(1))
@@ -50,7 +50,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static CSFunction Pairs = ls =>
+        private static readonly CSFunction Pairs = ls =>
         {
             ls.PushCSFunction(Next);
             ls.PushValue(1);
@@ -58,7 +58,7 @@ namespace CsLua.Libs
             return 3;
         };
 
-        private static CSFunction IPairs = ls =>
+        private static readonly CSFunction IPairs = ls =>
         {
             ls.PushCSFunction(IPairsAux);
             ls.PushValue(1);
@@ -66,7 +66,7 @@ namespace CsLua.Libs
             return 3;
         };
 
-        private static CSFunction Print = ls =>
+        private static readonly CSFunction Print = ls =>
         {
             var nArgs = ls.GetTop();
             for (var i = 1; i <= nArgs; i++)
@@ -90,9 +90,9 @@ namespace CsLua.Libs
             return 0;
         };
 
-        private static CSFunction Error = ls => ls.Error();
+        private static readonly CSFunction Error = ls => ls.Error();
 
-        private static CSFunction PCall = ls =>
+        private static readonly CSFunction PCall = ls =>
         {
             var nArgs = ls.GetTop() - 1;
             var status = ls.PCall(nArgs, -1, 0);
@@ -101,7 +101,7 @@ namespace CsLua.Libs
             return ls.GetTop();
         };
 
-        private static CSFunction IPairsAux = ls =>
+        private static readonly CSFunction IPairsAux = ls =>
         {
             var i = ls.ToInteger(2) + 1;
             ls.PushInteger(i);
