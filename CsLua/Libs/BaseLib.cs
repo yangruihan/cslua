@@ -120,7 +120,7 @@ namespace CsLua.Libs
             ls.Register("ipairs", IPairs);
             ls.Register("error", Error);
             ls.Register("pcall", PCall);
-            return 1;
+            return 0;
         }
     }
 }

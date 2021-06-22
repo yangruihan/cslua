@@ -5,8 +5,6 @@ namespace CsLua.API
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    public delegate int CSFunction(ILuaState luaState);
-
     /// <summary>
     /// Lua State 接口
     /// 通过下面提供的 API，Lua 可以嵌入到其他宿主语言中
@@ -104,5 +102,13 @@ namespace CsLua.API
 
         int Error();
         int PCall(int nArgs, int nResults, int msgh);
+        
+        // ----- 扩展方法 -----
+        int Error(string msg);
+        void CheckStack(int n, string errorMsg);
+        LuaFloat CheckNumber(int arg);
+
+        void NewLib(LuaReg[] lib);
+        void SetFuncs(LuaReg[] lib, int nup);
     }
 }

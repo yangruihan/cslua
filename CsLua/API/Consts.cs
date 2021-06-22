@@ -89,4 +89,12 @@ namespace CsLua.API
         ErrErr,
         ErrFile,
     }
+
+    public delegate int CSFunction(ILuaState luaState);
+
+    public struct LuaReg
+    {
+        public string Name;
+        public CSFunction Func;
+    }
 }

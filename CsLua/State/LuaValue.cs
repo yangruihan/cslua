@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using CsLua.API;
 using CsLua.Number;
@@ -86,7 +87,7 @@ namespace CsLua.State
 
         public LuaValue(LuaInt value) : this()
         {
-            _numValue = value;
+            _numValue = BitConverter.Int64BitsToDouble(value);
             _objValue = null;
             _boolValue = false;
             Type = ELuaType.Int;
@@ -116,7 +117,7 @@ namespace CsLua.State
 
             if (value is LuaInt l)
             {
-                _numValue = l;
+                _numValue = BitConverter.Int64BitsToDouble(l);
                 Type = ELuaType.Int;
             }
             else if (value is LuaFloat f)
@@ -241,7 +242,7 @@ namespace CsLua.State
 
         public LuaInt GetIntValue()
         {
-            return (LuaInt) _numValue;
+            return BitConverter.DoubleToInt64Bits(_numValue);
         }
 
         public LuaFloat GetFloatValue()
@@ -297,7 +298,7 @@ namespace CsLua.State
         public override string ToString()
         {
             if (IsInt())
-                return ((LuaInt) _numValue).ToString(CultureInfo.CurrentCulture);
+                return GetIntValue().ToString(CultureInfo.CurrentCulture);
             else if (IsFloat())
                 return _numValue.ToString(CultureInfo.CurrentCulture);
             else if (IsBool())
@@ -337,7 +338,7 @@ namespace CsLua.State
         {
             if (IsInt())
             {
-                ret = (LuaInt) _numValue;
+                ret = BitConverter.DoubleToInt64Bits(_numValue);
                 return true;
             }
             else if (IsFloat())

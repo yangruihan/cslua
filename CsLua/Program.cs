@@ -8,6 +8,12 @@ namespace CsLua
 {
     internal class Program
     {
+        private static void LoadLibs(ILuaState ls)
+        {
+            BaseLib.OpenLib(ls);
+            MathLib.OpenLib(ls);
+        }
+        
         private static int DoFile(string filePath)
         {
             try
@@ -15,7 +21,7 @@ namespace CsLua
                 var data = File.ReadAllBytes(filePath);
 
                 var l = CSLua.CreateLuaState();
-                BaseLib.OpenLib(l);
+                LoadLibs(l);
                 l.Load(data, filePath, "bt");
                 l.Call(0, 0);
 
@@ -36,7 +42,7 @@ namespace CsLua
         private static int DoRepl()
         {
             var l = CSLua.CreateLuaState();
-            BaseLib.OpenLib(l);
+            LoadLibs(l);
 
             while (true)
             {
