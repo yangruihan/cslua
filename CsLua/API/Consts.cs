@@ -72,17 +72,21 @@ namespace CsLua.API
 
     public static class Consts
     {
+        public const string LUA_PROMPT = "> ";
+        public const string LUA_PROMPT2 = ">> ";
+
         public const int LUA_MINSTACK = 20;
         public const int LUAI_MAXSTACK = 1000000;
         public const int LUA_REGISTRYINDEX = -LUAI_MAXSTACK - 1000;
         public const Int64 LUA_RIDX_GLOBALS = 2;
-        
+
         public const Int64 LUA_MAXINTEGER = Int64.MaxValue;
     }
 
     public enum EErrorCode
     {
-        Ok,
+        Undefine = -1,
+        Ok = 0,
         Yield,
         ErrRun,
         ErrSyntax,

@@ -184,8 +184,9 @@ namespace CsLua.State
 
         public string ToString(int idx)
         {
-            ToStringX(idx, out var ret);
-            return ret;
+            if (ToStringX(idx, out var ret))
+                return ret;
+            return null;
         }
 
         public bool ToStringX(int idx, out string ret)

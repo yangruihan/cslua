@@ -78,7 +78,7 @@ namespace CsLua.API
         void SetField(int idx, string k);
         void SetI(int idx, LuaInt i);
 
-        int Load(byte[] chunk, string chunkName, string mode);
+        EErrorCode Load(byte[] chunk, string chunkName, string mode);
         void Call(int nArgs, int nResults);
 
         bool IsCSFunction(int idx);
@@ -102,6 +102,7 @@ namespace CsLua.API
         bool Next(int idx);
 
         int Error();
-        int PCall(int nArgs, int nResults, int msgh);
+        void Assert(bool cond);
+        EErrorCode PCall(int nArgs, int nResults, int msgh);
     }
 }

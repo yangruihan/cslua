@@ -22,7 +22,8 @@ namespace CsLua.State
             {
                 _stack.Push((LuaInt) val.GetStrValue().Length);
             }
-            else if (LuaValue.CallMetaMethod(val, val, "__len", this, out var metaMethodRet))
+            else if (LuaValue.CallMetaMethod(val, val, "__len", this,
+                out var metaMethodRet))
             {
                 _stack.Push(metaMethodRet);
             }
@@ -61,7 +62,8 @@ namespace CsLua.State
 
                     var b = _stack.Pop();
                     var a = _stack.Pop();
-                    if (LuaValue.CallMetaMethod(a, b, "__concat", this, out var metaMethodRet))
+                    if (LuaValue.CallMetaMethod(a, b, "__concat", this,
+                        out var metaMethodRet))
                     {
                         _stack.Push(metaMethodRet);
                         continue;
@@ -99,6 +101,11 @@ namespace CsLua.State
             var err = _stack.Pop();
             Debug.Panic(err.ToString());
             return -1;
+        }
+
+        public void Assert(bool cond)
+        {
+            System.Diagnostics.Debug.Assert(cond);
         }
     }
 }

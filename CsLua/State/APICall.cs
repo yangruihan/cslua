@@ -7,22 +7,39 @@ using CsLua.VM;
 namespace CsLua.State
 {
     using Compiler = Compiler.Compiler;
-    
+
     partial class LuaState : ILuaState
     {
-        public int Load(byte[] chunk, string chunkName, string mode)
+        public EErrorCode Load(byte[] chunk, string chunkName, string mode)
         {
+            if (string.IsNullOrEmpty(mode))
+                mode = "bt";
+
             ProtoType proto = null;
-            if (ProtoType.IsBinaryChunk(chunk))
+            do
             {
-                proto = ProtoType.Undump(chunk);
-            }
-            else
-            {
-                var chars = new char[chunk.Length];
-                Array.Copy(chunk, chars, chars.Length);
-                proto = Compiler.Compile(new string(chars), chunkName);
-            }
+                if (mode.Contains("b"))
+                {
+                    if (ProtoType.IsBinaryChunk(chunk))
+                        proto = ProtoType.Undump(chunk);
+                }
+
+                if (proto != null)
+                    break;
+
+                if (mode.Contains("t"))
+                {
+                    if (ProtoType.IsBinaryChunk(chunk))
+                        return EErrorCode.ErrSyntax;
+
+                    var chars = new char[chunk.Length];
+                    Array.Copy(chunk, chars, chars.Length);
+                    proto = Compiler.Compile(new string(chars), chunkName);
+                }
+            } while (false);
+
+            if (proto == null)
+                return EErrorCode.ErrSyntax;
 
             var c = new Closure(proto);
             _stack.Push(c);
@@ -32,7 +49,7 @@ namespace CsLua.State
                 c.Upvals[0] = new Upvalue {Val = env};
             }
 
-            return (int) EErrorCode.Ok;
+            return EErrorCode.Ok;
         }
 
         public void Call(int nArgs, int nResults)
@@ -71,7 +88,7 @@ namespace CsLua.State
             }
         }
 
-        public int PCall(int nArgs, int nResults, int msgh)
+        public EErrorCode PCall(int nArgs, int nResults, int msgh)
         {
             var caller = _stack;
             var status = EErrorCode.ErrRun;
@@ -89,7 +106,7 @@ namespace CsLua.State
                 _stack.Push(e.Message);
             }
 
-            return (int) status;
+            return status;
         }
 
         private void CallLuaClosure(int nArgs, int nResults, Closure c)
@@ -98,7 +115,8 @@ namespace CsLua.State
             var nParams = (int) c.Proto.NumParams;
             var isVararg = c.Proto.IsVararg == 1;
 
-            var newStack = new LuaStack(nRegs + Consts.LUA_MINSTACK, this) {Closure = c};
+            var newStack = new LuaStack(nRegs + Consts.LUA_MINSTACK, this)
+                {Closure = c};
 
             // pass args, pop func
             var funcAndArgs = _stack.PopN(nArgs + 1);
@@ -123,7 +141,8 @@ namespace CsLua.State
 
         private void CallCSClosure(int nArgs, int nResults, Closure c)
         {
-            var newStack = new LuaStack(nArgs + Consts.LUA_MINSTACK, this) {Closure = c};
+            var newStack = new LuaStack(nArgs + Consts.LUA_MINSTACK, this)
+                {Closure = c};
 
             var args = _stack.PopN(nArgs);
             newStack.PushN(args, nArgs);

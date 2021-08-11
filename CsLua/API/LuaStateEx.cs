@@ -46,7 +46,8 @@ namespace CsLua.API
             return ls.Error($"bad argument #{arg} ({msg})");
         }
 
-        public static int ArgCheck(this ILuaState ls, bool cond, int arg, string msg)
+        public static int ArgCheck(this ILuaState ls, bool cond, int arg,
+            string msg)
         {
             return !cond ? ls.ArgError(arg, msg) : 0;
         }
@@ -79,7 +80,8 @@ namespace CsLua.API
                 ls.ArgError(arg, "value expected");
         }
 
-        public static LuaFloat OptNumber(this ILuaState ls, int arg, LuaFloat defaultValue)
+        public static LuaFloat OptNumber(this ILuaState ls, int arg,
+            LuaFloat defaultValue)
         {
             if (ls.IsNoneOrNil(arg))
                 return defaultValue;
@@ -102,7 +104,8 @@ namespace CsLua.API
 
         // ----- Metatable -----
 
-        public static ELuaType GetMetaField(this ILuaState ls, int obj, string @event)
+        public static ELuaType GetMetaField(this ILuaState ls, int obj,
+            string @event)
         {
             if (!ls.GetMetaTable(obj))
             {
@@ -118,6 +121,17 @@ namespace CsLua.API
                     ls.Remove(-2);
                 return type;
             }
+        }
+
+        public static bool CallMeta(this ILuaState ls, int obj, string @event)
+        {
+            obj = ls.AbsIndex(obj);
+            if (ls.GetMetaField(obj, @event) == ELuaType.Nil) // no metafield?
+                return false;
+
+            ls.PushValue(obj);
+            ls.Call(1, 1);
+            return true;
         }
 
         public static void SetFuncs(this ILuaState ls, LuaReg[] lib, int nup)

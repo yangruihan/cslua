@@ -105,10 +105,7 @@ namespace CsLua.State
 
         public int AbsIndex(int idx)
         {
-            if (idx <= Consts.LUA_REGISTRYINDEX)
-                return idx;
-
-            if (idx > 0)
+            if (idx >= 0 || idx <= Consts.LUA_REGISTRYINDEX)
                 return idx;
 
             return idx + Top + 1;
