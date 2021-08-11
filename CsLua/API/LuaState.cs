@@ -102,13 +102,5 @@ namespace CsLua.API
 
         int Error();
         int PCall(int nArgs, int nResults, int msgh);
-        
-        // ----- 扩展方法 -----
-        int Error(string msg);
-        void CheckStack(int n, string errorMsg);
-        LuaFloat CheckNumber(int arg);
-
-        void NewLib(LuaReg[] lib);
-        void SetFuncs(LuaReg[] lib, int nup);
     }
 }

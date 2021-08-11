@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="API\Consts.cs" />
     <Compile Include="API\LuaState.cs" />
+    <Compile Include="API\LuaStateEx.cs" />
     <Compile Include="API\LuaVM.cs" />
     <Compile Include="Binchunk\BinaryChunk.cs" />
     <Compile Include="Binchunk\Reader.cs" />
@@ -75,7 +76,6 @@
     <Compile Include="State\APIArith.cs" />
     <Compile Include="State\APICall.cs" />
     <Compile Include="State\APIComp.cs" />
-    <Compile Include="State\APIEx.cs" />
     <Compile Include="State\APIGet.cs" />
     <Compile Include="State\APIMisc.cs" />
     <Compile Include="State\APIPush.cs" />
