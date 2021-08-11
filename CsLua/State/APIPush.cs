@@ -27,9 +27,17 @@ namespace CsLua.State
             _stack.Push(new LuaValue(n));
         }
 
-        public void PushString(string s)
+        public string PushString(string s)
         {
             _stack.Push(new LuaValue(s, ELuaType.String));
+            return s;
+        }
+
+        public string PushFString(string fmt, params string[] args)
+        {
+            var s = string.Format(fmt, args);
+            PushString(s);
+            return s;
         }
 
         public void PushCSFunction(CSFunction f)

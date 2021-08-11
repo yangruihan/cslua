@@ -55,7 +55,8 @@ namespace CsLua.API
         void PushBoolean(bool b);
         void PushInteger(Int64 n);
         void PushNumber(double n);
-        void PushString(string s);
+        string PushString(string s);
+        string PushFString(string fmt, params string[] args);
         void PushCSFunction(CSFunction f);
         void PushGlobalTable();
         void PushCSClosure(CSFunction f, int n);

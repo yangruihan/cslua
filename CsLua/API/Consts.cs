@@ -76,6 +76,8 @@ namespace CsLua.API
         public const int LUAI_MAXSTACK = 1000000;
         public const int LUA_REGISTRYINDEX = -LUAI_MAXSTACK - 1000;
         public const Int64 LUA_RIDX_GLOBALS = 2;
+        
+        public const Int64 LUA_MAXINTEGER = Int64.MaxValue;
     }
 
     public enum EErrorCode
