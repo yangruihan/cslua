@@ -9,14 +9,15 @@ namespace CsLua.API
     /// Lua State 接口
     /// 通过下面提供的 API，Lua 可以嵌入到其他宿主语言中
     /// </summary>
-    public interface ILuaState
+    public unsafe interface ILuaState
     {
-        // ----- state manipulation -----
-        CSFunction AtPanic(CSFunction panicF);
+        // Lua 状态机操作
+        // state manipulation
+        LuaCSFunction AtPanic(LuaCSFunction panicF);
         LuaFloat Version();
 
         // ----- 基础栈操作方法 -----
-        // ----- basic stack manipulation -----
+        // basic stack manipulation
         int AbsIndex(int idx);
         int GetTop();
         void SetTop(int idx);
@@ -32,42 +33,67 @@ namespace CsLua.API
         void Remove(int idx);
 
         // ----- 访问操作 -----
-        string TypeName(ELuaType tp);
+        // access functions (stack -> C)
+        bool IsNumber(int idx);
+        bool IsString(int idx);
+        bool IsFunction(int idx);
+        bool IsCSFunction(int idx);
+        bool IsInteger(int idx);
+        bool IsUserdata(int idx);
+
         ELuaType Type(int idx);
+        string TypeName(ELuaType tp);
+
+        bool ToNumberX(int idx, out double ret);
+        bool ToIntegerX(int idx, out Int64 ret);
+        bool ToBoolean(int idx);
+        string ToString(int idx);
+        uint RawLen(int idx);
+        LuaCSFunction ToCSFunction(int idx);
+        object ToUserdata(int idx);
+        ILuaState ToThread(int idx);
+        object ToPointer(int idx);
 
         bool IsNone(int idx);
         bool IsNil(int idx);
         bool IsNoneOrNil(int idx);
         bool IsBoolean(int idx);
-        bool IsInteger(int idx);
-        bool IsNumber(int idx);
-        bool IsString(int idx);
         bool IsTable(int idx);
         bool IsThread(int idx);
-        bool IsFunction(int idx);
-        bool IsUserdata(int idx);
         bool IsArray(int idx);
 
-        bool ToBoolean(int idx);
         Int64 ToInteger(int idx);
-        bool ToIntegerX(int idx, out Int64 ret);
         double ToNumber(int idx);
-        bool ToNumberX(int idx, out double ret);
-        string ToString(int idx);
         bool ToStringX(int idx, out string ret);
-        object ToUserdata(int idx);
 
         // ----- 将值推入栈中操作 -----
+        // push functions (C -> stack)
         void PushNil();
-        void PushBoolean(bool b);
-        void PushInteger(Int64 n);
         void PushNumber(double n);
+        void PushInteger(Int64 n);
         string PushString(string s);
-        string PushFString(string fmt, params string[] args);
-        void PushCSFunction(CSFunction f);
-        void PushGlobalTable();
-        void PushCSClosure(CSFunction f, int n);
+        string PushFString(string fmt, params object[] args);
+        void PushCSClosure(LuaCSFunction f, int n);
+        void PushBoolean(bool b);
         void PushLightUserdata(object userdata);
+        void PushThread();
+
+        void PushCSFunction(LuaCSFunction f);
+        void PushGlobalTable();
+
+        // ----- 取值操作 -----
+        // get functions (Lua -> stack)
+        ELuaType GetGlobal(string name);
+        ELuaType GetTable(int idx);
+        ELuaType GetField(int idx, string key);
+        ELuaType GetI(int idx, LuaInt i);
+        ELuaType RawGet(int idx);
+        ELuaType RawGetI(int idx, LuaInt i);
+        ELuaType RawGetP(int idx, object p);
+        void CreateTable(int nArr, int nRec);
+        IntPtr NewUserData(int size);
+        bool GetMetaTable(int idx);
+        ELuaType GetUserValue(int idx);
 
         // ----- 算数运算操作 -----
         void Arith(EArithOp op);
@@ -77,10 +103,6 @@ namespace CsLua.API
         void Concat(int n);
 
         void NewTable();
-        void CreateTable(int nArr, int nRec);
-        ELuaType GetTable(int idx);
-        ELuaType GetField(int idx, string key);
-        ELuaType GetI(int idx, LuaInt i);
         void SetTable(int idx);
         void SetField(int idx, string k);
         void SetI(int idx, LuaInt i);
@@ -88,22 +110,14 @@ namespace CsLua.API
         EErrorCode Load(byte[] chunk, string chunkName, string mode);
         void Call(int nArgs, int nResults);
 
-        bool IsCSFunction(int idx);
-        CSFunction ToCSFunction(int idx);
-
-        ELuaType GetGlobal(string name);
         void SetGlobal(string name);
-        void Register(string name, CSFunction f);
+        void Register(string name, LuaCSFunction f);
 
         int LuaUpvalueIndex(int i);
 
-        bool GetMetaTable(int idx);
         void SetMetaTable(int idx);
-        uint RawLen(int idx);
         bool RawEqual(int idx1, int idx2);
-        ELuaType RawGet(int idx);
         void RawSet(int idx);
-        ELuaType RawGetI(int idx, LuaInt i);
         void RawSetI(int idx, LuaInt i);
 
         bool Next(int idx);

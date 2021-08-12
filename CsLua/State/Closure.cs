@@ -11,7 +11,7 @@ namespace CsLua.State
     internal class Closure
     {
         public ProtoType Proto;
-        public CSFunction CSFunction;
+        public LuaCSFunction LuaCsFunction;
         public Upvalue[] Upvals;
 
         public Closure(ProtoType proto)
@@ -22,9 +22,9 @@ namespace CsLua.State
                 Upvals = new Upvalue[proto.Upvalues.Length];
         }
 
-        public Closure(CSFunction csFunction, int nUpvals)
+        public Closure(LuaCSFunction luaCsFunction, int nUpvals)
         {
-            CSFunction = csFunction;
+            LuaCsFunction = luaCsFunction;
 
             if (nUpvals > 0)
                 Upvals = new Upvalue[nUpvals];

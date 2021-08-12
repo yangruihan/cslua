@@ -208,7 +208,7 @@ namespace CsLua.State
             return false;
         }
 
-        public CSFunction ToCSFunction(int idx)
+        public LuaCSFunction ToCSFunction(int idx)
         {
             var val = Stack[idx];
             return val.GetCSFunctionValue();
@@ -217,6 +217,18 @@ namespace CsLua.State
         public object ToUserdata(int idx)
         {
             return Stack[idx].GetObjValue();
+        }
+
+        public ILuaState ToThread(int idx)
+        {
+            var val = Stack[idx];
+            return val.IsThread() ? val.GetValue() as ILuaState : null;
+        }
+
+        public object ToPointer(int idx)
+        {
+            var val = Stack[idx];
+            return val.GetObjValue();
         }
     }
 }

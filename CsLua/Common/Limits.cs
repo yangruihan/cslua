@@ -6,7 +6,7 @@ namespace CsLua.Common
     {
         public static void Check(ILuaState l, bool e, string msg)
         {
-            System.Diagnostics.Debug.Assert(e);
+            System.Diagnostics.Debug.Assert(e, msg);
         }
     }
 }

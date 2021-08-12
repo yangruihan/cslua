@@ -125,8 +125,16 @@ namespace CsLua.State
         {
             if (to == this)
                 return;
-            
-            
+
+            var toState = to as LuaState;
+
+            LuaAPI.CheckNElems(this, n);
+            LuaAPI.Check(this, GlobalState == toState!.GlobalState,
+                "moving among independent states");
+            LuaAPI.Check(this, toState.Stack.Top >= n, "stack overflow");
+
+            for (var i = 0; i < n; i++)
+                toState.Stack.Push(this.Stack.Pop());
         }
     }
 }

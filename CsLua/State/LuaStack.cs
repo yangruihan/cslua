@@ -35,7 +35,7 @@ namespace CsLua.State
             sb.Append($"*Stack* size: {_slots.Count} top: {Top} items: [");
             for (var i = 0; i < Slots.Count - 1; i++)
                 sb.Append($"{i + 1}: {Slots[i]}, ");
-            sb.Append($"{Slots.Count}: {Slots[Slots.Count - 1]}]");
+            sb.Append($"{Slots.Count}: {Slots[^1]}]");
             return sb.ToString();
         }
 

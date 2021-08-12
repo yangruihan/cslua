@@ -33,14 +33,14 @@ namespace CsLua.State
             return s;
         }
 
-        public string PushFString(string fmt, params string[] args)
+        public string PushFString(string fmt, params object[] args)
         {
             var s = string.Format(fmt, args);
             PushString(s);
             return s;
         }
 
-        public void PushCSFunction(CSFunction f)
+        public void PushCSFunction(LuaCSFunction f)
         {
             Stack.Push(new Closure(f, 0));
         }
@@ -51,7 +51,7 @@ namespace CsLua.State
             Stack.Push(global);
         }
 
-        public void PushCSClosure(CSFunction f, int n)
+        public void PushCSClosure(LuaCSFunction f, int n)
         {
             var closure = new Closure(f, n);
             for (var i = n; i > 0; i--)
@@ -66,6 +66,11 @@ namespace CsLua.State
         public void PushLightUserdata(object userdata)
         {
             Stack.Push(new LuaValue(userdata, ELuaType.LightUserData));
+        }
+
+        public void PushThread()
+        {
+            Stack.Push(new LuaValue(this, ELuaType.Thread));
         }
     }
 }

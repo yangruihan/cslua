@@ -7,7 +7,7 @@ namespace CsLua.State
 
     internal partial class LuaState : ILuaState
     {
-        public CSFunction AtPanic(CSFunction panicF)
+        public LuaCSFunction AtPanic(LuaCSFunction panicF)
         {
             var old = GlobalState.Panic;
             GlobalState.Panic = panicF;

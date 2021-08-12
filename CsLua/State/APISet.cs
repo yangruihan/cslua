@@ -52,7 +52,7 @@ namespace CsLua.State
             InnerSetTable(t, new LuaValue(name, ELuaType.String), v, false);
         }
 
-        public void Register(string name, CSFunction f)
+        public void Register(string name, LuaCSFunction f)
         {
             PushCSFunction(f);
             SetGlobal(name);

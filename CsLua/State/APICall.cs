@@ -149,7 +149,7 @@ namespace CsLua.State
             Stack.Pop();
 
             PushLuaStack(newStack);
-            var r = c.CSFunction(this);
+            var r = c.LuaCsFunction(this);
             PopLuaStack();
 
             if (nResults != 0)

@@ -23,7 +23,7 @@ namespace CsLua.State
         /// <summary>
         /// to be called in unprotected errors
         /// </summary>
-        public CSFunction Panic;
+        public LuaCSFunction Panic;
 
         public LuaState MainThread;
 

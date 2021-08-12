@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using CsLua.API;
 using CsLua.Number;
 
@@ -22,6 +23,13 @@ namespace CsLua.State
                 return b ? True : False;
             else
                 return new LuaValue(value);
+        }
+
+        public static LuaValue CreateUserData(int size)
+        {
+            var ptr = Marshal.AllocHGlobal(size);
+            var v = new LuaValue(ptr, ELuaType.UserData);
+            return v;
         }
 
         public static void SetMetaTable(LuaValue val, LuaTable mt, LuaState ls)
@@ -47,7 +55,8 @@ namespace CsLua.State
             return mt?.GetTableValue();
         }
 
-        public static bool CallMetaMethod(LuaValue a, LuaValue b, string mmName, LuaState ls, out LuaValue ret)
+        public static bool CallMetaMethod(LuaValue a, LuaValue b, string mmName,
+            LuaState ls, out LuaValue ret)
         {
             ret = null;
 
@@ -68,7 +77,8 @@ namespace CsLua.State
             return true;
         }
 
-        public static LuaValue GetMetaField(LuaValue val, string fieldName, LuaState ls)
+        public static LuaValue GetMetaField(LuaValue val, string fieldName,
+            LuaState ls)
         {
             var mt = GetMetaTable(val, ls);
             return mt?.Get(fieldName);
@@ -137,7 +147,9 @@ namespace CsLua.State
             }
             else if (value is Closure c)
             {
-                Type = c.CSFunction != null ? ELuaType.CSFunction : ELuaType.Closure;
+                Type = c.LuaCsFunction != null
+                    ? ELuaType.CSFunction
+                    : ELuaType.Closure;
                 _objValue = c;
             }
             else if (value is LuaState)
@@ -158,6 +170,14 @@ namespace CsLua.State
             _boolValue = false;
             _numValue = 0;
             Type = type;
+        }
+
+        ~LuaValue()
+        {
+            if (Type == ELuaType.UserData)
+            {
+                Marshal.FreeHGlobal((IntPtr) _objValue);
+            }
         }
 
         public bool IsValid()
@@ -265,9 +285,9 @@ namespace CsLua.State
             return GetObjValue<Closure>();
         }
 
-        public CSFunction GetCSFunctionValue()
+        public LuaCSFunction GetCSFunctionValue()
         {
-            return GetObjValue<Closure>()?.CSFunction;
+            return GetObjValue<Closure>()?.LuaCsFunction;
         }
 
         public LuaState GetThreadValue()

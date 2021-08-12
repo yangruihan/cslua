@@ -32,7 +32,7 @@ namespace CsLua.API
     {
         public static ELuaType GetParentType(this ELuaType type)
         {
-            return (ELuaType) ((int) type & 0b1111);
+            return (ELuaType) ((int) type & 0x0F);
         }
 
         public static bool IsNumber(this ELuaType type)
@@ -53,7 +53,7 @@ namespace CsLua.API
 
     public enum EArithOp : byte
     {
-        Add,
+        Add = 0,
         Sub,
         Mul,
         Mod,
@@ -69,12 +69,18 @@ namespace CsLua.API
         BNot,
     }
 
+    public delegate void LuaArith(ILuaState l, int op);
+
     public enum ECompOp : byte
     {
-        Eq,
+        Eq = 0,
         Lt,
         Le,
     }
+
+    public delegate int LuaRawEqual(ILuaState l, int idx1, int idx2);
+
+    public delegate int LuaCompare(ILuaState l, int idx1, int idx2, int op);
 
     public enum EErrorCode
     {
@@ -96,9 +102,15 @@ namespace CsLua.API
         public static readonly int LUA_VERSION_NUM = 503;
         public static readonly string LUA_VERSION_RELEASE = "5";
 
-        public static readonly string LUA_VERSION = $"Lua {LUA_VERSION_MAJOR}.{LUA_VERSION_MINOR}";
-        public static readonly string LUA_RELEASE = $"{LUA_VERSION}.{LUA_RELEASE}";
-        public static readonly string LUA_COPYRIGHT = "  Copyright (C) 1994-2018 Yang Ruihan";
+        public static readonly string LUA_VERSION =
+            $"Lua {LUA_VERSION_MAJOR}.{LUA_VERSION_MINOR}";
+
+        public static readonly string LUA_RELEASE =
+            $"{LUA_VERSION}.{LUA_RELEASE}";
+
+        public static readonly string LUA_COPYRIGHT =
+            "  Copyright (C) 1994-2018 Yang Ruihan";
+
         public static readonly string LUA_AUTHORS = "Yang Ruihan";
 
         // Lua 签名，4个字节,用于校验读取的 Chunk 是否合法
@@ -125,20 +137,22 @@ namespace CsLua.API
     /// <summary>
     /// 可注册到 Lua 的 C# Delegate
     /// </summary>
-    public delegate int CSFunction(ILuaState luaState);
+    public delegate int LuaCSFunction(ILuaState luaState);
 
     /// <summary>
     /// 持续运行函数 Delegate
     /// </summary>
-    public delegate int KFunction(ILuaState luaState, int status, LuaContext ctx);
+    public delegate int LuaKFunction(ILuaState luaState, int status,
+        LuaContext ctx);
 
     public delegate string LuaReader(ILuaState l, object ud, int sz);
 
-    public delegate int LuaWriter(ILuaState luaState, object p, int size, object ud);
+    public delegate int LuaWriter(ILuaState luaState, object p, int size,
+        object ud);
 
     public struct LuaReg
     {
         public string Name;
-        public CSFunction Func;
+        public LuaCSFunction Func;
     }
 }

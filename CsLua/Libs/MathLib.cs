@@ -22,7 +22,7 @@ namespace CsLua.Libs
                 ls.PushNumber(d);
         }
 
-        private static readonly CSFunction Abs = ls =>
+        private static readonly LuaCSFunction Abs = ls =>
         {
             if (ls.IsInteger(1))
             {
@@ -38,37 +38,37 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Sin = ls =>
+        private static readonly LuaCSFunction Sin = ls =>
         {
             ls.PushNumber(Math.Sin(ls.CheckNumber(1)));
             return 1;
         };
 
-        private static readonly CSFunction Cos = ls =>
+        private static readonly LuaCSFunction Cos = ls =>
         {
             ls.PushNumber(Math.Cos(ls.CheckNumber(1)));
             return 1;
         };
 
-        private static readonly CSFunction Tan = ls =>
+        private static readonly LuaCSFunction Tan = ls =>
         {
             ls.PushNumber(Math.Tan(ls.CheckNumber(1)));
             return 1;
         };
 
-        private static readonly CSFunction Asin = ls =>
+        private static readonly LuaCSFunction Asin = ls =>
         {
             ls.PushNumber(Math.Asin(ls.CheckNumber(1)));
             return 1;
         };
 
-        private static readonly CSFunction Acos = ls =>
+        private static readonly LuaCSFunction Acos = ls =>
         {
             ls.PushNumber(Math.Acos(ls.CheckNumber(1)));
             return 1;
         };
 
-        private static readonly CSFunction Atan = ls =>
+        private static readonly LuaCSFunction Atan = ls =>
         {
             var y = ls.CheckNumber(1);
             var x = ls.OptNumber(2, 1);
@@ -76,7 +76,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction ToInt = ls =>
+        private static readonly LuaCSFunction ToInt = ls =>
         {
             if (ls.ToIntegerX(1, out var ret))
             {
@@ -91,7 +91,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Floor = ls =>
+        private static readonly LuaCSFunction Floor = ls =>
         {
             if (ls.IsInteger(1))
             {
@@ -106,7 +106,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Ceil = ls =>
+        private static readonly LuaCSFunction Ceil = ls =>
         {
             if (ls.IsInteger(1))
             {
@@ -120,7 +120,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction FMod = ls =>
+        private static readonly LuaCSFunction FMod = ls =>
         {
             if (ls.IsInteger(1) && ls.IsInteger(2))
             {
@@ -141,7 +141,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Modf = ls =>
+        private static readonly LuaCSFunction Modf = ls =>
         {
             if (ls.IsInteger(1))
             {
@@ -159,13 +159,13 @@ namespace CsLua.Libs
             return 2;
         };
 
-        private static readonly CSFunction Sqrt = ls =>
+        private static readonly LuaCSFunction Sqrt = ls =>
         {
             ls.PushNumber(Math.Sqrt(ls.CheckNumber(1)));
             return 1;
         };
 
-        private static readonly CSFunction Ult = ls =>
+        private static readonly LuaCSFunction Ult = ls =>
         {
             var a = ls.CheckInteger(1);
             var b = ls.CheckInteger(2);
@@ -173,7 +173,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Log = ls =>
+        private static readonly LuaCSFunction Log = ls =>
         {
             var x = ls.CheckNumber(1);
             LuaFloat res;
@@ -189,25 +189,25 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Exp = ls =>
+        private static readonly LuaCSFunction Exp = ls =>
         {
             ls.PushNumber(Math.Exp(ls.CheckNumber(1)));
             return 1;
         };
 
-        private static readonly CSFunction Deg = ls =>
+        private static readonly LuaCSFunction Deg = ls =>
         {
             ls.PushNumber(ls.CheckNumber(1) * 180.0 / Math.PI);
             return 1;
         };
 
-        private static readonly CSFunction Rad = ls =>
+        private static readonly LuaCSFunction Rad = ls =>
         {
             ls.PushNumber(ls.CheckNumber(1) * Math.PI / 180.0);
             return 1;
         };
 
-        private static readonly CSFunction Min = ls =>
+        private static readonly LuaCSFunction Min = ls =>
         {
             var n = ls.GetTop();
             var imin = 1;
@@ -223,7 +223,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Max = ls =>
+        private static readonly LuaCSFunction Max = ls =>
         {
             var n = ls.GetTop();
             var imax = 1;
@@ -239,7 +239,7 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction Random = ls =>
+        private static readonly LuaCSFunction Random = ls =>
         {
             var r = CsRandom.NextDouble();
             LuaInt low = 0, up = 0;
@@ -273,14 +273,14 @@ namespace CsLua.Libs
             return 1;
         };
 
-        private static readonly CSFunction RandomSeed = ls =>
+        private static readonly LuaCSFunction RandomSeed = ls =>
         {
             _csRandom = new Random((int) (LuaInt) ls.CheckNumber(1));
             _csRandom.Next();
             return 0;
         };
 
-        private static readonly CSFunction Type = ls =>
+        private static readonly LuaCSFunction Type = ls =>
         {
             if (ls.Type(1) == ELuaType.Number)
             {
