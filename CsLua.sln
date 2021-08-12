@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsLua", "CsLua\CsLua.csproj", "{B90E1759-54DB-46B4-8310-2CEADE491E5F}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31605.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsLua", "CsLua\CsLua.csproj", "{B90E1759-54DB-46B4-8310-2CEADE491E5F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CsLuaApp", "CsLuaApp\CsLuaApp.csproj", "{AE4C8F85-3AB5-4058-85C0-5FBFF0526CAB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,15 @@ Global
 		{B90E1759-54DB-46B4-8310-2CEADE491E5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B90E1759-54DB-46B4-8310-2CEADE491E5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B90E1759-54DB-46B4-8310-2CEADE491E5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE4C8F85-3AB5-4058-85C0-5FBFF0526CAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE4C8F85-3AB5-4058-85C0-5FBFF0526CAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE4C8F85-3AB5-4058-85C0-5FBFF0526CAB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE4C8F85-3AB5-4058-85C0-5FBFF0526CAB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F6B54DC3-8B69-48B9-8AD9-D43DBE767E29}
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using CsLua.API;
 using CsLua.Common;
 using CsLua.Libs;
@@ -13,6 +14,16 @@ namespace CsLua
         private static readonly string LUA_PROMPT2 = ">> ";
 
         private static string ProgName = "lua";
+
+        private static byte[] GetBytes(string str)
+        {
+            return Encoding.UTF8.GetBytes(str);
+        }
+
+        private static string ToStr(byte[] str)
+        {
+            return Encoding.UTF8.GetString(str);
+        }
 
         private static void LoadLibs(ILuaState ls)
         {
@@ -31,17 +42,17 @@ namespace CsLua
                 l.Load(data, filePath, "bt");
                 l.Call(0, 0);
 
-                return (int) EErrorCode.Ok;
+                return (int)EErrorCode.Ok;
             }
             catch (IOException e)
             {
                 Console.WriteLine(e.ToString());
-                return (int) EErrorCode.Undefine;
+                return (int)EErrorCode.Undefine;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                return (int) EErrorCode.ErrRun;
+                return (int)EErrorCode.ErrRun;
             }
         }
 
@@ -90,7 +101,7 @@ namespace CsLua
         {
             var line = l.ToString(-1);
             var retLine = l.PushString($"return {line}");
-            var status = l.Load(retLine.GetBytes(), "=stdin", "bt");
+            var status = l.Load(GetBytes(retLine), "=stdin", "bt");
             if (status == EErrorCode.Ok)
             {
                 l.Remove(-2); // remove modified line
@@ -123,7 +134,7 @@ namespace CsLua
             while (true) // repeat until gets a complete statement
             {
                 var line = l.ToString(1); // get what it has
-                var status = l.Load(line.GetBytes(), "=stdin", "bt"); // try it
+                var status = l.Load(GetBytes(line), "=stdin", "bt"); // try it
                 if (!Incomplete(l, status) || !PushLine(l, false))
                     return
                         status; // cannot or should not try to add continuation line
