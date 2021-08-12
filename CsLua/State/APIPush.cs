@@ -5,31 +5,31 @@ namespace CsLua.State
     /// <summary>
     /// 将值推入栈中方法实现
     /// </summary>
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
         public void PushNil()
         {
-            _stack.Push(LuaValue.Nil);
+            Stack.Push(LuaValue.Nil);
         }
 
         public void PushBoolean(bool b)
         {
-            _stack.Push(b ? LuaValue.True : LuaValue.False);
+            Stack.Push(b ? LuaValue.True : LuaValue.False);
         }
 
         public void PushInteger(long n)
         {
-            _stack.Push(new LuaValue(n));
+            Stack.Push(new LuaValue(n));
         }
 
         public void PushNumber(double n)
         {
-            _stack.Push(new LuaValue(n));
+            Stack.Push(new LuaValue(n));
         }
 
         public string PushString(string s)
         {
-            _stack.Push(new LuaValue(s, ELuaType.String));
+            Stack.Push(new LuaValue(s, ELuaType.String));
             return s;
         }
 
@@ -42,13 +42,13 @@ namespace CsLua.State
 
         public void PushCSFunction(CSFunction f)
         {
-            _stack.Push(new Closure(f, 0));
+            Stack.Push(new Closure(f, 0));
         }
 
         public void PushGlobalTable()
         {
-            var global = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
-            _stack.Push(global);
+            var global = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
+            Stack.Push(global);
         }
 
         public void PushCSClosure(CSFunction f, int n)
@@ -56,16 +56,16 @@ namespace CsLua.State
             var closure = new Closure(f, n);
             for (var i = n; i > 0; i--)
             {
-                var val = _stack.Pop();
+                var val = Stack.Pop();
                 closure.Upvals[i - 1] = new Upvalue {Val = val};
             }
 
-            _stack.Push(closure);
+            Stack.Push(closure);
         }
 
         public void PushLightUserdata(object userdata)
         {
-            _stack.Push(new LuaValue(userdata, ELuaType.LightUserData));
+            Stack.Push(new LuaValue(userdata, ELuaType.LightUserData));
         }
     }
 }

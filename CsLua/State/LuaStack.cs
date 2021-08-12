@@ -5,7 +5,7 @@ using CsLua.Common;
 
 namespace CsLua.State
 {
-    class LuaStack
+    internal class LuaStack
     {
         private readonly List<LuaValue> _slots;
         public List<LuaValue> Slots => _slots;

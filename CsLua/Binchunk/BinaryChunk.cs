@@ -10,7 +10,7 @@ namespace CsLua.Binchunk
     /// <summary>
     /// Lua 二进制预编译块常量部分
     /// </summary>
-    public class ChunkConst
+    internal class ChunkConst
     {
         public const byte LUAC_VERSION = 0x53; // 版本号，1个字节，由三部分组成，大版本号（Major Version）、小版本号（Minor Version）、发布号（Release Version），值为大版本号乘以 16 加小版本号
         public const byte LUAC_FORMAT = 0; // 格式号，1个字节，校验用，Lua 官方实现使用的格式号是 0
@@ -27,7 +27,7 @@ namespace CsLua.Binchunk
     /// <summary>
     /// Lua 块中常量类型枚举
     /// </summary>
-    enum EChunkTag : byte
+    internal enum EChunkTag : byte
     {
         Nil = 0x00,
         Boolean = 0x01,
@@ -40,7 +40,7 @@ namespace CsLua.Binchunk
     /// <summary>
     /// Lua 预编译二进制块结构
     /// </summary>
-    class BinaryChunk
+    internal class BinaryChunk
     {
         public Header Header; // 头部
         public byte SizeUpvalues; // Upvalue 的数量
@@ -50,7 +50,7 @@ namespace CsLua.Binchunk
     /// <summary>
     /// Lua 二进制预编译块头部结构
     /// </summary>
-    struct Header
+    internal struct Header
     {
         public byte[] Signature; // Lua 签名，4个字节,用于校验读取的 Chunk 是否合法
         public byte Version; // 版本号，1个字节，由三部分组成，大版本号（Major Version）、小版本号（Minor Version）、发布号（Release Version），值为大版本号乘以 16 加小版本号
@@ -68,7 +68,7 @@ namespace CsLua.Binchunk
     /// <summary>
     /// 函数原型结构
     /// </summary>
-    class ProtoType
+    internal class ProtoType
     {
         public string Source; // 源文件名
         public UInt32 LineDefined; // 起始行号
@@ -112,7 +112,7 @@ namespace CsLua.Binchunk
     /// <summary>
     /// Upvalue 结构
     /// </summary>
-    struct Upvalue
+    internal struct Upvalue
     {
         public byte Instack; // 标记是否在函数堆栈中
         public byte Idx; // upvalue 的索引（函数堆栈或外层upvalue索引）
@@ -121,7 +121,7 @@ namespace CsLua.Binchunk
     /// <summary>
     /// 局部变量结构
     /// </summary>
-    struct LocVar
+    internal struct LocVar
     {
         public string VarName; // 变量名
         public UInt32 StartPC; // 起始指令索引

@@ -3,7 +3,7 @@ using CsLua.Compiler.Lexer;
 
 namespace CsLua.Compiler.Parser
 {
-    static partial class Parser
+    internal static partial class Parser
     {
         public static Block Parse(string chunk, string chunkName)
         {

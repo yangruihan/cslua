@@ -1,3 +1,4 @@
+using CsLua;
 using CsLua.API;
 using NUnit.Framework;
 
@@ -10,7 +11,7 @@ namespace CsLuaTest
         [SetUp]
         public void Setup()
         {
-            _luaState = CSLua.CreateLuaState();
+            _luaState = CsLua.CsLua.CreateLuaState();
         }
 
         [TearDown]

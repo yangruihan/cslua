@@ -8,7 +8,7 @@ namespace CsLua.Number
     /// <summary>
     /// 算数辅助类
     /// </summary>
-    static class LuaMath
+    internal static class LuaMath
     {
         public static bool FloatToInteger(LuaFloat f, out LuaInt ret)
         {

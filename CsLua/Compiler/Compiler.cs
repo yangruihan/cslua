@@ -2,7 +2,7 @@ using CsLua.Binchunk;
 
 namespace CsLua.Compiler
 {
-    static class Compiler
+    internal static class Compiler
     {
         public static ProtoType Compile(string chunk, string chunkName)
         {

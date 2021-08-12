@@ -7,14 +7,14 @@ using CsLua.VM;
 
 namespace CsLua.Compiler.CodeGen
 {
-    struct UpvalInfo
+    internal struct UpvalInfo
     {
         public int LocVarSlot;
         public int UpvalIndex;
         public int Index;
     }
 
-    class LocVarInfo
+    internal class LocVarInfo
     {
         public LocVarInfo Prev;
         public string Name;
@@ -23,7 +23,7 @@ namespace CsLua.Compiler.CodeGen
         public bool Captured;
     }
 
-    class FuncInfo
+    internal class FuncInfo
     {
         public static readonly object NilObj = new byte();
 

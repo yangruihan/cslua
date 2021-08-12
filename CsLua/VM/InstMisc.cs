@@ -1,9 +1,8 @@
 using CsLua.API;
-using CsLua.Common;
 
 namespace CsLua.VM
 {
-    partial class InstructionAction
+    internal static partial class InstructionAction
     {
         /// <summary>
         /// R(A) = R(B) 

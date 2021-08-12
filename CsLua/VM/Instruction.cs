@@ -20,7 +20,7 @@ namespace CsLua.VM
       +-------+^------+-^-----+-^-----
      31      23      15       7      0
     */
-    struct Instruction
+    internal struct Instruction
     {
         public const int MAXARG_Bx = (1 << 18) - 1;
         public const int MAXARG_sBx = MAXARG_Bx >> 1;

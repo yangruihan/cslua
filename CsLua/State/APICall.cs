@@ -8,7 +8,7 @@ namespace CsLua.State
 {
     using Compiler = Compiler.Compiler;
 
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
         public EErrorCode Load(byte[] chunk, string chunkName, string mode)
         {
@@ -42,10 +42,10 @@ namespace CsLua.State
                 return EErrorCode.ErrSyntax;
 
             var c = new Closure(proto);
-            _stack.Push(c);
+            Stack.Push(c);
             if (proto.Upvalues.Length > 0)
             {
-                var env = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
+                var env = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
                 c.Upvals[0] = new Upvalue {Val = env};
             }
 
@@ -54,7 +54,7 @@ namespace CsLua.State
 
         public void Call(int nArgs, int nResults)
         {
-            var val = _stack[-(nArgs + 1)];
+            var val = Stack[-(nArgs + 1)];
             var ok = val.IsFunction();
             var c = val.GetClosureValue();
 
@@ -68,7 +68,7 @@ namespace CsLua.State
 
                     if (ok)
                     {
-                        _stack.Push(val);
+                        Stack.Push(val);
                         Insert(-(nArgs + 2));
                         nArgs += 1;
                     }
@@ -90,7 +90,7 @@ namespace CsLua.State
 
         public EErrorCode PCall(int nArgs, int nResults, int msgh)
         {
-            var caller = _stack;
+            var caller = Stack;
             var status = EErrorCode.ErrRun;
 
             try
@@ -100,10 +100,10 @@ namespace CsLua.State
             }
             catch (Exception e)
             {
-                while (_stack != caller)
+                while (Stack != caller)
                     PopLuaStack();
 
-                _stack.Push(e.Message);
+                Stack.Push(e.Message);
             }
 
             return status;
@@ -119,7 +119,7 @@ namespace CsLua.State
                 {Closure = c};
 
             // pass args, pop func
-            var funcAndArgs = _stack.PopN(nArgs + 1);
+            var funcAndArgs = Stack.PopN(nArgs + 1);
             newStack.PushN(funcAndArgs.Slice(1), nParams);
             newStack.Top = nRegs;
             if (nArgs > nParams && isVararg)
@@ -134,8 +134,8 @@ namespace CsLua.State
             if (nResults != 0)
             {
                 var results = newStack.PopN(newStack.Top - nRegs);
-                _stack.Check(results.Length);
-                _stack.PushN(results, nResults);
+                Stack.Check(results.Length);
+                Stack.PushN(results, nResults);
             }
         }
 
@@ -144,9 +144,9 @@ namespace CsLua.State
             var newStack = new LuaStack(nArgs + LuaConst.LUA_MINSTACK, this)
                 {Closure = c};
 
-            var args = _stack.PopN(nArgs);
+            var args = Stack.PopN(nArgs);
             newStack.PushN(args, nArgs);
-            _stack.Pop();
+            Stack.Pop();
 
             PushLuaStack(newStack);
             var r = c.CSFunction(this);
@@ -155,8 +155,8 @@ namespace CsLua.State
             if (nResults != 0)
             {
                 var results = newStack.PopN(r);
-                _stack.Check(results.Length);
-                _stack.PushN(results, nResults);
+                Stack.Check(results.Length);
+                Stack.PushN(results, nResults);
             }
         }
 

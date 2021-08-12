@@ -2,7 +2,6 @@
 using System.IO;
 using System.Text;
 using CsLua.API;
-using CsLua.Common;
 using CsLua.Libs;
 
 namespace CsLua
@@ -37,7 +36,7 @@ namespace CsLua
             {
                 var data = File.ReadAllBytes(filePath);
 
-                var l = CSLua.CreateLuaState();
+                var l = CsLua.CreateLuaState();
                 LoadLibs(l);
                 l.Load(data, filePath, "bt");
                 l.Call(0, 0);
@@ -234,7 +233,7 @@ namespace CsLua
 
         private static void DoRepl()
         {
-            var l = CSLua.CreateLuaState();
+            var l = CsLua.CreateLuaState();
             LoadLibs(l);
 
             EErrorCode status;

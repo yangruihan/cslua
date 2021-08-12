@@ -7,7 +7,7 @@ namespace CsLua.VM
     /// <summary>
     /// 操作码模式
     /// </summary>
-    enum EOpMode : byte
+    internal enum EOpMode : byte
     {
         IABC,
         IABx,
@@ -18,7 +18,7 @@ namespace CsLua.VM
     /// <summary>
     /// 操作码参数枚举
     /// </summary>
-    enum EOpArgMask : byte
+    internal enum EOpArgMask : byte
     {
         OpArgN,
         OpArgU,
@@ -29,7 +29,7 @@ namespace CsLua.VM
     /// <summary>
     /// 操作码枚举
     /// </summary>
-    enum EOpCode : byte
+    internal enum EOpCode : byte
     {
         OP_MOVE,
         OP_LOADK,
@@ -81,12 +81,12 @@ namespace CsLua.VM
         OP_UNKNOWN,
     }
 
-    delegate void LuaAction(Instruction ins, ILuaVM vm);
+    internal delegate void LuaAction(Instruction ins, ILuaVM vm);
 
     /// <summary>
     /// 操作码结构
     /// </summary>
-    struct OpCode
+    internal struct OpCode
     {
         public byte TestFlag;
         public byte SetAFlag;
@@ -112,7 +112,7 @@ namespace CsLua.VM
     /// <summary>
     /// 操作码数组
     /// </summary>
-    static class OpCodes
+    internal static class OpCodes
     {
         public static OpCode[] Codes =
         {

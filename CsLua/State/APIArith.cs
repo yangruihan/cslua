@@ -8,11 +8,11 @@ namespace CsLua.State
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    delegate LuaInt IntegerFunc(LuaInt a, LuaInt b);
+    internal delegate LuaInt IntegerFunc(LuaInt a, LuaInt b);
 
-    delegate LuaFloat FloatFunc(LuaFloat a, LuaFloat b);
+    internal delegate LuaFloat FloatFunc(LuaFloat a, LuaFloat b);
 
-    struct Operator
+    internal struct Operator
     {
         public string MetaMethod;
         public IntegerFunc IntegerFunc;
@@ -26,7 +26,7 @@ namespace CsLua.State
         }
     }
 
-    static class Operators
+    internal static class Operators
     {
         private static readonly IntegerFunc IAdd = (a, b) => a + b;
         private static readonly FloatFunc FAdd = (a, b) => a + b;
@@ -78,27 +78,27 @@ namespace CsLua.State
         /// </summary>
         public void Arith(EArithOp op)
         {
-            var b = _stack.Pop();
+            var b = Stack.Pop();
             var a = b;
 
             if (op != EArithOp.Unm && op != EArithOp.BNot)
-                a = _stack.Pop();
+                a = Stack.Pop();
 
             var o = Operators.Ops[(int) op];
             var ret = InnerArith(a, b, o);
             if (ret != null)
             {
-                _stack.Push(ret);
+                Stack.Push(ret);
                 return;
             }
 
             var mm = Operators.Ops[(int) op].MetaMethod;
             if (LuaValue.CallMetaMethod(a, b, mm, this, out ret))
             {
-                _stack.Push(ret);
+                Stack.Push(ret);
                 return;
             }
-            
+
             Debug.Panic("arithmetic error!");
         }
 

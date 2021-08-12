@@ -7,7 +7,7 @@ namespace CsLua.State
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    class LuaTable
+    internal class LuaTable
     {
         private static readonly object KeysHead = new byte();
 

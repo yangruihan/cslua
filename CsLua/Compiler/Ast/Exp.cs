@@ -9,7 +9,7 @@ namespace CsLua.Compiler.Ast
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    class Exp : IAstNode
+    internal class Exp : IAstNode
     {
         public virtual void Print(int offset)
         {
@@ -18,7 +18,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class NilExp : Exp
+    internal class NilExp : Exp
     {
         public int Line;
 
@@ -29,7 +29,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class TrueExp : Exp
+    internal class TrueExp : Exp
     {
         public int Line;
 
@@ -40,7 +40,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class FalseExp : Exp
+    internal class FalseExp : Exp
     {
         public int Line;
 
@@ -51,7 +51,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class VarargExp : Exp
+    internal class VarargExp : Exp
     {
         public int Line;
 
@@ -62,7 +62,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class IntegerExp : Exp
+    internal class IntegerExp : Exp
     {
         public int Line;
         public LuaInt Val;
@@ -74,7 +74,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class FloatExp : Exp
+    internal class FloatExp : Exp
     {
         public int Line;
         public LuaFloat Val;
@@ -86,7 +86,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class StringExp : Exp
+    internal class StringExp : Exp
     {
         public int Line;
         public string Str;
@@ -98,7 +98,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class NameExp : Exp
+    internal class NameExp : Exp
     {
         public int Line;
         public string Name;
@@ -110,7 +110,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class UnopExp : Exp
+    internal class UnopExp : Exp
     {
         public int Line;
         public ETokenType Op;
@@ -145,7 +145,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class BinopExp : Exp
+    internal class BinopExp : Exp
     {
         public int Line;
         public ETokenType Op;
@@ -161,7 +161,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class ConcatExp : Exp
+    internal class ConcatExp : Exp
     {
         public int Line;
         public List<Exp> Exps;
@@ -177,7 +177,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class TableConstructorExp : Exp
+    internal class TableConstructorExp : Exp
     {
         public int Line;
         public int LastLine;
@@ -202,7 +202,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class FuncDefExp : Exp
+    internal class FuncDefExp : Exp
     {
         public int Line;
         public int LastLine;
@@ -225,7 +225,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class ParensExp : Exp
+    internal class ParensExp : Exp
     {
         public Exp Exp;
 
@@ -237,7 +237,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class TableAccessExp : Exp
+    internal class TableAccessExp : Exp
     {
         public int LastLine;
         public Exp PrefixExp;
@@ -252,7 +252,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class FuncCallExp : Exp
+    internal class FuncCallExp : Exp
     {
         public int Line;
         public int LastLine;

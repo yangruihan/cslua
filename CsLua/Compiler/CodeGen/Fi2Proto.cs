@@ -3,7 +3,7 @@ using CsLua.Binchunk;
 
 namespace CsLua.Compiler.CodeGen
 {
-    partial class CodeGen
+    internal static partial class CodeGen
     {
         private static ProtoType ToProto(FuncInfo fi)
         {

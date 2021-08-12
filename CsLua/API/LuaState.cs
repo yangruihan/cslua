@@ -11,20 +11,25 @@ namespace CsLua.API
     /// </summary>
     public interface ILuaState
     {
+        // ----- state manipulation -----
+        CSFunction AtPanic(CSFunction panicF);
         LuaFloat Version();
-        
+
         // ----- 基础栈操作方法 -----
-        int GetTop();
+        // ----- basic stack manipulation -----
         int AbsIndex(int idx);
-        bool CheckStack(int n);
-        void Pop(int n);
-        void Copy(int fromIdx, int toIdx);
+        int GetTop();
+        void SetTop(int idx);
         void PushValue(int idx);
+        void Rotate(int idx, int n);
+        void Copy(int fromIdx, int toIdx);
+        bool CheckStack(int n);
+        void XMove(ILuaState to, int n);
+
+        void Pop(int n);
         void Replace(int idx);
         void Insert(int idx);
         void Remove(int idx);
-        void Rotate(int idx, int n);
-        void SetTop(int idx);
 
         // ----- 访问操作 -----
         string TypeName(ELuaType tp);

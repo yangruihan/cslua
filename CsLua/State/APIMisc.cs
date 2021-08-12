@@ -9,34 +9,27 @@ namespace CsLua.State
     /// <summary>
     /// 其他辅助操作运算实现
     /// </summary>
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
-        public LuaFloat Version()
-        {
-            var version = LuaConst.LUA_VERSION_NUM;
-            // TODO 使用 GlobalState Version
-            return version;
-        }
-
         /// <summary>
         /// 访问指定索引处的值，取其长度，然后推入栈顶
         /// </summary>
         /// <param name="idx"></param>
         public void Len(int idx)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             if (val.IsString())
             {
-                _stack.Push((LuaInt) val.GetStrValue().Length);
+                Stack.Push((LuaInt) val.GetStrValue().Length);
             }
             else if (LuaValue.CallMetaMethod(val, val, "__len", this,
                 out var metaMethodRet))
             {
-                _stack.Push(metaMethodRet);
+                Stack.Push(metaMethodRet);
             }
             else if (val.IsTable())
             {
-                _stack.Push((LuaInt) val.GetTableValue().Len());
+                Stack.Push((LuaInt) val.GetTableValue().Len());
             }
             else
             {
@@ -51,7 +44,7 @@ namespace CsLua.State
         {
             if (n == 0)
             {
-                _stack.Push("");
+                Stack.Push("");
             }
             else if (n >= 2)
             {
@@ -61,18 +54,18 @@ namespace CsLua.State
                     {
                         var s2 = ToString(-1);
                         var s1 = ToString(-2);
-                        _stack.Pop();
-                        _stack.Pop();
-                        _stack.Push(s1 + s2);
+                        Stack.Pop();
+                        Stack.Pop();
+                        Stack.Push(s1 + s2);
                         continue;
                     }
 
-                    var b = _stack.Pop();
-                    var a = _stack.Pop();
+                    var b = Stack.Pop();
+                    var a = Stack.Pop();
                     if (LuaValue.CallMetaMethod(a, b, "__concat", this,
                         out var metaMethodRet))
                     {
-                        _stack.Push(metaMethodRet);
+                        Stack.Push(metaMethodRet);
                         continue;
                     }
 
@@ -83,16 +76,16 @@ namespace CsLua.State
 
         public bool Next(int idx)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             if (val.IsTable())
             {
                 var lt = val.GetTableValue();
-                var key = _stack.Pop();
+                var key = Stack.Pop();
                 var nextKey = lt.NextKey(key);
                 if (!nextKey.IsNil())
                 {
-                    _stack.Push(nextKey);
-                    _stack.Push(lt.Get(nextKey));
+                    Stack.Push(nextKey);
+                    Stack.Push(lt.Get(nextKey));
                     return true;
                 }
 
@@ -105,7 +98,7 @@ namespace CsLua.State
 
         public int Error()
         {
-            var err = _stack.Pop();
+            var err = Stack.Pop();
             Debug.Panic(err.ToString());
             return -1;
         }

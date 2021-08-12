@@ -9,7 +9,7 @@ namespace CsLua.Compiler.Parser
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    static partial class Parser
+    internal static partial class Parser
     {
         private static List<Exp> ParseExpList(Lexer.Lexer lexer)
         {

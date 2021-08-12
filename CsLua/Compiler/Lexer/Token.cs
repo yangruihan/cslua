@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace CsLua.Compiler.Lexer
 {
-    enum ETokenType
+    internal enum ETokenType
     {
         Unknown,
         Eof, // end of file
@@ -70,7 +70,7 @@ namespace CsLua.Compiler.Lexer
         OpBXor = OpWave,
     }
 
-    class Token
+    internal class Token
     {
         public static readonly Dictionary<string, ETokenType> Keywords = new Dictionary<string, ETokenType>
         {

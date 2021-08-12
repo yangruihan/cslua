@@ -10,17 +10,17 @@ namespace CsLua.State
     /// <summary>
     /// 比较运算实现
     /// </summary>
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
         public bool RawEqual(int idx1, int idx2)
         {
-            if (_stack.IsValid(idx1) || _stack.IsValid(idx2))
+            if (Stack.IsValid(idx1) || Stack.IsValid(idx2))
             {
                 return false;
             }
 
-            var a = _stack[idx1];
-            var b = _stack[idx2];
+            var a = Stack[idx1];
+            var b = Stack[idx2];
             return Eq(a, b, null);
         }
 
@@ -29,11 +29,11 @@ namespace CsLua.State
         /// </summary>
         public bool Compare(int idx1, int idx2, ECompOp op)
         {
-            if (!_stack.IsValid(idx1) || !_stack.IsValid(idx2))
+            if (!Stack.IsValid(idx1) || !Stack.IsValid(idx2))
                 return false;
 
-            var a = _stack[idx1];
-            var b = _stack[idx2];
+            var a = Stack[idx1];
+            var b = Stack[idx2];
 
             switch (op)
             {

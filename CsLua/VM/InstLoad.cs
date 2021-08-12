@@ -2,7 +2,7 @@ using CsLua.API;
 
 namespace CsLua.VM
 {
-    partial class InstructionAction
+    internal static partial class InstructionAction
     {
         /// <summary>
         /// R(A), R(A + 1), ..., R(A + B) = nil 

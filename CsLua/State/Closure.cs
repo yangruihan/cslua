@@ -3,12 +3,12 @@ using CsLua.Binchunk;
 
 namespace CsLua.State
 {
-    struct Upvalue
+    internal struct Upvalue
     {
         public LuaValue Val;
     }
     
-    class Closure
+    internal class Closure
     {
         public ProtoType Proto;
         public CSFunction CSFunction;

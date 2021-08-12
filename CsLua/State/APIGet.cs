@@ -6,7 +6,7 @@ namespace CsLua.State
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
         public void NewTable()
         {
@@ -16,54 +16,54 @@ namespace CsLua.State
         public void CreateTable(int nArr, int nRec)
         {
             var t = new LuaTable(nArr, nRec);
-            _stack.Push(t);
+            Stack.Push(t);
         }
 
         public ELuaType GetTable(int idx)
         {
-            var t = _stack[idx];
-            var k = _stack.Pop();
+            var t = Stack[idx];
+            var k = Stack.Pop();
             return InnerGetTable(t, k, false);
         }
 
         public ELuaType GetField(int idx, string key)
         {
-            var t = _stack[idx];
+            var t = Stack[idx];
             return InnerGetTable(t, new LuaValue(key, ELuaType.String), false);
         }
 
         public ELuaType RawGet(int idx)
         {
-            var t = _stack[idx];
-            var k = _stack.Pop();
+            var t = Stack[idx];
+            var k = Stack.Pop();
             return InnerGetTable(t, k, true);
         }
 
         public ELuaType RawGetI(int idx, long i)
         {
-            var t = _stack[idx];
+            var t = Stack[idx];
             return InnerGetTable(t, new LuaValue(i), true);
         }
 
         public ELuaType GetI(int idx, LuaInt i)
         {
-            var t = _stack[idx];
+            var t = Stack[idx];
             return InnerGetTable(t, new LuaValue(i), false);
         }
 
         public ELuaType GetGlobal(string name)
         {
-            var t = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
+            var t = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
             return InnerGetTable(t, new LuaValue(name, ELuaType.String), false);
         }
 
         public bool GetMetaTable(int idx)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             var mt = LuaValue.GetMetaTable(val, this);
             if (mt != null)
             {
-                _stack.Push(mt);
+                Stack.Push(mt);
                 return true;
             }
 
@@ -79,7 +79,7 @@ namespace CsLua.State
 
                 if (raw || !v.IsNil() || !table.HasMetaField("__index"))
                 {
-                    _stack.Push(v);
+                    Stack.Push(v);
                     return v.Type;
                 }
             }
@@ -96,11 +96,11 @@ namespace CsLua.State
 
                     if (mf.IsFunction())
                     {
-                        _stack.Push(mf);
-                        _stack.Push(t);
-                        _stack.Push(k);
+                        Stack.Push(mf);
+                        Stack.Push(t);
+                        Stack.Push(k);
                         Call(2, 1);
-                        var v = _stack.Get(-1);
+                        var v = Stack.Get(-1);
                         return v.Type;
                     }
                 }

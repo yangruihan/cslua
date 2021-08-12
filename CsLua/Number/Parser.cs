@@ -5,7 +5,7 @@ namespace CsLua.Number
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    static class Parser
+    internal static class Parser
     {
         public static bool ParseInteger(string str, out LuaInt ret)
         {

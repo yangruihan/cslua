@@ -4,7 +4,7 @@ using CsLua.Compiler.Ast;
 
 namespace CsLua.Compiler.CodeGen
 {
-    partial class CodeGen
+    internal static partial class CodeGen
     {
         public static ProtoType GenProto(Block chunk)
         {

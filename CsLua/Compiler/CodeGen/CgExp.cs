@@ -6,7 +6,7 @@ using CsLua.VM;
 
 namespace CsLua.Compiler.CodeGen
 {
-    partial class CodeGen
+    internal static partial class CodeGen
     {
         private static void CgExp(FuncInfo fi, Exp node, int a, int n)
         {

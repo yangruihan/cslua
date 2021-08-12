@@ -1,6 +1,6 @@
 namespace CsLua.VM
 {
-    static class Fpb
+    internal static class Fpb
     {
         /// <summary>
         /// converts an integer to a "floating point byte", represented as

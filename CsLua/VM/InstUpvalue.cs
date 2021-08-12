@@ -5,7 +5,7 @@ namespace CsLua.VM
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    partial class InstructionAction
+    internal static partial class InstructionAction
     {
         /// <summary>
         /// R(A) = UpValue[B] 

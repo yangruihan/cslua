@@ -7,7 +7,7 @@ using CsLua.Common;
 
 namespace CsLua.Compiler.Lexer
 {
-    class Lexer
+    internal class Lexer
     {
         #region Regex Attributes
 

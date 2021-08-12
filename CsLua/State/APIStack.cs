@@ -6,14 +6,14 @@ namespace CsLua.State
     /// <summary>
     /// 基础栈操作方法实现
     /// </summary>
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
         /// <summary>
         /// 返回栈顶索引
         /// </summary>
         public int GetTop()
         {
-            return _stack.Top;
+            return Stack.Top;
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace CsLua.State
         /// </summary>
         public int AbsIndex(int idx)
         {
-            return _stack.AbsIndex(idx);
+            return Stack.AbsIndex(idx);
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace CsLua.State
         /// </summary>
         public bool CheckStack(int n)
         {
-            _stack.Check(n);
+            Stack.Check(n);
             return true;
         }
 
@@ -39,7 +39,7 @@ namespace CsLua.State
         public void Pop(int n)
         {
             for (var i = 0; i < n; i++)
-                _stack.Pop();
+                Stack.Pop();
         }
 
         /// <summary>
@@ -47,8 +47,8 @@ namespace CsLua.State
         /// </summary>
         public void Copy(int fromIdx, int toIdx)
         {
-            var val = _stack[fromIdx];
-            _stack[toIdx] = val;
+            var val = Stack[fromIdx];
+            Stack[toIdx] = val;
         }
 
         /// <summary>
@@ -56,8 +56,8 @@ namespace CsLua.State
         /// </summary>
         public void PushValue(int idx)
         {
-            var val = _stack[idx];
-            _stack.Push(val);
+            var val = Stack[idx];
+            Stack.Push(val);
         }
 
         /// <summary>
@@ -65,8 +65,8 @@ namespace CsLua.State
         /// </summary>
         public void Replace(int idx)
         {
-            var val = _stack.Pop();
-            _stack[idx] = val;
+            var val = Stack.Pop();
+            Stack[idx] = val;
         }
 
         /// <summary>
@@ -91,12 +91,12 @@ namespace CsLua.State
         /// </summary>
         public void Rotate(int idx, int n)
         {
-            var t = _stack.Top - 1;
-            var p = _stack.AbsIndex(idx) - 1;
+            var t = Stack.Top - 1;
+            var p = Stack.AbsIndex(idx) - 1;
             var m = n >= 0 ? t - n : p - n - 1;
-            _stack.Reverse(p, m);
-            _stack.Reverse(m + 1, t);
-            _stack.Reverse(p, t);
+            Stack.Reverse(p, m);
+            Stack.Reverse(m + 1, t);
+            Stack.Reverse(p, t);
         }
 
         /// <summary>
@@ -104,21 +104,29 @@ namespace CsLua.State
         /// </summary>
         public void SetTop(int idx)
         {
-            var newTop = _stack.AbsIndex(idx);
+            var newTop = Stack.AbsIndex(idx);
             if (newTop < 0)
                 Debug.Panic("stack underflow!");
 
-            var n = _stack.Top - newTop;
+            var n = Stack.Top - newTop;
             if (n > 0)
             {
                 for (var i = 0; i < n; i++)
-                    _stack.Pop();
+                    Stack.Pop();
             }
             else
             {
                 for (var i = 0; i > n; i--)
-                    _stack.Push(LuaValue.Nil);
+                    Stack.Push(LuaValue.Nil);
             }
+        }
+
+        public void XMove(ILuaState to, int n)
+        {
+            if (to == this)
+                return;
+            
+            
         }
     }
 }

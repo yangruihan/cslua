@@ -6,49 +6,49 @@ namespace CsLua.State
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
         public void SetTable(int idx)
         {
-            var t = _stack[idx];
-            var v = _stack.Pop();
-            var k = _stack.Pop();
+            var t = Stack[idx];
+            var v = Stack.Pop();
+            var k = Stack.Pop();
             InnerSetTable(t, k, v, false);
         }
 
         public void SetField(int idx, string k)
         {
-            var t = _stack[idx];
-            var v = _stack.Pop();
+            var t = Stack[idx];
+            var v = Stack.Pop();
             InnerSetTable(t, new LuaValue(k, ELuaType.String), v, false);
         }
 
         public void RawSet(int idx)
         {
-            var t = _stack[idx];
-            var v = _stack.Pop();
-            var k = _stack.Pop();
+            var t = Stack[idx];
+            var v = Stack.Pop();
+            var k = Stack.Pop();
             InnerSetTable(t, k, v, true);
         }
 
         public void RawSetI(int idx, long i)
         {
-            var t = _stack[idx];
-            var v = _stack.Pop();
+            var t = Stack[idx];
+            var v = Stack.Pop();
             InnerSetTable(t, new LuaValue(i), v, true);
         }
 
         public void SetI(int idx, LuaInt i)
         {
-            var t = _stack[idx];
-            var v = _stack.Pop();
+            var t = Stack[idx];
+            var v = Stack.Pop();
             InnerSetTable(t, new LuaValue(i), v, false);
         }
 
         public void SetGlobal(string name)
         {
-            var t = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
-            var v = _stack.Pop();
+            var t = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
+            var v = Stack.Pop();
             InnerSetTable(t, new LuaValue(name, ELuaType.String), v, false);
         }
 
@@ -60,8 +60,8 @@ namespace CsLua.State
 
         public void SetMetaTable(int idx)
         {
-            var val = _stack[idx];
-            var mtVal = _stack.Pop();
+            var val = Stack[idx];
+            var mtVal = Stack.Pop();
             if (mtVal is null)
             {
                 LuaValue.SetMetaTable(val, null, this);
@@ -99,10 +99,10 @@ namespace CsLua.State
                     }
                     else if (mf.IsFunction())
                     {
-                        _stack.Push(mf);
-                        _stack.Push(t);
-                        _stack.Push(k);
-                        _stack.Push(v);
+                        Stack.Push(mf);
+                        Stack.Push(t);
+                        Stack.Push(k);
+                        Stack.Push(v);
                         Call(3, 0);
                         return;
                     }

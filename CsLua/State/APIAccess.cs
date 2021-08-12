@@ -1,4 +1,3 @@
-using System;
 using CsLua.API;
 
 namespace CsLua.State
@@ -9,11 +8,11 @@ namespace CsLua.State
     /// <summary>
     /// 从栈里获取信息
     /// </summary>
-    partial class LuaState : ILuaState
+    internal partial class LuaState : ILuaState
     {
         public uint RawLen(int idx)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             if (val.IsString())
                 return (uint) val.GetStrValue().Length;
 
@@ -60,9 +59,9 @@ namespace CsLua.State
         /// </summary>
         public ELuaType Type(int idx)
         {
-            if (_stack.IsValid(idx))
+            if (Stack.IsValid(idx))
             {
-                var val = _stack[idx];
+                var val = Stack[idx];
                 return val.Type;
             }
 
@@ -122,7 +121,7 @@ namespace CsLua.State
 
         public bool IsCSFunction(int idx)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             return val.IsCSFunction();
         }
 
@@ -134,12 +133,12 @@ namespace CsLua.State
         public bool IsArray(int idx)
         {
             if (!IsTable(idx)) return false;
-            return _stack[idx].GetTableValue().IsArray();
+            return Stack[idx].GetTableValue().IsArray();
         }
 
         public bool ToBoolean(int idx)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             return val.ToBoolean();
         }
 
@@ -151,7 +150,7 @@ namespace CsLua.State
 
         public bool ToIntegerX(int idx, out LuaInt ret)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             var ok = val.IsInt();
             ret = ok ? val.GetIntValue() : 0;
             return ok;
@@ -165,7 +164,7 @@ namespace CsLua.State
 
         public bool ToNumberX(int idx, out LuaFloat ret)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             if (val.IsFloat())
             {
                 ret = val.GetFloatValue();
@@ -191,7 +190,7 @@ namespace CsLua.State
 
         public bool ToStringX(int idx, out string ret)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             if (val.IsString())
             {
                 ret = val.GetStrValue();
@@ -201,7 +200,7 @@ namespace CsLua.State
             if (val.IsNumber())
             {
                 ret = val.ToString();
-                _stack[idx] = new LuaValue(ret, ELuaType.String);
+                Stack[idx] = new LuaValue(ret, ELuaType.String);
                 return true;
             }
 
@@ -211,13 +210,13 @@ namespace CsLua.State
 
         public CSFunction ToCSFunction(int idx)
         {
-            var val = _stack[idx];
+            var val = Stack[idx];
             return val.GetCSFunctionValue();
         }
 
         public object ToUserdata(int idx)
         {
-            return _stack[idx].GetObjValue();
+            return Stack[idx].GetObjValue();
         }
     }
 }

@@ -5,10 +5,10 @@ using CsLua.Number;
 
 namespace CsLua.State
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
+    using LuaInt = Int64;
+    using LuaFloat = Double;
 
-    class LuaValue
+    internal class LuaValue
     {
         public static readonly LuaValue Nil = new LuaValue(null, ELuaType.Nil);
         public static readonly LuaValue True = new LuaValue(true);

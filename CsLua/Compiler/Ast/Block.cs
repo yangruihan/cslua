@@ -4,12 +4,12 @@ using System.Text;
 
 namespace CsLua.Compiler.Ast
 {
-    interface IAstNode
+    internal interface IAstNode
     {
         void Print(int offset);
     }
 
-    class Block : IAstNode
+    internal class Block : IAstNode
     {
         public int LastLine;
         public List<Stat> Stats;

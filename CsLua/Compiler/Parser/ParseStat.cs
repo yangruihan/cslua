@@ -5,7 +5,7 @@ using CsLua.Compiler.Lexer;
 
 namespace CsLua.Compiler.Parser
 {
-    static partial class Parser
+    internal static partial class Parser
     {
         private static Stat ParseStat(Lexer.Lexer lexer)
         {

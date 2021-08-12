@@ -3,29 +3,29 @@ using CsLua.API;
 
 namespace CsLua.State
 {
-    partial class LuaState : ILuaVM
+    internal partial class LuaState : ILuaVM
     {
         public int PC()
         {
-            return _stack.PC;
+            return Stack.PC;
         }
 
         public void AddPC(int n)
         {
-            _stack.PC += n;
+            Stack.PC += n;
         }
 
         public uint Fetch()
         {
-            var i = _stack.Closure.Proto.Code[_stack.PC];
-            _stack.PC++;
+            var i = Stack.Closure.Proto.Code[Stack.PC];
+            Stack.PC++;
             return i;
         }
 
         public void GetConst(int idx)
         {
-            var c = _stack.Closure.Proto.Constatns[idx];
-            _stack.Push(c);
+            var c = Stack.Closure.Proto.Constatns[idx];
+            Stack.Push(c);
         }
 
         public void GetRK(int rk)
@@ -38,56 +38,56 @@ namespace CsLua.State
 
         public int RegisterCount()
         {
-            return (int) _stack.Closure.Proto.MaxStackSize;
+            return (int) Stack.Closure.Proto.MaxStackSize;
         }
 
         public void LoadVararg(int n)
         {
             if (n < 0)
-                n = _stack.Varargs.Length;
+                n = Stack.Varargs.Length;
 
-            _stack.Check(n);
-            _stack.PushN(_stack.Varargs, n);
+            Stack.Check(n);
+            Stack.PushN(Stack.Varargs, n);
         }
 
         public void LoadProto(int idx)
         {
-            var proto = _stack.Closure.Proto.Protos[idx];
+            var proto = Stack.Closure.Proto.Protos[idx];
             var closure = new Closure(proto);
-            _stack.Push(closure);
+            Stack.Push(closure);
 
             for (var i = 0; i < proto.Upvalues.Length; i++)
             {
                 var uvInfo = proto.Upvalues[i];
                 if (uvInfo.Instack == 1)
                 {
-                    if (_stack.Openuvs is null)
-                        _stack.Openuvs = new Dictionary<int, Upvalue>();
+                    if (Stack.Openuvs is null)
+                        Stack.Openuvs = new Dictionary<int, Upvalue>();
 
-                    if (_stack.Openuvs.ContainsKey(uvInfo.Idx))
+                    if (Stack.Openuvs.ContainsKey(uvInfo.Idx))
                     {
-                        closure.Upvals[i] = _stack.Openuvs[uvInfo.Idx];
+                        closure.Upvals[i] = Stack.Openuvs[uvInfo.Idx];
                     }
                     else
                     {
-                        closure.Upvals[i] = new Upvalue {Val = _stack.Slots[uvInfo.Idx]};
-                        _stack.Openuvs[uvInfo.Idx] = closure.Upvals[i];
+                        closure.Upvals[i] = new Upvalue {Val = Stack.Slots[uvInfo.Idx]};
+                        Stack.Openuvs[uvInfo.Idx] = closure.Upvals[i];
                     }
                 }
                 else
                 {
-                    closure.Upvals[i] = _stack.Closure.Upvals[uvInfo.Idx];
+                    closure.Upvals[i] = Stack.Closure.Upvals[uvInfo.Idx];
                 }
             }
         }
 
         public void CloseUpvalues(int a)
         {
-            for (var i = 0; i < _stack.Openuvs.Count; i++)
+            for (var i = 0; i < Stack.Openuvs.Count; i++)
             {
                 if (i >= a - 1)
                 {
-                    _stack.Openuvs.Remove(i);
+                    Stack.Openuvs.Remove(i);
                 }
             }
         }

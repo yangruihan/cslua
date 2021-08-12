@@ -2,7 +2,7 @@ using CsLua.API;
 
 namespace CsLua.VM
 {
-    partial class InstructionAction
+    internal static partial class InstructionAction
     {
         public static LuaAction Add = (ins, vm) => BinaryArith(ins, vm, EArithOp.Add);
         public static LuaAction Sub = (ins, vm) => BinaryArith(ins, vm, EArithOp.Sub);

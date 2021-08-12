@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CsLua.Compiler.Ast
 {
-    class Stat : IAstNode
+    internal class Stat : IAstNode
     {
         public virtual void Print(int offset)
         {
@@ -13,7 +13,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class EmptyStat : Stat
+    internal class EmptyStat : Stat
     {
         public override void Print(int offset)
         {
@@ -22,7 +22,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class BreakStat : Stat
+    internal class BreakStat : Stat
     {
         public int Line;
 
@@ -33,7 +33,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class LabelStat : Stat
+    internal class LabelStat : Stat
     {
         public string Name;
 
@@ -44,7 +44,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class GotoStat : Stat
+    internal class GotoStat : Stat
     {
         public string Name;
 
@@ -55,7 +55,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class DoStat : Stat
+    internal class DoStat : Stat
     {
         public Block Block;
 
@@ -67,7 +67,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class FuncCallStat : Stat
+    internal class FuncCallStat : Stat
     {
         public int Line;
         public int LastLine;
@@ -84,7 +84,7 @@ namespace CsLua.Compiler.Ast
 
             PrefixExp?.Print(offset + 1);
             NameExp?.Print(offset + 1);
-            
+
             if (Args != null)
                 foreach (var arg in Args)
                     arg?.Print(offset + 1);
@@ -115,7 +115,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class WhileStat : Stat
+    internal class WhileStat : Stat
     {
         public Exp Exp;
         public Block Block;
@@ -129,7 +129,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class RepeatStat : Stat
+    internal class RepeatStat : Stat
     {
         public Block Block;
         public Exp Exp;
@@ -143,7 +143,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class IfStat : Stat
+    internal class IfStat : Stat
     {
         public List<Exp> Exps;
         public List<Block> Blocks;
@@ -152,7 +152,7 @@ namespace CsLua.Compiler.Ast
         {
             base.Print(offset);
             Console.WriteLine($"[IfStat]");
-            
+
             if (Exps != null)
                 foreach (var exp in Exps)
                     exp?.Print(offset + 1);
@@ -163,7 +163,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class ForNumStat : Stat
+    internal class ForNumStat : Stat
     {
         public int LineOfFor;
         public int LineOfDo;
@@ -184,7 +184,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class ForInStat : Stat
+    internal class ForInStat : Stat
     {
         public int LineOfDo;
         public List<string> NameList;
@@ -210,7 +210,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class LocalVarDeclStat : Stat
+    internal class LocalVarDeclStat : Stat
     {
         public int LastLine;
         public List<string> NameList;
@@ -220,7 +220,7 @@ namespace CsLua.Compiler.Ast
         {
             base.Print(offset);
             var sb = new StringBuilder();
-            
+
             if (NameList != null)
                 foreach (var name in NameList)
                     sb.Append(name).Append(" ");
@@ -234,7 +234,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class AssignStat : Stat
+    internal class AssignStat : Stat
     {
         public int LastLine;
         public List<Exp> VarList;
@@ -257,7 +257,7 @@ namespace CsLua.Compiler.Ast
         }
     }
 
-    class LocalFuncDefStat : Stat
+    internal class LocalFuncDefStat : Stat
     {
         public string Name;
         public FuncDefExp Exp;
