@@ -266,7 +266,7 @@ namespace CsLua.Libs
             }
 
             ls.ArgCheck(low <= up, 1, "interval is empty");
-            ls.ArgCheck(low >= 0 || up <= Consts.LUA_MAXINTEGER + low, 1, "interval too large");
+            ls.ArgCheck(low >= 0 || up <= LuaConst.LUA_MAXINTEGER + low, 1, "interval too large");
 
             r *= (LuaFloat) (up - low) + 1.0f;
             ls.PushInteger((LuaInt) r + low);

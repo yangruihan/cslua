@@ -11,6 +11,13 @@ namespace CsLua.State
     /// </summary>
     partial class LuaState : ILuaState
     {
+        public LuaFloat Version()
+        {
+            var version = LuaConst.LUA_VERSION_NUM;
+            // TODO 使用 GlobalState Version
+            return version;
+        }
+
         /// <summary>
         /// 访问指定索引处的值，取其长度，然后推入栈顶
         /// </summary>

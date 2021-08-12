@@ -45,7 +45,7 @@ namespace CsLua.State
             _stack.Push(c);
             if (proto.Upvalues.Length > 0)
             {
-                var env = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+                var env = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
                 c.Upvals[0] = new Upvalue {Val = env};
             }
 
@@ -115,7 +115,7 @@ namespace CsLua.State
             var nParams = (int) c.Proto.NumParams;
             var isVararg = c.Proto.IsVararg == 1;
 
-            var newStack = new LuaStack(nRegs + Consts.LUA_MINSTACK, this)
+            var newStack = new LuaStack(nRegs + LuaConst.LUA_MINSTACK, this)
                 {Closure = c};
 
             // pass args, pop func
@@ -141,7 +141,7 @@ namespace CsLua.State
 
         private void CallCSClosure(int nArgs, int nResults, Closure c)
         {
-            var newStack = new LuaStack(nArgs + Consts.LUA_MINSTACK, this)
+            var newStack = new LuaStack(nArgs + LuaConst.LUA_MINSTACK, this)
                 {Closure = c};
 
             var args = _stack.PopN(nArgs);

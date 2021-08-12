@@ -47,7 +47,7 @@ namespace CsLua.State
 
         public void PushGlobalTable()
         {
-            var global = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+            var global = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
             _stack.Push(global);
         }
 

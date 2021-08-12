@@ -11,6 +11,8 @@ namespace CsLua.API
     /// </summary>
     public interface ILuaState
     {
+        LuaFloat Version();
+        
         // ----- 基础栈操作方法 -----
         int GetTop();
         int AbsIndex(int idx);

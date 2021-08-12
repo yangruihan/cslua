@@ -53,7 +53,7 @@ namespace CsLua.State
 
         public ELuaType GetGlobal(string name)
         {
-            var t = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+            var t = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
             return InnerGetTable(t, new LuaValue(name, ELuaType.String), false);
         }
 

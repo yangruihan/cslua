@@ -1,4 +1,5 @@
 using System;
+using CsLua.API;
 using CsLua.Common;
 
 namespace CsLua.Binchunk
@@ -77,7 +78,7 @@ namespace CsLua.Binchunk
         /// </summary>
         public bool CheckHeader()
         {
-            if (ReadBytes(4).ToStr() != ChunkConst.LUA_SIGNATURE)
+            if (ReadBytes(4).ToStr() != LuaConst.LUA_SIGNATURE)
                 Debug.Panic("not a precompiled chunk!");
 
             if (ReadByte() != ChunkConst.LUAC_VERSION)

@@ -16,8 +16,8 @@ namespace CsLua.State
         {
             _registry = new LuaTable(0, 0);
             _registryShell = new LuaValue(_registry, ELuaType.Table);
-            _registry.Put(Consts.LUA_RIDX_GLOBALS, new LuaTable(0, 0));
-            PushLuaStack(new LuaStack(Consts.LUA_MINSTACK, this));
+            _registry.Put(LuaConst.LUA_RIDX_GLOBALS, new LuaTable(0, 0));
+            PushLuaStack(new LuaStack(LuaConst.LUA_MINSTACK, this));
         }
 
         public void PushLuaStack(LuaStack stack)
@@ -37,16 +37,16 @@ namespace CsLua.State
         {
             return _registryShell;
         }
-        
+
         public void SetRegistry(LuaTable luaTable)
         {
             _registry = luaTable;
             _registryShell = new LuaValue(_registry, ELuaType.Table);
         }
-        
+
         public int LuaUpvalueIndex(int i)
         {
-            return Consts.LUA_REGISTRYINDEX - i;
+            return LuaConst.LUA_REGISTRYINDEX - i;
         }
     }
 }

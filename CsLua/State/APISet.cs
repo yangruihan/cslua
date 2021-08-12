@@ -47,7 +47,7 @@ namespace CsLua.State
 
         public void SetGlobal(string name)
         {
-            var t = _registry.Get(Consts.LUA_RIDX_GLOBALS);
+            var t = _registry.Get(LuaConst.LUA_RIDX_GLOBALS);
             var v = _stack.Pop();
             InnerSetTable(t, new LuaValue(name, ELuaType.String), v, false);
         }

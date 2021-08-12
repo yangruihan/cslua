@@ -9,6 +9,8 @@ namespace CsLua
     internal class Program
     {
         private static readonly string EOFMARK = "<eof>";
+        private static readonly string LUA_PROMPT = "> ";
+        private static readonly string LUA_PROMPT2 = ">> ";
 
         private static string ProgName = "lua";
 
@@ -34,7 +36,7 @@ namespace CsLua
             catch (IOException e)
             {
                 Console.WriteLine(e.ToString());
-                return (int) EErrorCode.ErrFile;
+                return (int) EErrorCode.Undefine;
             }
             catch (Exception e)
             {
@@ -47,7 +49,7 @@ namespace CsLua
         {
             l.GetGlobal(firstLine ? "_PROMPT" : "_PROMPT2");
             string p = l.ToString(-1) ??
-                       (firstLine ? Consts.LUA_PROMPT : Consts.LUA_PROMPT2);
+                       (firstLine ? LUA_PROMPT : LUA_PROMPT2);
             return p;
         }
 
@@ -195,7 +197,7 @@ namespace CsLua
             var n = l.GetTop();
             if (n > 0)
             {
-                l.CheckStack(Consts.LUA_MINSTACK, "too many results to print");
+                l.CheckStack(LuaConst.LUA_MINSTACK, "too many results to print");
                 l.GetGlobal("print");
                 l.Insert(1);
                 if (l.PCall(n, 0, 0) != EErrorCode.Ok)

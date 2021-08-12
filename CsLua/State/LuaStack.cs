@@ -105,7 +105,7 @@ namespace CsLua.State
 
         public int AbsIndex(int idx)
         {
-            if (idx >= 0 || idx <= Consts.LUA_REGISTRYINDEX)
+            if (idx >= 0 || idx <= LuaConst.LUA_REGISTRYINDEX)
                 return idx;
 
             return idx + Top + 1;
@@ -114,14 +114,14 @@ namespace CsLua.State
         public bool IsValid(int idx)
         {
             // upvalues
-            if (idx < Consts.LUA_REGISTRYINDEX)
+            if (idx < LuaConst.LUA_REGISTRYINDEX)
             {
-                var uvIdx = Consts.LUA_REGISTRYINDEX - idx - 1;
+                var uvIdx = LuaConst.LUA_REGISTRYINDEX - idx - 1;
                 return Closure != null && uvIdx < Closure.Upvals.Length;
             }
 
             // registry
-            if (idx == Consts.LUA_REGISTRYINDEX)
+            if (idx == LuaConst.LUA_REGISTRYINDEX)
                 return true;
 
             var absIdx = AbsIndex(idx);
@@ -131,9 +131,9 @@ namespace CsLua.State
         public LuaValue Get(int idx)
         {
             // upvalues
-            if (idx < Consts.LUA_REGISTRYINDEX)
+            if (idx < LuaConst.LUA_REGISTRYINDEX)
             {
-                var uvIdx = Consts.LUA_REGISTRYINDEX - idx - 1;
+                var uvIdx = LuaConst.LUA_REGISTRYINDEX - idx - 1;
                 if (Closure is null || uvIdx > Closure.Upvals.Length)
                     return null;
 
@@ -141,7 +141,7 @@ namespace CsLua.State
             }
 
             // registry
-            if (idx == Consts.LUA_REGISTRYINDEX)
+            if (idx == LuaConst.LUA_REGISTRYINDEX)
                 return State.GetRegistry();
 
             var absIndex = AbsIndex(idx);
@@ -153,16 +153,16 @@ namespace CsLua.State
         public void Set(int idx, LuaValue val)
         {
             // upvalues
-            if (idx < Consts.LUA_REGISTRYINDEX)
+            if (idx < LuaConst.LUA_REGISTRYINDEX)
             {
-                var uvIdx = Consts.LUA_REGISTRYINDEX - idx - 1;
+                var uvIdx = LuaConst.LUA_REGISTRYINDEX - idx - 1;
                 if (Closure != null && uvIdx < Closure.Upvals.Length)
                     Closure.Upvals[uvIdx].Val = val;
                 return;
             }
 
             // registry
-            if (idx == Consts.LUA_REGISTRYINDEX)
+            if (idx == LuaConst.LUA_REGISTRYINDEX)
             {
                 State.SetRegistry(val.GetTableValue());
                 return;

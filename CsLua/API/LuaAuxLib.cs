@@ -3,9 +3,10 @@ namespace CsLua.API
     using LuaInt = System.Int64;
     using LuaFloat = System.Double;
 
-    public static class LuaStateEx
+    public static class LuaAuxLib
     {
-        // ----- Error -----
+        // ----- Error-report functions -----
+        
         private static void IntError(ILuaState ls, int arg)
         {
             if (ls.IsNumber(arg))
@@ -45,17 +46,29 @@ namespace CsLua.API
             //TODO 完善代码
             return ls.Error($"bad argument #{arg} ({msg})");
         }
+        
+        // ----- Argument check functions -----
+        
+        public static void CheckStack(this ILuaState ls, int n, string errorMsg)
+        {
+            if (!ls.CheckStack(n))
+                ls.Error(errorMsg);
+        }
 
         public static int ArgCheck(this ILuaState ls, bool cond, int arg,
             string msg)
         {
             return !cond ? ls.ArgError(arg, msg) : 0;
         }
-
-        public static void CheckStack(this ILuaState ls, int n, string errorMsg)
+        
+        public static void CheckAny(this ILuaState ls, int arg)
         {
-            if (!ls.CheckStack(n))
-                ls.Error(errorMsg);
+            if (ls.Type(arg) == ELuaType.None)
+                ls.ArgError(arg, "value expected");
+        }
+
+        public static void CheckType(this ILuaState ls, ELuaType type)
+        {
         }
 
         public static LuaInt CheckInteger(this ILuaState ls, int arg)
@@ -72,12 +85,6 @@ namespace CsLua.API
                 ls.TagError(arg, ELuaType.Number);
 
             return ret;
-        }
-
-        public static void CheckAny(this ILuaState ls, int arg)
-        {
-            if (ls.Type(arg) == ELuaType.None)
-                ls.ArgError(arg, "value expected");
         }
 
         public static LuaFloat OptNumber(this ILuaState ls, int arg,

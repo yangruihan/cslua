@@ -1,4 +1,5 @@
 using System;
+using CsLua.API;
 using CsLua.Common;
 
 namespace CsLua.Binchunk
@@ -11,7 +12,6 @@ namespace CsLua.Binchunk
     /// </summary>
     public class ChunkConst
     {
-        public const string LUA_SIGNATURE = "\u001bLua"; // Lua 签名，4个字节,用于校验读取的 Chunk 是否合法
         public const byte LUAC_VERSION = 0x53; // 版本号，1个字节，由三部分组成，大版本号（Major Version）、小版本号（Minor Version）、发布号（Release Version），值为大版本号乘以 16 加小版本号
         public const byte LUAC_FORMAT = 0; // 格式号，1个字节，校验用，Lua 官方实现使用的格式号是 0
         public const string LUAC_DATA = "\u0019\u0093\u000d\u000a\u001a\u000a"; // 6个字节，校验用，前两个字节为 0x1993，后面字节依次是 0x0d（回车）、0x0a（换行）、0x1a（替换符）、0x0a（换行符）
@@ -93,7 +93,7 @@ namespace CsLua.Binchunk
 
             var sign = new byte[4];
             Array.Copy(data, sign, 4);
-            return sign.ToStr() == ChunkConst.LUA_SIGNATURE;
+            return sign.ToStr() == LuaConst.LUA_SIGNATURE;
         }
 
         public static ProtoType Undump(byte[] data)

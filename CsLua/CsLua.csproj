@@ -38,9 +38,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\Consts.cs" />
+    <Compile Include="API\LuaConst.cs" />
     <Compile Include="API\LuaState.cs" />
-    <Compile Include="API\LuaStateEx.cs" />
+    <Compile Include="API\LuaAuxLib.cs" />
     <Compile Include="API\LuaVM.cs" />
     <Compile Include="Binchunk\BinaryChunk.cs" />
     <Compile Include="Binchunk\Reader.cs" />
