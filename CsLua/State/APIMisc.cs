@@ -102,7 +102,7 @@ namespace CsLua.State
 
         public void Assert(bool cond)
         {
-            System.Diagnostics.Debug.Assert(cond);
+            Check(cond, "");
         }
     }
 }

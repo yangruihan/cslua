@@ -41,17 +41,17 @@ namespace CsLua
                 l.Load(data, filePath, "bt");
                 l.Call(0, 0);
 
-                return (int) EErrorCode.Ok;
+                return (int) EStatus.Ok;
             }
             catch (IOException e)
             {
                 Console.WriteLine(e.ToString());
-                return (int) EErrorCode.Undefine;
+                return (int) EStatus.Undefine;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                return (int) EErrorCode.ErrRun;
+                return (int) EStatus.ErrRun;
             }
         }
 
@@ -96,22 +96,22 @@ namespace CsLua
             }
         }
 
-        private static EErrorCode AddReturn(ILuaState l)
+        private static EStatus AddReturn(ILuaState l)
         {
             var line = l.ToString(-1);
             var retLine = l.PushString($"return {line}");
 
-            EErrorCode status;
+            EStatus status;
             try
             {
                 status = l.Load(GetBytes(retLine), "=stdin", "bt");
             }
             catch (LuaException)
             {
-                status = EErrorCode.ErrSyntax;
+                status = EStatus.ErrSyntax;
             }
 
-            if (status == EErrorCode.Ok)
+            if (status == EStatus.Ok)
             {
                 l.Remove(-2); // remove modified line
             }
@@ -125,9 +125,9 @@ namespace CsLua
             return status;
         }
 
-        private static bool Incomplete(ILuaState l, EErrorCode status)
+        private static bool Incomplete(ILuaState l, EStatus status)
         {
-            if (status == EErrorCode.ErrSyntax)
+            if (status == EStatus.ErrSyntax)
             {
                 string msg = l.ToString(-1);
                 if (msg.EndsWith(EOFMARK))
@@ -135,7 +135,7 @@ namespace CsLua
                     l.Pop(1);
                     return true;
                 }
-                
+
                 // todo 目前是已 Exception 形式
                 return true;
             }
@@ -143,19 +143,19 @@ namespace CsLua
             return false;
         }
 
-        private static EErrorCode MultiLine(ILuaState l)
+        private static EStatus MultiLine(ILuaState l)
         {
             while (true) // repeat until gets a complete statement
             {
                 var line = l.ToString(1); // get what it has
-                var status = EErrorCode.Ok;
+                var status = EStatus.Ok;
                 try
                 {
                     status = l.Load(GetBytes(line), "=stdin", "bt"); // try it
                 }
                 catch (LuaException)
                 {
-                    status = EErrorCode.ErrSyntax;
+                    status = EStatus.ErrSyntax;
                 }
 
                 if (!Incomplete(l, status) || !PushLine(l, false))
@@ -168,14 +168,14 @@ namespace CsLua
             }
         }
 
-        private static EErrorCode LoadLine(ILuaState l)
+        private static EStatus LoadLine(ILuaState l)
         {
             l.SetTop(0);
             if (!PushLine(l, true))
-                return EErrorCode.Undefine;
+                return EStatus.Undefine;
 
-            EErrorCode status;
-            if ((status = AddReturn(l)) != EErrorCode.Ok)
+            EStatus status;
+            if ((status = AddReturn(l)) != EStatus.Ok)
             {
                 status =
                     MultiLine(
@@ -208,7 +208,7 @@ namespace CsLua
             return 1;
         }
 
-        private static EErrorCode DoCall(ILuaState l, int nArg,
+        private static EStatus DoCall(ILuaState l, int nArg,
             int nRes)
         {
             var @base = l.GetTop() - nArg;
@@ -234,7 +234,7 @@ namespace CsLua
                 l.CheckStack(LuaConst.LUA_MINSTACK, "too many results to print");
                 l.GetGlobal("print");
                 l.Insert(1);
-                if (l.PCall(n, 0, 0) != EErrorCode.Ok)
+                if (l.PCall(n, 0, 0) != EStatus.Ok)
                 {
                     Message(ProgName,
                         l.PushString(
@@ -243,9 +243,9 @@ namespace CsLua
             }
         }
 
-        private static EErrorCode Report(ILuaState l, EErrorCode status)
+        private static EStatus Report(ILuaState l, EStatus status)
         {
-            if (status != EErrorCode.Ok)
+            if (status != EStatus.Ok)
             {
                 var msg = l.ToString(-1);
                 Message(ProgName, msg);
@@ -260,15 +260,15 @@ namespace CsLua
             var l = CsLua.CreateLuaState();
             LoadLibs(l);
 
-            EErrorCode status;
+            EStatus status;
             var oldProgName = ProgName;
             ProgName = null;
-            while ((status = LoadLine(l)) != EErrorCode.Undefine)
+            while ((status = LoadLine(l)) != EStatus.Undefine)
             {
-                if (status == EErrorCode.Ok)
+                if (status == EStatus.Ok)
                     status = DoCall(l, 0, -1);
 
-                if (status == EErrorCode.Ok)
+                if (status == EStatus.Ok)
                     Print(l);
                 else
                     Report(l, status);

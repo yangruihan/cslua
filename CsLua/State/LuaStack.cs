@@ -24,7 +24,7 @@ namespace CsLua.State
         {
             _slots = new List<LuaValue>(size);
             for (var i = 0; i < size; i++)
-                _slots.Add(null);
+                _slots.Add(LuaValue.Nil);
             Top = 0;
             State = state;
         }
@@ -39,7 +39,7 @@ namespace CsLua.State
             return sb.ToString();
         }
 
-        public LuaValue this[int i]
+        public LuaValue? this[int i]
         {
             get => Get(i);
             set => Set(i, value);
@@ -128,7 +128,7 @@ namespace CsLua.State
             return absIdx > 0 && absIdx <= Top;
         }
 
-        public LuaValue Get(int idx)
+        public LuaValue? Get(int idx)
         {
             // upvalues
             if (idx < LuaConst.LUA_REGISTRYINDEX)
@@ -147,6 +147,7 @@ namespace CsLua.State
             var absIndex = AbsIndex(idx);
             if (absIndex > 0 && absIndex <= Top)
                 return _slots[absIndex - 1];
+
             return null;
         }
 

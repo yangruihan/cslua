@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>TRACE;LUA_ENABLE_ASSERT</DefineConstants>
+  </PropertyGroup>
+
 </Project>

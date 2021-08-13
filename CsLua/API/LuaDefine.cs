@@ -24,6 +24,7 @@ namespace CsLua.API
 
         Closure = Function | 0 << 4,
         CSFunction = Function | 1 << 4,
+        CSClosure = Function | 2 << 4,
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 8)]
@@ -164,17 +165,17 @@ namespace CsLua.API
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    public readonly struct LuaContext
+    public readonly struct LuaKContext
     {
         [FieldOffset(0)] public readonly Int64 Value;
 
-        public LuaContext(Int64 v)
+        public LuaKContext(Int64 v)
         {
             Value = v;
         }
 
-        public static implicit operator Int64(LuaContext i) => i.Value;
-        public static implicit operator LuaContext(Int64 v) => new LuaContext(v);
+        public static implicit operator Int64(LuaKContext i) => i.Value;
+        public static implicit operator LuaKContext(Int64 v) => new LuaKContext(v);
     }
 
     public static class LuaTypeEx
@@ -197,6 +198,11 @@ namespace CsLua.API
         public static bool IsUserdata(this ELuaType type)
         {
             return type == ELuaType.UserData || type == ELuaType.LightUserData;
+        }
+
+        public static bool IsCSFunction(this ELuaType type)
+        {
+            return type == ELuaType.CSFunction;
         }
     }
 
@@ -231,7 +237,7 @@ namespace CsLua.API
 
     public delegate int LuaCompare(ILuaState l, int idx1, int idx2, int op);
 
-    public enum EErrorCode
+    public enum EStatus
     {
         Undefine = -1,
         Ok = 0,
@@ -281,6 +287,9 @@ namespace CsLua.API
         public static readonly Int64 LUA_RIDX_LAST = LUA_RIDX_GLOBALS;
 
         public static readonly Int64 LUA_MAXINTEGER = Int64.MaxValue;
+
+        internal static readonly int MAXCCALLS = 200;
+        internal static readonly int MAXUPVAL = 255;
     }
 
     /// <summary>
@@ -292,7 +301,7 @@ namespace CsLua.API
     /// 持续运行函数 Delegate
     /// </summary>
     public delegate int LuaKFunction(ILuaState luaState, int status,
-        LuaContext ctx);
+        LuaKContext ctx);
 
     public delegate string LuaReader(ILuaState l, object ud, int sz);
 
@@ -307,8 +316,11 @@ namespace CsLua.API
 
     public class LuaException : Exception
     {
-        public LuaException(string msg) : base(msg)
+        public EStatus Status { get; private set; }
+
+        public LuaException(string msg, EStatus status) : base(msg)
         {
+            Status = status;
         }
     }
 }

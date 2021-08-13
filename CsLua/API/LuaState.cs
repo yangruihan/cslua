@@ -106,8 +106,10 @@ namespace CsLua.API
 
         // ----- 加载及调用操作 -----
         // 'load' and 'call' functions (load and run Lua code)
-        void CallK(int nArgs, int nResults, LuaContext ctx, LuaKFunction? k);
+        void CallK(int nArgs, int nResults, LuaKContext ctx, LuaKFunction? k);
         void Call(int nArgs, int nResults);
+        EStatus PCallK(int nArgs, int nResults, int errFuncIdx, LuaKContext ctx, LuaKFunction? k);
+        EStatus PCall(int nArgs, int nResults, int errFuncIdx);
 
         // ----- 算数运算操作 -----
         void Arith(EArithOp op);
@@ -118,7 +120,7 @@ namespace CsLua.API
 
         void NewTable();
 
-        EErrorCode Load(byte[] chunk, string chunkName, string mode);
+        EStatus Load(byte[] chunk, string chunkName, string mode);
 
         void Register(string name, LuaCSFunction f);
 
@@ -130,6 +132,5 @@ namespace CsLua.API
 
         int Error();
         void Assert(bool cond);
-        EErrorCode PCall(int nArgs, int nResults, int msgh);
     }
 }

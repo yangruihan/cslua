@@ -13,7 +13,7 @@ namespace CsLua.State
         /// </summary>
         public int GetTop()
         {
-            return Stack.Top;
+            return Top;
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace CsLua.State
         /// </summary>
         public void Rotate(int idx, int n)
         {
-            var t = Stack.Top - 1;
+            var t = Top - 1;
             var p = Stack.AbsIndex(idx) - 1;
             var m = n >= 0 ? t - n : p - n - 1;
             Stack.Reverse(p, m);
@@ -108,7 +108,7 @@ namespace CsLua.State
             if (newTop < 0)
                 Debug.Panic("stack underflow!");
 
-            var n = Stack.Top - newTop;
+            var n = Top - newTop;
             if (n > 0)
             {
                 for (var i = 0; i < n; i++)
@@ -131,7 +131,7 @@ namespace CsLua.State
             LuaAPI.CheckNElems(this, n);
             LuaAPI.Check(this, GlobalState == toState!.GlobalState,
                 "moving among independent states");
-            LuaAPI.Check(this, toState.Stack.Top >= n, "stack overflow");
+            LuaAPI.Check(this, toState.Top >= n, "stack overflow");
 
             for (var i = 0; i < n; i++)
                 toState.Stack.Push(this.Stack.Pop());

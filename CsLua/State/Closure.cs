@@ -7,7 +7,7 @@ namespace CsLua.State
     {
         public LuaValue Val;
     }
-    
+
     internal class Closure
     {
         public ProtoType Proto;
@@ -17,7 +17,7 @@ namespace CsLua.State
         public Closure(ProtoType proto)
         {
             Proto = proto;
-            
+
             if (proto.Upvalues.Length > 0)
                 Upvals = new Upvalue[proto.Upvalues.Length];
         }

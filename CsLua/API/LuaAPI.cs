@@ -1,19 +1,42 @@
-﻿using CsLua.Misc;
+﻿using System.Diagnostics;
 using CsLua.State;
 
 namespace CsLua.API
 {
-    public class LuaAPI
+    public static class LuaAPI
     {
-        public static void Check(ILuaState l, bool e, string msg)
+        [Conditional("LUA_ENABLE_ASSERT")]
+        public static void Check(this ILuaState l, bool e, string msg)
         {
-            Limits.Check(l, e, msg);
+            (l as LuaState)!.Check(e, msg);
         }
 
-        public static void CheckNElems(ILuaState l, int n)
+        [Conditional("LUA_ENABLE_ASSERT")]
+        public static void CheckNElems(this ILuaState l, int n)
+        {
+            (l as LuaState)!.CheckNElems(n);
+        }
+
+        public static void AdjustResults(this ILuaState l, int nRet)
         {
             var state = l as LuaState;
-            Check(l, state!.Stack.Top >= n, "not enough elements in the stack");
+            if (nRet == LuaConst.LUA_MULTRET && state.CallInfo.Top < state.Top)
+                state.CallInfo.Top = state.Top;
+        }
+
+        internal static bool IsValid(LuaValue v)
+        {
+            return v != LuaValue.Nil;
+        }
+
+        internal static bool IsPseudo(int i)
+        {
+            return i < LuaConst.LUA_REGISTRYINDEX;
+        }
+
+        internal static bool IsStackIndex(int i, LuaValue v)
+        {
+            return IsValid(v) && !IsPseudo(i);
         }
     }
 }

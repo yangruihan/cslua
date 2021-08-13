@@ -96,7 +96,7 @@ namespace CsLua.Libs
         {
             var nArgs = ls.GetTop() - 1;
             var status = ls.PCall(nArgs, -1, 0);
-            ls.PushBoolean(status == (int) EErrorCode.Ok);
+            ls.PushBoolean(status == (int) EStatus.Ok);
             ls.Insert(1);
             return ls.GetTop();
         };

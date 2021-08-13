@@ -143,7 +143,7 @@ namespace CsLua.State
             else if (value is Closure c)
             {
                 Type = c.LuaCsFunction != null
-                    ? ELuaType.CSFunction
+                    ? c.Upvals == null ? ELuaType.CSFunction : ELuaType.CSClosure
                     : ELuaType.Closure;
                 _objValue = c;
             }
@@ -225,6 +225,11 @@ namespace CsLua.State
         public bool IsCSFunction()
         {
             return Type == ELuaType.CSFunction;
+        }
+
+        public bool IsCSClosure()
+        {
+            return Type == ELuaType.CSClosure;
         }
 
         public bool IsUserData()

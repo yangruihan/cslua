@@ -44,6 +44,8 @@ namespace CsLua.State
                     return "function";
                 case ELuaType.CSFunction:
                     return "csfunction";
+                case ELuaType.CSClosure:
+                    return "csclosure";
                 case ELuaType.Thread:
                     return "thread";
                 default:
