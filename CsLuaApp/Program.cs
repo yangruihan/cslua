@@ -41,17 +41,17 @@ namespace CsLua
                 l.Load(data, filePath, "bt");
                 l.Call(0, 0);
 
-                return (int)EErrorCode.Ok;
+                return (int) EErrorCode.Ok;
             }
             catch (IOException e)
             {
                 Console.WriteLine(e.ToString());
-                return (int)EErrorCode.Undefine;
+                return (int) EErrorCode.Undefine;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
-                return (int)EErrorCode.ErrRun;
+                return (int) EErrorCode.ErrRun;
             }
         }
 
@@ -100,14 +100,26 @@ namespace CsLua
         {
             var line = l.ToString(-1);
             var retLine = l.PushString($"return {line}");
-            var status = l.Load(GetBytes(retLine), "=stdin", "bt");
+
+            EErrorCode status;
+            try
+            {
+                status = l.Load(GetBytes(retLine), "=stdin", "bt");
+            }
+            catch (LuaException)
+            {
+                status = EErrorCode.ErrSyntax;
+            }
+
             if (status == EErrorCode.Ok)
             {
                 l.Remove(-2); // remove modified line
             }
             else
             {
-                l.Pop(2); // pop result from 'luaL_loadbuffer' and modified line
+                // TODO 目前是用 Exception 形式，因此只需要 pop 1
+                l.Pop(1);
+                // l.Pop(2); // pop result from 'luaL_loadbuffer' and modified line
             }
 
             return status;
@@ -123,6 +135,9 @@ namespace CsLua
                     l.Pop(1);
                     return true;
                 }
+                
+                // todo 目前是已 Exception 形式
+                return true;
             }
 
             return false;
@@ -133,7 +148,16 @@ namespace CsLua
             while (true) // repeat until gets a complete statement
             {
                 var line = l.ToString(1); // get what it has
-                var status = l.Load(GetBytes(line), "=stdin", "bt"); // try it
+                var status = EErrorCode.Ok;
+                try
+                {
+                    status = l.Load(GetBytes(line), "=stdin", "bt"); // try it
+                }
+                catch (LuaException)
+                {
+                    status = EErrorCode.ErrSyntax;
+                }
+
                 if (!Incomplete(l, status) || !PushLine(l, false))
                     return
                         status; // cannot or should not try to add continuation line

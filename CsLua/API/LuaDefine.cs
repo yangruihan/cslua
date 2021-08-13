@@ -304,4 +304,11 @@ namespace CsLua.API
         public string Name;
         public LuaCSFunction Func;
     }
+
+    public class LuaException : Exception
+    {
+        public LuaException(string msg) : base(msg)
+        {
+        }
+    }
 }
