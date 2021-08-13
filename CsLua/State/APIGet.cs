@@ -1,13 +1,9 @@
 using System;
-using System.Runtime.InteropServices;
 using CsLua.API;
 using CsLua.Common;
 
 namespace CsLua.State
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal partial class LuaState : ILuaState
     {
         public void NewTable()
@@ -25,8 +21,8 @@ namespace CsLua.State
         {
             var v = LuaValue.CreateUserData(size);
             Stack.Push(v);
-            return v.GetObjValue() is IntPtr
-                ? (IntPtr) v.GetObjValue()
+            return v.GetObjValue() is UserData u
+                ? u.Memory
                 : default;
         }
 
@@ -51,7 +47,7 @@ namespace CsLua.State
             return InnerGetTable(t, k, true).GetParentType().GetParentType();
         }
 
-        public ELuaType RawGetI(int idx, long i)
+        public ELuaType RawGetI(int idx, LuaInt i)
         {
             var t = Stack[idx];
             return InnerGetTable(t, new LuaValue(i), true).GetParentType();

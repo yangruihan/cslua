@@ -4,10 +4,6 @@ using CsLua.Number;
 
 namespace CsLua.Libs
 {
-    using LuaInt = System.Int64;
-    using LuaUInt = System.UInt64;
-    using LuaFloat = System.Double;
-
     public static class MathLib
     {
         private static Random _csRandom;

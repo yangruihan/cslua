@@ -1,13 +1,11 @@
 using System;
+using CsLua.API;
 using CsLua.Compiler.Ast;
 using CsLua.Compiler.Lexer;
 using CsLua.Number;
 
 namespace CsLua.Compiler.Parser
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal static partial class Parser
     {
         private static Exp OptimizeLogicalOr(BinopExp exp)

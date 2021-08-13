@@ -5,9 +5,6 @@ using CsLua.Number;
 
 namespace CsLua.State
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal delegate LuaInt IntegerFunc(LuaInt a, LuaInt b);
 
     internal delegate LuaFloat FloatFunc(LuaFloat a, LuaFloat b);
@@ -36,7 +33,7 @@ namespace CsLua.State
         private static readonly FloatFunc FMul = (a, b) => a * b;
         private static readonly IntegerFunc IMod = LuaMath.IMod;
         private static readonly FloatFunc FMod = LuaMath.FMod;
-        private static readonly FloatFunc Pow = Math.Pow;
+        private static readonly FloatFunc Pow = LuaMath.Pow;
         private static readonly FloatFunc Div = (a, b) => a / b;
         private static readonly IntegerFunc IIDiv = LuaMath.IFloorDiv;
         private static readonly FloatFunc FIDiv = LuaMath.FFloorDiv;

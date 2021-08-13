@@ -1,12 +1,10 @@
 using System.Collections.Generic;
+using CsLua.API;
 using CsLua.Common;
 using CsLua.Number;
 
 namespace CsLua.State
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal class LuaTable
     {
         private static readonly object KeysHead = new byte();

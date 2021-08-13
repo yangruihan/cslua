@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CsLua.API;
 
 namespace CsLua.State
 {
-    using LuaInt = Int64;
-    using LuaFloat = Double;
-
     /// <summary>
     /// 全局状态，所有线程共享
     /// </summary>

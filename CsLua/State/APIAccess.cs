@@ -2,9 +2,6 @@ using CsLua.API;
 
 namespace CsLua.State
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     /// <summary>
     /// 从栈里获取信息
     /// </summary>
@@ -142,7 +139,7 @@ namespace CsLua.State
             return val.ToBoolean();
         }
 
-        public long ToInteger(int idx)
+        public LuaInt ToInteger(int idx)
         {
             ToIntegerX(idx, out var ret);
             return ret;

@@ -3,9 +3,6 @@ using CsLua.Common;
 
 namespace CsLua.State
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal partial class LuaState : ILuaState
     {
         public void SetTable(int idx)
@@ -31,11 +28,18 @@ namespace CsLua.State
             InnerSetTable(t, k, v, true);
         }
 
-        public void RawSetI(int idx, long i)
+        public void RawSetI(int idx, LuaInt i)
         {
             var t = Stack[idx];
             var v = Stack.Pop();
             InnerSetTable(t, new LuaValue(i), v, true);
+        }
+
+        public void RawSetP(int idx, object p)
+        {
+            var t = Stack[idx];
+            var v = Stack.Pop();
+            InnerSetTable(t, LuaValue.Create(p), v, true);
         }
 
         public void SetI(int idx, LuaInt i)
@@ -74,6 +78,14 @@ namespace CsLua.State
             {
                 Debug.Panic("table expected!");
             }
+        }
+
+        public void SerUserValue(int idx)
+        {
+            var o = Stack[idx];
+            LuaAPI.Check(this, o.IsUserData(), "full userdata expected");
+            var v = Stack.Pop();
+            (o.GetObjValue() as UserData)!.User = v;
         }
 
         private void InnerSetTable(LuaValue t, LuaValue k, LuaValue v, bool raw)

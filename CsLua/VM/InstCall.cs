@@ -2,9 +2,6 @@ using CsLua.API;
 
 namespace CsLua.VM
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal static partial class InstructionAction
     {
         /// <summary>

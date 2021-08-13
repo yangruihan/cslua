@@ -1,14 +1,10 @@
 using System;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using CsLua.API;
 using CsLua.Number;
 
 namespace CsLua.State
 {
-    using LuaInt = Int64;
-    using LuaFloat = Double;
-
     internal class LuaValue
     {
         public static readonly LuaValue Nil = new LuaValue(null, ELuaType.Nil);
@@ -27,9 +23,8 @@ namespace CsLua.State
 
         public static LuaValue CreateUserData(int size)
         {
-            var ptr = Marshal.AllocHGlobal(size);
-            var v = new LuaValue(ptr, ELuaType.UserData);
-            return v;
+            var userData = new UserData(size);
+            return new LuaValue(userData, ELuaType.UserData);
         }
 
         public static void SetMetaTable(LuaValue val, LuaTable mt, LuaState ls)
@@ -170,14 +165,6 @@ namespace CsLua.State
             _boolValue = false;
             _numValue = 0;
             Type = type;
-        }
-
-        ~LuaValue()
-        {
-            if (Type == ELuaType.UserData)
-            {
-                Marshal.FreeHGlobal((IntPtr) _objValue);
-            }
         }
 
         public bool IsValid()

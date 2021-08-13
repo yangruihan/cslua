@@ -17,12 +17,12 @@ namespace CsLua.State
             Stack.Push(b ? LuaValue.True : LuaValue.False);
         }
 
-        public void PushInteger(long n)
+        public void PushInteger(LuaInt n)
         {
             Stack.Push(new LuaValue(n));
         }
 
-        public void PushNumber(double n)
+        public void PushNumber(LuaFloat n)
         {
             Stack.Push(new LuaValue(n));
         }

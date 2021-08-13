@@ -1,14 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using CsLua.API;
 using CsLua.Compiler.Lexer;
 using CsLua.VM;
 
 namespace CsLua.Compiler.Ast
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal class Exp : IAstNode
     {
         public virtual void Print(int offset)

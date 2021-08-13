@@ -1,11 +1,9 @@
 using System;
+using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace CsLua.API
 {
-    using LuaInt = Int64;
-    using LuaFloat = Double;
-    using LuaContext = Int64;
-
     public enum ELuaType
     {
         None = -1,
@@ -26,6 +24,158 @@ namespace CsLua.API
 
         Closure = Function | 0 << 4,
         CSFunction = Function | 1 << 4,
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    public struct LuaInt
+    {
+        public static LuaInt MaxValue = Int64.MaxValue;
+        public static LuaInt MinValue = Int64.MinValue;
+
+        public static bool TryParse(string s, out LuaInt ret)
+        {
+            var flag = Int64.TryParse(s, out var i);
+            ret = i;
+            return flag;
+        }
+
+        public static bool TryParse(string s, NumberStyles numberStyles, NumberFormatInfo formatInfo, out LuaInt ret)
+        {
+            var flag = Int64.TryParse(s, numberStyles, formatInfo, out var i);
+            ret = i;
+            return flag;
+        }
+
+        public static implicit operator Int64(LuaInt i) => i.Value;
+        public static implicit operator LuaInt(Int64 v) => new LuaInt(v);
+        public static implicit operator LuaInt(LuaFloat v) => new LuaInt(v);
+
+        [FieldOffset(0)] public readonly Int64 Value;
+
+        public LuaInt(Int64 v)
+        {
+            Value = v;
+        }
+
+        public LuaInt(LuaFloat v)
+        {
+            Value = (Int64) v.Value;
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
+        public string ToString(IFormatProvider? provider)
+        {
+            return Value.ToString(provider);
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    public struct LuaUInt
+    {
+        public static LuaUInt MaxValue = UInt64.MaxValue;
+        public static LuaUInt MinValue = UInt64.MinValue;
+
+        public static implicit operator UInt64(LuaUInt i) => i.Value;
+        public static implicit operator LuaUInt(UInt64 v) => new LuaUInt(v);
+        public static implicit operator LuaUInt(Int64 v) => new LuaUInt(v);
+        public static implicit operator LuaUInt(LuaInt v) => new LuaUInt(v.Value);
+
+        [FieldOffset(0)] public readonly UInt64 Value;
+
+        public LuaUInt(UInt64 v)
+        {
+            Value = v;
+        }
+
+        public LuaUInt(Int64 v)
+        {
+            Value = (ulong) v;
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+
+        public string ToString(IFormatProvider? provider)
+        {
+            return Value.ToString(provider);
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    public struct LuaFloat
+    {
+        public static LuaFloat MaxValue = double.MaxValue;
+        public static LuaFloat MinValue = double.MinValue;
+
+        public static bool IsPositiveInfinity(LuaFloat l)
+        {
+            return double.IsPositiveInfinity(l.Value);
+        }
+
+        public static bool IsNegativeInfinity(LuaFloat l)
+        {
+            return double.IsNegativeInfinity(l.Value);
+        }
+
+        public static LuaFloat Parse(string s)
+        {
+            return double.Parse(s);
+        }
+
+        public static bool TryParse(string s, out LuaFloat ret)
+        {
+            var flag = double.TryParse(s, out var d);
+            ret = d;
+            return flag;
+        }
+
+        public static bool IsNaN(LuaFloat l)
+        {
+            return double.IsNaN(l);
+        }
+
+        public static implicit operator double(LuaFloat f) => f.Value;
+        public static implicit operator LuaFloat(double v) => new LuaFloat(v);
+        public static implicit operator LuaFloat(int v) => new LuaFloat(v);
+        public static implicit operator LuaFloat(LuaInt v) => new LuaFloat(v.Value);
+
+        [FieldOffset(0)] public readonly double Value;
+
+        public LuaFloat(double v)
+        {
+            Value = v;
+        }
+
+        public override string ToString()
+        {
+            return Value.ToString(CultureInfo.CurrentCulture);
+        }
+
+        public string ToString(IFormatProvider? provider)
+        {
+            return Value.ToString(provider);
+        }
+    }
+
+    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    public struct LuaContext
+    {
+        [FieldOffset(0)] public readonly Int64 Value;
+
+        public LuaContext(Int64 v)
+        {
+            Value = v;
+        }
+
+        public static implicit operator Int64(LuaContext i) => i.Value;
+
+        public static explicit operator LuaContext(Int64 v) => new LuaContext(v);
     }
 
     public static class LuaTypeEx

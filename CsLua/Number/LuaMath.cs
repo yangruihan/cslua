@@ -1,10 +1,8 @@
 using System;
+using CsLua.API;
 
 namespace CsLua.Number
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     /// <summary>
     /// 算数辅助类
     /// </summary>
@@ -12,7 +10,7 @@ namespace CsLua.Number
     {
         public static bool FloatToInteger(LuaFloat f, out LuaInt ret)
         {
-            ret = (LuaInt) f;
+            ret = f;
             return ret == f;
         }
 
@@ -30,6 +28,11 @@ namespace CsLua.Number
                 return b;
 
             return a - Math.Floor(a / b) * b;
+        }
+
+        public static LuaFloat Pow(LuaFloat a, LuaFloat b)
+        {
+            return Math.Pow(a, b);
         }
 
         public static LuaInt IFloorDiv(LuaInt a, LuaInt b)

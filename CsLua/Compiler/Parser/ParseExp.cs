@@ -1,14 +1,12 @@
 using System.Collections.Generic;
 using System.Globalization;
+using CsLua.API;
 using CsLua.Common;
 using CsLua.Compiler.Ast;
 using CsLua.Compiler.Lexer;
 
 namespace CsLua.Compiler.Parser
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     internal static partial class Parser
     {
         private static List<Exp> ParseExpList(Lexer.Lexer lexer)

@@ -29,7 +29,7 @@ namespace CsLua.State
 
         public ELuaType LuaType => ELuaType.Thread;
 
-        public LuaState(LuaState parent = null)
+        public LuaState(LuaState? parent = null)
         {
             if (parent == null)
             {

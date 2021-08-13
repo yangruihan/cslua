@@ -1,12 +1,9 @@
 namespace CsLua.API
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     public static class LuaAuxLib
     {
         // ----- Error-report functions -----
-        
+
         private static void IntError(ILuaState ls, int arg)
         {
             if (ls.IsNumber(arg))
@@ -46,9 +43,9 @@ namespace CsLua.API
             //TODO 完善代码
             return ls.Error($"bad argument #{arg} ({msg})");
         }
-        
+
         // ----- Argument check functions -----
-        
+
         public static void CheckStack(this ILuaState ls, int n, string errorMsg)
         {
             if (!ls.CheckStack(n))
@@ -60,7 +57,7 @@ namespace CsLua.API
         {
             return !cond ? ls.ArgError(arg, msg) : 0;
         }
-        
+
         public static void CheckAny(this ILuaState ls, int arg)
         {
             if (ls.Type(arg) == ELuaType.None)

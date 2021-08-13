@@ -2,9 +2,6 @@ using System;
 
 namespace CsLua.API
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     /// <summary>
     /// Lua State 接口
     /// 通过下面提供的 API，Lua 可以嵌入到其他宿主语言中
@@ -44,8 +41,8 @@ namespace CsLua.API
         ELuaType Type(int idx);
         string TypeName(ELuaType tp);
 
-        bool ToNumberX(int idx, out double ret);
-        bool ToIntegerX(int idx, out Int64 ret);
+        bool ToNumberX(int idx, out LuaFloat ret);
+        bool ToIntegerX(int idx, out LuaInt ret);
         bool ToBoolean(int idx);
         string ToString(int idx);
         uint RawLen(int idx);
@@ -62,15 +59,15 @@ namespace CsLua.API
         bool IsThread(int idx);
         bool IsArray(int idx);
 
-        Int64 ToInteger(int idx);
-        double ToNumber(int idx);
+        LuaInt ToInteger(int idx);
+        LuaFloat ToNumber(int idx);
         bool ToStringX(int idx, out string ret);
 
         // ----- 将值推入栈中操作 -----
         // push functions (C -> stack)
         void PushNil();
-        void PushNumber(double n);
-        void PushInteger(Int64 n);
+        void PushNumber(LuaFloat n);
+        void PushInteger(LuaInt n);
         string PushString(string s);
         string PushFString(string fmt, params object[] args);
         void PushCSClosure(LuaCSFunction f, int n);
@@ -95,6 +92,22 @@ namespace CsLua.API
         bool GetMetaTable(int idx);
         ELuaType GetUserValue(int idx);
 
+        // ----- 赋值操作 -----
+        // set functions (stack -> Lua)
+        void SetGlobal(string name);
+        void SetTable(int idx);
+        void SetField(int idx, string k);
+        void SetI(int idx, LuaInt i);
+        void RawSet(int idx);
+        void RawSetI(int idx, LuaInt i);
+        void RawSetP(int idx, object p);
+        void SetMetaTable(int idx);
+        void SerUserValue(int idx);
+
+        // ----- 加载及调用操作 -----
+        // 'load' and 'call' functions (load and run Lua code)
+        void CallK(int nArgs, int nResults, LuaContext ctx, LuaKFunction k);
+
         // ----- 算数运算操作 -----
         void Arith(EArithOp op);
         bool Compare(int idx1, int idx2, ECompOp op);
@@ -103,22 +116,15 @@ namespace CsLua.API
         void Concat(int n);
 
         void NewTable();
-        void SetTable(int idx);
-        void SetField(int idx, string k);
-        void SetI(int idx, LuaInt i);
 
         EErrorCode Load(byte[] chunk, string chunkName, string mode);
         void Call(int nArgs, int nResults);
 
-        void SetGlobal(string name);
         void Register(string name, LuaCSFunction f);
 
         int LuaUpvalueIndex(int i);
 
-        void SetMetaTable(int idx);
         bool RawEqual(int idx1, int idx2);
-        void RawSet(int idx);
-        void RawSetI(int idx, LuaInt i);
 
         bool Next(int idx);
 

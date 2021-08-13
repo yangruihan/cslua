@@ -4,9 +4,6 @@ using CsLua.Common;
 
 namespace CsLua.Binchunk
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     /// <summary>
     /// Lua 二进制预编译块读取辅助类
     /// </summary>

@@ -10,6 +10,10 @@ namespace CsLua.State
 
     internal partial class LuaState : ILuaState
     {
+        public void CallK(int nArgs, int nResults, LuaContext ctx, LuaKFunction k)
+        {
+        }
+        
         public EErrorCode Load(byte[] chunk, string chunkName, string mode)
         {
             if (string.IsNullOrEmpty(mode))

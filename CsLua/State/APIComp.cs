@@ -4,9 +4,6 @@ using CsLua.Common;
 
 namespace CsLua.State
 {
-    using LuaInt = System.Int64;
-    using LuaFloat = System.Double;
-
     /// <summary>
     /// 比较运算实现
     /// </summary>
