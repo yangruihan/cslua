@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using CsLua.API;
-using CsLua.Common;
+using CsLua.Misc;
 
 namespace CsLua.State
 {

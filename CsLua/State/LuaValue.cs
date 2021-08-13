@@ -40,7 +40,7 @@ namespace CsLua.State
             ls.Registry.Put(key, mt);
         }
 
-        public static LuaTable GetMetaTable(LuaValue val, LuaState ls)
+        public static LuaTable? GetMetaTable(LuaValue val, LuaState ls)
         {
             if (val.IsTable())
                 return (val.GetTableValue()).MetaTable;
@@ -72,7 +72,7 @@ namespace CsLua.State
             return true;
         }
 
-        public static LuaValue GetMetaField(LuaValue val, string fieldName,
+        public static LuaValue? GetMetaField(LuaValue val, string fieldName,
             LuaState ls)
         {
             var mt = GetMetaTable(val, ls);

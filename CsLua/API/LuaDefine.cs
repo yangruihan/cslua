@@ -27,7 +27,7 @@ namespace CsLua.API
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    public struct LuaInt
+    public readonly struct LuaInt
     {
         public static LuaInt MaxValue = Int64.MaxValue;
         public static LuaInt MinValue = Int64.MinValue;
@@ -74,7 +74,7 @@ namespace CsLua.API
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    public struct LuaUInt
+    public readonly struct LuaUInt
     {
         public static LuaUInt MaxValue = UInt64.MaxValue;
         public static LuaUInt MinValue = UInt64.MinValue;
@@ -108,7 +108,7 @@ namespace CsLua.API
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    public struct LuaFloat
+    public readonly struct LuaFloat
     {
         public static LuaFloat MaxValue = double.MaxValue;
         public static LuaFloat MinValue = double.MinValue;
@@ -164,7 +164,7 @@ namespace CsLua.API
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    public struct LuaContext
+    public readonly struct LuaContext
     {
         [FieldOffset(0)] public readonly Int64 Value;
 
@@ -174,8 +174,7 @@ namespace CsLua.API
         }
 
         public static implicit operator Int64(LuaContext i) => i.Value;
-
-        public static explicit operator LuaContext(Int64 v) => new LuaContext(v);
+        public static implicit operator LuaContext(Int64 v) => new LuaContext(v);
     }
 
     public static class LuaTypeEx

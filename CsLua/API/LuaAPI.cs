@@ -1,4 +1,4 @@
-﻿using CsLua.Common;
+﻿using CsLua.Misc;
 using CsLua.State;
 
 namespace CsLua.API

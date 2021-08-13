@@ -1,5 +1,5 @@
 using System.Linq;
-using CsLua.Common;
+using CsLua.Misc;
 using CsLua.Compiler.Ast;
 using CsLua.Compiler.Lexer;
 using CsLua.VM;

@@ -1,6 +1,6 @@
 using System;
 
-namespace CsLua.Common
+namespace CsLua.Misc
 {
     public static class Debug
     {

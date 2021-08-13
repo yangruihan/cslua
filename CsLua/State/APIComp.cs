@@ -1,6 +1,6 @@
 using System;
 using CsLua.API;
-using CsLua.Common;
+using CsLua.Misc;
 
 namespace CsLua.State
 {

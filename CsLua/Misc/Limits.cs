@@ -1,6 +1,6 @@
 ﻿using CsLua.API;
 
-namespace CsLua.Common
+namespace CsLua.Misc
 {
     internal static class Limits
     {

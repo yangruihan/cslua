@@ -7,9 +7,6 @@ namespace CsLua.State
         public static void PreInitThread(LuaState l, GlobalState g)
         {
             l.GlobalState = g;
-            l.Stack = null;
-            l.Registry = null;
-            l._registryShell = null;
         }
 
         public static LuaState NewThread(LuaState l)
@@ -19,30 +16,25 @@ namespace CsLua.State
             return l1;
         }
 
-        public LuaTable Registry { get; private set; }
-
-        private LuaValue _registryShell;
+        public EErrorCode Status;
 
         public LuaStack Stack { get; private set; }
 
-        public GlobalState GlobalState;
+        public GlobalState GlobalState { get; private set; }
+
+        public CallInfo CallInfo;
 
         public ELuaType LuaType => ELuaType.Thread;
 
+        public LuaTable Registry => GlobalState.RegistryTable;
+
         public LuaState(LuaState? parent = null)
         {
-            if (parent == null)
-            {
-                PreInitThread(this, new GlobalState(this));
-            }
-            else
-            {
-                PreInitThread(this, parent.GlobalState);
-            }
+            Status = EErrorCode.Ok;
+            PreInitThread(this, parent == null ? new GlobalState(this) : parent.GlobalState);
 
-            Registry = new LuaTable(0, 0);
-            _registryShell = new LuaValue(Registry, ELuaType.Table);
-            Registry.Put(LuaConst.LUA_RIDX_GLOBALS, new LuaTable(0, 0));
+            GlobalState.Init(this);
+
             PushLuaStack(new LuaStack(LuaConst.LUA_MINSTACK, this));
         }
 
@@ -61,13 +53,12 @@ namespace CsLua.State
 
         public LuaValue GetRegistry()
         {
-            return _registryShell;
+            return GlobalState.Registry;
         }
 
         public void SetRegistry(LuaTable luaTable)
         {
-            Registry = luaTable;
-            _registryShell = new LuaValue(Registry, ELuaType.Table);
+            GlobalState.SetRegistry(luaTable);
         }
 
         public int LuaUpvalueIndex(int i)

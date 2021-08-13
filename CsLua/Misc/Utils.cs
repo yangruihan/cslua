@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using CsLua.VM;
 
-namespace CsLua.Common
+namespace CsLua.Misc
 {
     internal static class Utils
     {

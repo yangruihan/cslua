@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using CsLua.API;
-using CsLua.Common;
+using CsLua.Misc;
 using CsLua.Compiler.Ast;
 using CsLua.Compiler.Lexer;
 

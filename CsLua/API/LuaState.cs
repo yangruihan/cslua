@@ -106,7 +106,8 @@ namespace CsLua.API
 
         // ----- 加载及调用操作 -----
         // 'load' and 'call' functions (load and run Lua code)
-        void CallK(int nArgs, int nResults, LuaContext ctx, LuaKFunction k);
+        void CallK(int nArgs, int nResults, LuaContext ctx, LuaKFunction? k);
+        void Call(int nArgs, int nResults);
 
         // ----- 算数运算操作 -----
         void Arith(EArithOp op);
@@ -118,7 +119,6 @@ namespace CsLua.API
         void NewTable();
 
         EErrorCode Load(byte[] chunk, string chunkName, string mode);
-        void Call(int nArgs, int nResults);
 
         void Register(string name, LuaCSFunction f);
 

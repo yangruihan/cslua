@@ -1,7 +1,7 @@
 using System;
 using CsLua.API;
 using CsLua.Binchunk;
-using CsLua.Common;
+using CsLua.Misc;
 using CsLua.VM;
 
 namespace CsLua.State
@@ -10,10 +10,6 @@ namespace CsLua.State
 
     internal partial class LuaState : ILuaState
     {
-        public void CallK(int nArgs, int nResults, LuaContext ctx, LuaKFunction k)
-        {
-        }
-        
         public EErrorCode Load(byte[] chunk, string chunkName, string mode)
         {
             if (string.IsNullOrEmpty(mode))
@@ -56,7 +52,7 @@ namespace CsLua.State
             return EErrorCode.Ok;
         }
 
-        public void Call(int nArgs, int nResults)
+        public void CallK(int nArgs, int nResults, LuaContext ctx, LuaKFunction? k)
         {
             var val = Stack[-(nArgs + 1)];
             var ok = val.IsFunction();
@@ -90,6 +86,11 @@ namespace CsLua.State
             {
                 Debug.Panic("not function!");
             }
+        }
+
+        public void Call(int nArgs, int nResults)
+        {
+            CallK(nArgs, nResults, 0, null);
         }
 
         public EErrorCode PCall(int nArgs, int nResults, int msgh)

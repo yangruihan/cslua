@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using CsLua.API;
-using CsLua.Common;
+using CsLua.Misc;
 using CsLua.Number;
 
 namespace CsLua.State
