@@ -25,10 +25,24 @@ namespace CsLua.State
 
         public LuaState MainThread { get; private set; }
 
+        /// <summary>
+        /// version number
+        /// </summary>
         public LuaFloat Version { get; private set; }
 
+        /// <summary>
+        /// memory-error message
+        /// </summary>
+        public string MemErrMsg;
+
+        /// <summary>
+        /// array with tag-method names
+        /// </summary>
         public string[] TmNames = TagMethods.TagMethodName;
 
+        /// <summary>
+        /// metatables for basic types
+        /// </summary>
         public LuaTable[] Mt = new LuaTable[(int) ELuaType.NumTags];
 
         public GlobalState(LuaState mainThread)

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using CsLua.API;
+using Debug = CsLua.Misc.Debug;
 
 namespace CsLua.State
 {

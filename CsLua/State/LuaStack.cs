@@ -82,6 +82,9 @@ namespace CsLua.State
 
         public void PushN(LuaValue[] vals, int n)
         {
+            if (vals == null)
+                return;
+            
             var nVals = vals.Length;
             if (n < 0)
                 n = nVals;

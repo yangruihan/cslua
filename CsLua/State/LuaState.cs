@@ -85,6 +85,11 @@ namespace CsLua.State
             return LuaConst.LUA_REGISTRYINDEX - i;
         }
 
+        private int Index2Abs(int idx)
+        {
+            return CallInfo.Func + idx;
+        }
+
         private LuaValue Index2Addr(int idx)
         {
             if (idx > 0)

@@ -1,4 +1,5 @@
 using System.Linq;
+using CsLua.API;
 using CsLua.Misc;
 using CsLua.Compiler.Ast;
 using CsLua.Compiler.Lexer;
@@ -82,7 +83,7 @@ namespace CsLua.Compiler.CodeGen
         {
             if (!fi.IsVararg)
             {
-                Debug.Panic("cannot use '...' outside a vararg function");
+                Debug.Panic("cannot use '...' outside a vararg function", EStatus.ErrSyntax);
                 return;
             }
 

@@ -43,24 +43,54 @@ namespace CsLua.State
             return EStatus.Ok;
         }
 
-        private EStatus PCall(PFunc func, object userData, Int64 oldTop, Int64 errorFunc)
+        private void SetErrorObj(EStatus errCode, int oldTop)
         {
-            EStatus status;
+            switch (errCode)
+            {
+                case EStatus.ErrMem:
+                    SetValue(oldTop, LuaValue.CreateStr(GlobalState.MemErrMsg));
+                    break;
+
+                case EStatus.ErrErr:
+                    SetValue(oldTop, LuaValue.CreateStr("error in error handling"));
+                    break;
+
+                default:
+                    SetValue(oldTop, Stack[Top - 1]);
+                    break;
+            }
+
+            SetTop(Index2Abs(oldTop));
+        }
+
+        private EStatus PCall(PFunc func, object userData, int oldTop, int errorFunc)
+        {
             var oldCi = CallInfo;
             var oldNny = NNy;
             var oldErrFunc = ErrFunc;
             ErrFunc = errorFunc;
-            status = RawRunProtected(func, userData);
+            var status = RawRunProtected(func, userData);
             if (status != EStatus.Ok)
             {
-                
+                var oldTopIdx = RestoreStack(oldTop);
+                Close(oldTopIdx);
+                SetErrorObj(status, oldTop);
+                CallInfo = oldCi;
+                NNy = oldNny;
             }
+
+            ErrFunc = oldErrFunc;
             return status;
         }
 
-        private Int64 SaveStack(int idx)
+        private int SaveStack(int idx)
         {
             return CallInfo.Func + idx;
+        }
+
+        private int RestoreStack(int top)
+        {
+            return top - CallInfo.Func;
         }
 
         private void CheckResults(int na, int nr)

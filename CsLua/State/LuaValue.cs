@@ -21,6 +21,11 @@ namespace CsLua.State
                 return new LuaValue(value);
         }
 
+        public static LuaValue CreateStr(string s)
+        {
+            return new LuaValue(s, ELuaType.String);
+        }
+
         public static LuaValue CreateUserData(int size)
         {
             var userData = new UserData(size);

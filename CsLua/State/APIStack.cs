@@ -13,7 +13,7 @@ namespace CsLua.State
         /// </summary>
         public int GetTop()
         {
-            return Top;
+            return Top - (CallInfo.Func + 1);
         }
 
         /// <summary>
@@ -21,7 +21,9 @@ namespace CsLua.State
         /// </summary>
         public int AbsIndex(int idx)
         {
-            return Stack.AbsIndex(idx);
+            return idx > 0 || LuaAPI.IsPseudo(idx)
+                ? idx
+                : Top - CallInfo.Func + idx;
         }
 
         /// <summary>
@@ -104,20 +106,10 @@ namespace CsLua.State
         /// </summary>
         public void SetTop(int idx)
         {
-            var newTop = Stack.AbsIndex(idx);
-            if (newTop < 0)
-                Debug.Panic("stack underflow!");
-
-            var n = Top - newTop;
-            if (n > 0)
+            var func = CallInfo.Func;
+            if (idx >= 0)
             {
-                for (var i = 0; i < n; i++)
-                    Stack.Pop();
-            }
-            else
-            {
-                for (var i = 0; i > n; i--)
-                    Stack.Push(LuaValue.Nil);
+                Check(idx <= Top - (func + 1), "new top too large");
             }
         }
 

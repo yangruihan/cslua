@@ -1,4 +1,3 @@
-using System;
 using CsLua.API;
 using CsLua.Misc;
 using CsLua.Number;

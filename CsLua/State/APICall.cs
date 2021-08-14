@@ -85,8 +85,9 @@ namespace CsLua.State
             CheckResults(nArgs, nResults);
 
             Calls c;
+            var status = EStatus.Ok;
 
-            Int64 func;
+            int func;
 
             if (errFuncIdx == 0)
             {
@@ -99,32 +100,36 @@ namespace CsLua.State
                 func = SaveStack(errFuncIdx);
             }
 
-            c.Func = Top - (nArgs + 1);
+            c.Func = Top - nArgs;
             if (k == null || NNy > 0)
             {
                 c.NResults = nResults;
-                Status = PCall(FCall, c, SaveStack(c.Func), func);
+                status = PCall(FCall, c, SaveStack(c.Func), func);
             }
             else // prepare continuation (call is already protected by 'resume')
             {
+                var ci = CallInfo;
+                ci.CsFunction.K = k; // save continuation
+                ci.CsFunction.Ctx = ctx; // save context
             }
 
-            var caller = Stack;
-            var status = EStatus.ErrRun;
+            // var caller = Stack;
+            // var status = EStatus.ErrRun;
+            //
+            // try
+            // {
+            //     Call(nArgs, nResults);
+            //     status = EStatus.Ok;
+            // }
+            // catch (Exception e)
+            // {
+            //     while (Stack != caller)
+            //         PopLuaStack();
+            //
+            //     Stack.Push(e.Message);
+            // }
 
-            try
-            {
-                Call(nArgs, nResults);
-                status = EStatus.Ok;
-            }
-            catch (Exception e)
-            {
-                while (Stack != caller)
-                    PopLuaStack();
-
-                Stack.Push(e.Message);
-            }
-
+            this.AdjustResults(nResults);
             return status;
         }
 

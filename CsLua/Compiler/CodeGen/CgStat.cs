@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CsLua.API;
 using CsLua.Misc;
 using CsLua.Compiler.Ast;
 
@@ -56,7 +57,7 @@ namespace CsLua.Compiler.CodeGen
 
                 case LabelStat _:
                 case GotoStat _:
-                    Debug.Panic("label and goto statements are not supported!");
+                    Debug.Panic("label and goto statements are not supported!", EStatus.ErrSyntax);
                     break;
             }
         }
