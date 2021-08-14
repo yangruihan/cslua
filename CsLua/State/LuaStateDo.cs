@@ -60,7 +60,8 @@ namespace CsLua.State
                     break;
             }
 
-            SetTop(Index2Abs(oldTop));
+            Index2Addr(oldTop, out var oldTopIdx);
+            SetTop(oldTopIdx);
         }
 
         private EStatus PCall(PFunc func, object userData, int oldTop, int errorFunc)
@@ -88,9 +89,9 @@ namespace CsLua.State
             return CallInfo.Func + idx;
         }
 
-        private int RestoreStack(int top)
+        private int RestoreStack(int idx)
         {
-            return top - CallInfo.Func;
+            return idx - CallInfo.Func;
         }
 
         private void CheckResults(int na, int nr)

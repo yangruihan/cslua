@@ -44,12 +44,17 @@ namespace CsLua.API
         bool ToNumberX(int idx, out LuaFloat ret);
         bool ToIntegerX(int idx, out LuaInt ret);
         bool ToBoolean(int idx);
-        string ToString(int idx);
+        string? ToString(int idx);
         uint RawLen(int idx);
-        LuaCSFunction ToCSFunction(int idx);
-        object ToUserdata(int idx);
-        ILuaState ToThread(int idx);
-        object ToPointer(int idx);
+        LuaCSFunction? ToCSFunction(int idx);
+        object? ToUserdata(int idx);
+        ILuaState? ToThread(int idx);
+        ref object? ToPointer(int idx);
+
+        // ----- 比较和算数操作 -----
+        // Comparison and arithmetic functions
+        void Arith(EArithOp op);
+        bool RawEqual(int idx1, int idx2);
 
         bool IsNone(int idx);
         bool IsNil(int idx);
@@ -112,7 +117,6 @@ namespace CsLua.API
         EStatus PCall(int nArgs, int nResults, int errFuncIdx);
 
         // ----- 算数运算操作 -----
-        void Arith(EArithOp op);
         bool Compare(int idx1, int idx2, ECompOp op);
 
         void Len(int idx);
@@ -125,8 +129,6 @@ namespace CsLua.API
         void Register(string name, LuaCSFunction f);
 
         int LuaUpvalueIndex(int i);
-
-        bool RawEqual(int idx1, int idx2);
 
         bool Next(int idx);
 

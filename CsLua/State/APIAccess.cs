@@ -1,3 +1,4 @@
+using System;
 using CsLua.API;
 
 namespace CsLua.State
@@ -9,12 +10,15 @@ namespace CsLua.State
     {
         public uint RawLen(int idx)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx)!;
             if (val.IsString())
                 return (uint) val.GetStrValue().Length;
 
             if (val.IsTable())
                 return (uint) val.GetTableValue().Len();
+
+            if (val.IsUserData())
+                return (uint) val.GetUserDataValue().Size;
 
             return 0;
         }
@@ -24,6 +28,8 @@ namespace CsLua.State
         /// </summary>
         public string TypeName(ELuaType tp)
         {
+            Check(ELuaType.None <= tp && tp < ELuaType.NumTags, "invalid tag");
+
             switch (tp)
             {
                 case ELuaType.None:
@@ -42,7 +48,7 @@ namespace CsLua.State
                     return "table";
                 case ELuaType.Function:
                     return "function";
-                case ELuaType.CSFunction:
+                case ELuaType.LCSFunction:
                     return "csfunction";
                 case ELuaType.CSClosure:
                     return "csclosure";
@@ -58,11 +64,9 @@ namespace CsLua.State
         /// </summary>
         public ELuaType Type(int idx)
         {
-            if (Stack.IsValid(idx))
-            {
-                var val = Stack[idx];
-                return val.Type;
-            }
+            var v = Index2Addr(idx, out var absIdx);
+            if (LuaAPI.IsValid(v))
+                return v!.Type.GetNoVariantsType();
 
             return ELuaType.None;
         }
@@ -115,17 +119,19 @@ namespace CsLua.State
 
         public bool IsInteger(int idx)
         {
-            return Type(idx) == ELuaType.Int;
+            var v = Index2Addr(idx);
+            return v!.IsInt();
         }
 
         public bool IsCSFunction(int idx)
         {
-            var val = Stack[idx];
-            return val.IsCSFunction();
+            var val = Index2Addr(idx);
+            return val!.IsLCSFunction() || val!.IsCSClosure();
         }
 
         public bool IsUserdata(int idx)
         {
+            var v = Index2Addr(idx);
             return Type(idx).IsUserdata();
         }
 
@@ -137,7 +143,7 @@ namespace CsLua.State
 
         public bool ToBoolean(int idx)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx)!;
             return val.ToBoolean();
         }
 
@@ -149,7 +155,7 @@ namespace CsLua.State
 
         public bool ToIntegerX(int idx, out LuaInt ret)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx)!;
             var ok = val.IsInt();
             ret = ok ? val.GetIntValue() : 0;
             return ok;
@@ -163,7 +169,7 @@ namespace CsLua.State
 
         public bool ToNumberX(int idx, out LuaFloat ret)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx)!;
             if (val.IsFloat())
             {
                 ret = val.GetFloatValue();
@@ -180,7 +186,7 @@ namespace CsLua.State
             return false;
         }
 
-        public string ToString(int idx)
+        public string? ToString(int idx)
         {
             if (ToStringX(idx, out var ret))
                 return ret;
@@ -189,7 +195,7 @@ namespace CsLua.State
 
         public bool ToStringX(int idx, out string ret)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx, out var absIdx)!;
             if (val.IsString())
             {
                 ret = val.GetStrValue();
@@ -199,7 +205,7 @@ namespace CsLua.State
             if (val.IsNumber())
             {
                 ret = val.ToString();
-                Stack[idx] = new LuaValue(ret, ELuaType.String);
+                Stack[absIdx] = new LuaValue(ret, ELuaType.String);
                 return true;
             }
 
@@ -207,27 +213,41 @@ namespace CsLua.State
             return false;
         }
 
-        public LuaCSFunction ToCSFunction(int idx)
+        public LuaCSFunction? ToCSFunction(int idx)
         {
-            var val = Stack[idx];
-            return val.GetCSFunctionValue();
+            var val = Index2Addr(idx)!;
+            if (val.IsLCSFunction())
+                return val.GetLCSFunctionValue();
+            else if (val.IsCSClosure())
+                return val.GetCSClosureFunctionValue();
+            return null;
         }
 
-        public object ToUserdata(int idx)
+        public object? ToUserdata(int idx)
         {
-            return Stack[idx].GetObjValue();
+            var v = Index2Addr(idx)!;
+            switch (v.Type.GetNoVariantsType())
+            {
+                case ELuaType.UserData:
+                    return v.GetUserDataValue().Memory;
+
+                case ELuaType.LightUserData:
+                    return v.GetObjValue();
+
+                default:
+                    return null;
+            }
         }
 
-        public ILuaState ToThread(int idx)
+        public ILuaState? ToThread(int idx)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx)!;
             return val.IsThread() ? val.GetValue() as ILuaState : null;
         }
 
-        public object ToPointer(int idx)
+        public ref object ToPointer(int idx)
         {
-            var val = Stack[idx];
-            return val.GetObjValue();
+            throw new NotImplementedException();
         }
     }
 }

@@ -30,47 +30,47 @@ namespace CsLua.State
         {
             var t = Stack[idx];
             var k = Stack.Pop();
-            return InnerGetTable(t, k, false).GetParentType();
+            return InnerGetTable(t, k, false).GetNoVariantsType();
         }
 
         public ELuaType GetField(int idx, string key)
         {
             var t = Stack[idx];
             return InnerGetTable(t, new LuaValue(key, ELuaType.String), false)
-                .GetParentType();
+                .GetNoVariantsType();
         }
 
         public ELuaType RawGet(int idx)
         {
             var t = Stack[idx];
             var k = Stack.Pop();
-            return InnerGetTable(t, k, true).GetParentType().GetParentType();
+            return InnerGetTable(t, k, true).GetNoVariantsType().GetNoVariantsType();
         }
 
         public ELuaType RawGetI(int idx, LuaInt i)
         {
             var t = Stack[idx];
-            return InnerGetTable(t, new LuaValue(i), true).GetParentType();
+            return InnerGetTable(t, new LuaValue(i), true).GetNoVariantsType();
         }
 
         public ELuaType RawGetP(int idx, object p)
         {
             var t = Stack[idx];
             LuaAPI.Check(this, t.IsTable(), "table expected");
-            return InnerGetTable(t, LuaValue.Create(p), true).GetParentType();
+            return InnerGetTable(t, LuaValue.Create(p), true).GetNoVariantsType();
         }
 
         public ELuaType GetI(int idx, LuaInt i)
         {
             var t = Stack[idx];
-            return InnerGetTable(t, new LuaValue(i), false).GetParentType();
+            return InnerGetTable(t, new LuaValue(i), false).GetNoVariantsType();
         }
 
         public ELuaType GetGlobal(string name)
         {
             var t = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
             return InnerGetTable(t, new LuaValue(name, ELuaType.String), false)
-                .GetParentType();
+                .GetNoVariantsType();
         }
 
         public bool GetMetaTable(int idx)
@@ -91,7 +91,7 @@ namespace CsLua.State
             var val = Stack[idx];
             LuaAPI.Check(this, val.IsUserData(), "full userdata expected");
             Stack.Push(val);
-            return val.Type.GetParentType();
+            return val.Type.GetNoVariantsType();
         }
 
         private ELuaType InnerGetTable(LuaValue t, LuaValue k, bool raw)

@@ -11,10 +11,10 @@ namespace CsLua.State
     internal struct Operator
     {
         public string MetaMethod;
-        public IntegerFunc IntegerFunc;
-        public FloatFunc FloatFunc;
+        public IntegerFunc? IntegerFunc;
+        public FloatFunc? FloatFunc;
 
-        public Operator(string metaMethod, IntegerFunc integerFunc, FloatFunc floatFunc)
+        public Operator(string metaMethod, IntegerFunc? integerFunc, FloatFunc? floatFunc)
         {
             MetaMethod = metaMethod;
             IntegerFunc = integerFunc;
@@ -74,13 +74,23 @@ namespace CsLua.State
         /// </summary>
         public void Arith(EArithOp op)
         {
-            var b = Stack.Pop();
-            var a = b;
+            LuaValue a, b;
 
+            // all other operations expect two operands
             if (op != EArithOp.Unm && op != EArithOp.BNot)
+            {
+                CheckNElems(2);
+                b = Stack.Pop();
                 a = Stack.Pop();
+            }
+            else // for unary operations, add fake 2nd operand
+            {
+                CheckNElems(1);
+                b = Stack.Pop();
+                a = Stack.Pop();
+            }
 
-            var o = Operators.Ops[(int) op];
+            var o = Operators.Ops[(int)op];
             var ret = InnerArith(a, b, o);
             if (ret != null)
             {
@@ -88,39 +98,15 @@ namespace CsLua.State
                 return;
             }
 
-            var mm = Operators.Ops[(int) op].MetaMethod;
+            // could not perform raw operation; try metamethod
+            var mm = Operators.Ops[(int)op].MetaMethod;
             if (LuaValue.CallMetaMethod(a, b, mm, this, out ret))
             {
                 Stack.Push(ret);
                 return;
             }
 
-            Debug.Panic("arithmetic error!");
-        }
-
-        private LuaValue InnerArith(LuaValue a, LuaValue b, Operator op)
-        {
-            if (op.FloatFunc is null)
-            {
-                if (a.ToInteger(out var aI))
-                    if (b.ToInteger(out var bI))
-                        return new LuaValue(op.IntegerFunc(aI, bI));
-            }
-            else
-            {
-                if (!(op.IntegerFunc is null))
-                {
-                    if (a.ToInteger(out var aI))
-                        if (b.ToInteger(out var bI))
-                            return new LuaValue(op.IntegerFunc(aI, bI));
-                }
-
-                if (a.ToFloat(out var aF))
-                    if (b.ToFloat(out var bF))
-                        return new LuaValue(op.FloatFunc(aF, bF));
-            }
-
-            return null;
+            Debug.Panic("arithmetic error!", EStatus.ErrRun);
         }
     }
 }

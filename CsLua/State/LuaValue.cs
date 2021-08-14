@@ -41,7 +41,7 @@ namespace CsLua.State
                 return;
             }
 
-            var key = $"_MT{val.Type.GetParentType()}";
+            var key = $"_MT{val.Type.GetNoVariantsType()}";
             ls.Registry.Put(key, mt);
         }
 
@@ -50,7 +50,7 @@ namespace CsLua.State
             if (val.IsTable())
                 return (val.GetTableValue()).MetaTable;
 
-            var key = $"_MT{val.Type.GetParentType()}";
+            var key = $"_MT{val.Type.GetNoVariantsType()}";
             var mt = ls.Registry.Get(key);
             return mt?.GetTableValue();
         }
@@ -84,9 +84,9 @@ namespace CsLua.State
             return mt?.Get(fieldName);
         }
 
-        private readonly object _objValue;
-        private readonly LuaFloat _numValue;
-        private readonly bool _boolValue;
+        private object? _objValue;
+        private LuaFloat _numValue;
+        private bool _boolValue;
 
         public ELuaType Type { get; }
 
@@ -148,7 +148,7 @@ namespace CsLua.State
             else if (value is Closure c)
             {
                 Type = c.LuaCsFunction != null
-                    ? c.Upvals == null ? ELuaType.CSFunction : ELuaType.CSClosure
+                    ? c.Upvals == null ? ELuaType.LCSFunction : ELuaType.CSClosure
                     : ELuaType.Closure;
                 _objValue = c;
             }
@@ -227,9 +227,9 @@ namespace CsLua.State
             return Type == ELuaType.Closure;
         }
 
-        public bool IsCSFunction()
+        public bool IsLCSFunction()
         {
-            return Type == ELuaType.CSFunction;
+            return Type == ELuaType.LCSFunction;
         }
 
         public bool IsCSClosure()
@@ -282,9 +282,19 @@ namespace CsLua.State
             return GetObjValue<Closure>();
         }
 
-        public LuaCSFunction GetCSFunctionValue()
+        public LuaCSFunction GetLCSFunctionValue()
         {
-            return GetObjValue<Closure>()?.LuaCsFunction;
+            return GetObjValue<LuaCSFunction>();
+        }
+
+        public LuaCSFunction GetCSClosureFunctionValue()
+        {
+            return GetObjValue<Closure>()!.LuaCsFunction;
+        }
+
+        public UserData GetUserDataValue()
+        {
+            return GetObjValue<UserData>();
         }
 
         public LuaState GetThreadValue()
@@ -295,6 +305,21 @@ namespace CsLua.State
         public object GetObjValue()
         {
             return _objValue;
+        }
+
+        public ref bool GetBoolRefValue()
+        {
+            return ref _boolValue;
+        }
+
+        public ref LuaFloat GetNumRefValue()
+        {
+            return ref _numValue;
+        }
+
+        public ref object GetObjRefValue()
+        {
+            return ref _objValue;
         }
 
         public object GetValue()

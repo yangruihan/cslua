@@ -24,7 +24,7 @@ namespace CsLua.State
         {
             _slots = new List<LuaValue>(size);
             for (var i = 0; i < size; i++)
-                _slots.Add(LuaValue.Nil);
+                _slots.Add(null);
             Top = 0;
             State = state;
         }

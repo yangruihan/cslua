@@ -11,14 +11,12 @@ namespace CsLua.State
     {
         public bool RawEqual(int idx1, int idx2)
         {
-            if (Stack.IsValid(idx1) || Stack.IsValid(idx2))
-            {
-                return false;
-            }
+            var v1 = Index2Addr(idx1);
+            var v2 = Index2Addr(idx2);
 
-            var a = Stack[idx1];
-            var b = Stack[idx2];
-            return Eq(a, b, null);
+            return (LuaAPI.IsValid(v1) && LuaAPI.IsValid(v2))
+                    ? Eq(v1!, v2!, null) 
+                    : false;
         }
 
         /// <summary>
@@ -43,55 +41,6 @@ namespace CsLua.State
                 default:
                     Debug.Panic("invalid compare op!");
                     return false;
-            }
-        }
-
-        private bool Eq(LuaValue a, LuaValue b, LuaState ls)
-        {
-            if (a.IsNil())
-            {
-                return b.IsNil();
-            }
-            else if (a.IsBool())
-            {
-                return b.IsBool() && a.GetBoolValue() == b.GetBoolValue();
-            }
-            else if (a.IsString())
-            {
-                return b.IsString() && a.GetStrValue() == b.GetStrValue();
-            }
-            else if (a.IsInt())
-            {
-                if (b.IsInt())
-                    return a.GetIntValue() == b.GetIntValue();
-                else if (b.IsFloat())
-                    return a.GetIntValue() == b.GetFloatValue();
-                else
-                    return false;
-            }
-            else if (a.IsFloat())
-            {
-                if (b.IsFloat())
-                    return a.GetFloatValue() == b.GetFloatValue();
-                else if (b.IsInt())
-                    return a.GetFloatValue() == b.GetIntValue();
-                else
-                    return false;
-            }
-            else if (a.IsTable()
-                     && b.IsTable()
-                     && a.GetTableValue() != b.GetTableValue() && ls != null)
-            {
-                if (LuaValue.CallMetaMethod(a, b, "__eq", ls, out var metaMethodRet))
-                {
-                    return metaMethodRet.ToBoolean();
-                }
-
-                return a.GetValue() == b.GetValue();
-            }
-            else
-            {
-                return a.GetValue() == b.GetValue();
             }
         }
 

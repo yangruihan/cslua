@@ -15,13 +15,19 @@ namespace CsLua.State
         [Conditional("LUA_ENABLE_ASSERT")]
         internal void CheckNElems(int n)
         {
-            Check(Top >= n, "not enough elements in the stack");
+            Check(n < Top - CallInfo.Func, "not enough elements in the stack");
         }
 
         [Conditional("LUA_ENABLE_ASSERT")]
         internal void CheckStackIndex(int i, LuaValue v)
         {
             Check(LuaAPI.IsStackIndex(i, v), "index not in the stack");
+        }
+
+        [Conditional("LUA_ENABLE_ASSERT")]
+        internal void CheckValidIndex(LuaValue v)
+        {
+            Check(LuaAPI.IsValid(v), "invalid index");
         }
     }
 }

@@ -9,27 +9,27 @@ namespace CsLua.State
     {
         public void PushNil()
         {
-            Stack.Push(LuaValue.Nil);
+            Push(LuaValue.Nil);
         }
 
         public void PushBoolean(bool b)
         {
-            Stack.Push(b ? LuaValue.True : LuaValue.False);
+            Push(b ? LuaValue.True : LuaValue.False);
         }
 
         public void PushInteger(LuaInt n)
         {
-            Stack.Push(new LuaValue(n));
+            Push(new LuaValue(n));
         }
 
         public void PushNumber(LuaFloat n)
         {
-            Stack.Push(new LuaValue(n));
+            Push(new LuaValue(n));
         }
 
         public string PushString(string s)
         {
-            Stack.Push(new LuaValue(s, ELuaType.String));
+            Push(new LuaValue(s, ELuaType.String));
             return s;
         }
 
@@ -42,13 +42,13 @@ namespace CsLua.State
 
         public void PushCSFunction(LuaCSFunction f)
         {
-            Stack.Push(new Closure(f, 0));
+            Push(new LuaValue(new Closure(f, 0), ELuaType.LCSFunction));
         }
 
         public void PushGlobalTable()
         {
             var global = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
-            Stack.Push(global);
+            Push(global);
         }
 
         public void PushCSClosure(LuaCSFunction f, int n)
@@ -60,17 +60,23 @@ namespace CsLua.State
                 closure.Upvals[i - 1] = new Upvalue {Val = val};
             }
 
-            Stack.Push(closure);
+            Push(new LuaValue(closure, ELuaType.CSClosure));
         }
 
         public void PushLightUserdata(object userdata)
         {
-            Stack.Push(new LuaValue(userdata, ELuaType.LightUserData));
+            Push(new LuaValue(userdata, ELuaType.LightUserData));
         }
 
         public void PushThread()
         {
-            Stack.Push(new LuaValue(this, ELuaType.Thread));
+            Push(new LuaValue(this, ELuaType.Thread));
+        }
+
+        private void Push(LuaValue v)
+        {
+            Stack.Push(v);
+            Check(Top <= CallInfo.Top, "stack overflow");
         }
     }
 }

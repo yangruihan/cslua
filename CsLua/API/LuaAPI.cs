@@ -24,9 +24,9 @@ namespace CsLua.API
                 state.CallInfo.Top = state.Top;
         }
 
-        internal static bool IsValid(LuaValue v)
+        internal static bool IsValid(LuaValue? v)
         {
-            return v != LuaValue.Nil;
+            return v != null;
         }
 
         internal static bool IsPseudo(int i)

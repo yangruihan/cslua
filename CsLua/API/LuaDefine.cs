@@ -23,7 +23,7 @@ namespace CsLua.API
         Int = Number | 1 << 4,
 
         Closure = Function | 0 << 4,
-        CSFunction = Function | 1 << 4,
+        LCSFunction = Function | 1 << 4,
         CSClosure = Function | 2 << 4,
     }
 
@@ -180,19 +180,22 @@ namespace CsLua.API
 
     public static class LuaTypeEx
     {
-        public static ELuaType GetParentType(this ELuaType type)
+        /// <summary>
+        /// 获取无变体类型
+        /// </summary>
+        public static ELuaType GetNoVariantsType(this ELuaType type)
         {
             return (ELuaType) ((int) type & 0x0F);
         }
 
         public static bool IsNumber(this ELuaType type)
         {
-            return type.GetParentType() == ELuaType.Number;
+            return type.GetNoVariantsType() == ELuaType.Number;
         }
 
         public static bool IsFunction(this ELuaType type)
         {
-            return type.GetParentType() == ELuaType.Function;
+            return type.GetNoVariantsType() == ELuaType.Function;
         }
 
         public static bool IsUserdata(this ELuaType type)
@@ -202,7 +205,7 @@ namespace CsLua.API
 
         public static bool IsCSFunction(this ELuaType type)
         {
-            return type == ELuaType.CSFunction;
+            return type == ELuaType.LCSFunction;
         }
     }
 

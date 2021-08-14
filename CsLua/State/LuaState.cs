@@ -85,42 +85,43 @@ namespace CsLua.State
             return LuaConst.LUA_REGISTRYINDEX - i;
         }
 
-        private int Index2Abs(int idx)
+        private LuaValue? Index2Addr(int idx)
         {
-            return CallInfo.Func + idx;
+            return Index2Addr(idx);
         }
 
-        private LuaValue Index2Addr(int idx)
+        private LuaValue? Index2Addr(int idx, out int absIdx)
         {
             if (idx > 0)
             {
-                var value = Stack[CallInfo.Func + idx];
-                LuaAPI.Check(this, idx <= CallInfo.Top - (CallInfo.Func + 1), "unacceptable index");
-                if (value == null)
-                    return LuaValue.Nil;
+                absIdx = CallInfo.Func + idx;
+                var value = Stack[absIdx];
+                Check(idx <= CallInfo.Top - (CallInfo.Func + 1), "unacceptable index");
                 return value;
             }
             else if (!LuaAPI.IsPseudo(idx)) // negative idx
             {
-                LuaAPI.Check(this, idx != 0 && -idx <= Top - (CallInfo.Func + 1), "invalid index");
-                return Stack[Top + idx];
+                Check(idx != 0 && -idx <= Top - (CallInfo.Func + 1), "invalid index");
+                absIdx = Top + idx;
+                return Stack[absIdx];
             }
             else if (idx == LuaConst.LUA_REGISTRYINDEX) // registry
             {
+                absIdx = LuaConst.LUA_REGISTRYINDEX;
                 return GlobalState.Registry;
             }
             else // upvalues
             {
-                idx = LuaConst.LUA_REGISTRYINDEX - idx;
-                LuaAPI.Check(this, idx <= LuaConst.MAXUPVAL + 1, "upvalue index too large");
-                if (Stack[CallInfo.Func].IsCSFunction()) // CSFunction has no upvalues
+                absIdx = LuaConst.LUA_REGISTRYINDEX - idx;
+                Check(absIdx <= LuaConst.MAXUPVAL + 1, "upvalue index too large");
+                if (Stack[CallInfo.Func].IsLCSFunction()) // light CSFunction has no upvalues
                 {
-                    return LuaValue.Nil;
+                    return null;
                 }
                 else
                 {
                     var c = Stack[CallInfo.Func].GetClosureValue();
-                    return idx <= c.Upvals.Length ? c.Upvals[idx - 1].Val : LuaValue.Nil;
+                    return absIdx <= c.Upvals.Length ? c.Upvals[absIdx - 1].Val : null;
                 }
             }
         }

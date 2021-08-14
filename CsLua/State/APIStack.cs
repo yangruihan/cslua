@@ -1,5 +1,4 @@
 using CsLua.API;
-using CsLua.Misc;
 
 namespace CsLua.State
 {
@@ -8,14 +7,6 @@ namespace CsLua.State
     /// </summary>
     internal partial class LuaState : ILuaState
     {
-        /// <summary>
-        /// 返回栈顶索引
-        /// </summary>
-        public int GetTop()
-        {
-            return Top - (CallInfo.Func + 1);
-        }
-
         /// <summary>
         /// 把索引转换为绝对索引
         /// </summary>
@@ -27,12 +18,95 @@ namespace CsLua.State
         }
 
         /// <summary>
+        /// 返回栈顶索引
+        /// </summary>
+        public int GetTop()
+        {
+            return Top - (CallInfo.Func + 1);
+        }
+
+        /// <summary>
+        /// 将栈顶索引设置为指定值
+        /// </summary>
+        public void SetTop(int idx)
+        {
+            var func = CallInfo.Func;
+            if (idx >= 0)
+            {
+                while (Top < (func + 1) + idx)
+                    PushNil();
+            }
+            else
+            {
+                Check(-(idx + 1) <= (Top - (func + 1)), "invalid new top");
+                Stack.PopN(idx + 1);
+            }
+        }
+
+        /// <summary>
+        /// 把指定索引处的值推入栈顶
+        /// </summary>
+        public void PushValue(int idx)
+        {
+            var val = Index2Addr(idx);
+            Stack.Push(val);
+        }
+
+        /// <summary>
+        /// 将[idx, top]索引区间内的值朝栈顶方向旋转n个位置
+        /// </summary>
+        public void Rotate(int idx, int n)
+        {
+            var t = Top - 1;
+            var val = Index2Addr(idx, out var p)!;
+            CheckStackIndex(idx, val);
+            Check((n >= 0 ? n : -n) <= (t - p + 1), "invalid 'n'");
+            var m = n >= 0 ? t - n : p - n - 1;
+            Stack.Reverse(p, m);
+            Stack.Reverse(m + 1, t);
+            Stack.Reverse(p, t);
+        }
+
+        /// <summary>
+        /// 将栈上 from 索引的值复制到 to 索引
+        /// </summary>
+        public void Copy(int fromIdx, int toIdx)
+        {
+            var frVal = Index2Addr(fromIdx, out var fr)!;
+            var toVal = Index2Addr(toIdx, out var to)!;
+            CheckValidIndex(toVal);
+            Stack[to] = frVal;
+        }
+
+        /// <summary>
         /// 检查当前栈的容量是否够，不够则自动扩充
         /// </summary>
         public bool CheckStack(int n)
         {
+            var ci = CallInfo;
+            Check(n >= 0, "negative 'n'");
             Stack.Check(n);
+            ci.Top = Top + n;
             return true;
+        }
+
+        /// <summary>
+        /// 将 n 个元素从一个栈移动到另一个栈中
+        /// </summary>
+        public void XMove(ILuaState to, int n)
+        {
+            if (to == this)
+                return;
+
+            var toState = to as LuaState;
+
+            CheckNElems(n);
+            Check(GlobalState == toState!.GlobalState,
+                "moving among independent states");
+            Check(toState.Top >= n, "stack overflow");
+
+            for (var i = 0; i < n; i++)
+                toState.Stack.Push(this.Stack.Pop());
         }
 
         /// <summary>
@@ -42,24 +116,6 @@ namespace CsLua.State
         {
             for (var i = 0; i < n; i++)
                 Stack.Pop();
-        }
-
-        /// <summary>
-        /// 将栈上 from 索引的值复制到 to 索引
-        /// </summary>
-        public void Copy(int fromIdx, int toIdx)
-        {
-            var val = Stack[fromIdx];
-            Stack[toIdx] = val;
-        }
-
-        /// <summary>
-        /// 把指定索引处的值推入栈顶
-        /// </summary>
-        public void PushValue(int idx)
-        {
-            var val = Stack[idx];
-            Stack.Push(val);
         }
 
         /// <summary>
@@ -86,47 +142,6 @@ namespace CsLua.State
         {
             Rotate(idx, -1);
             Pop(1);
-        }
-
-        /// <summary>
-        /// 将[idx, top]索引区间内的值朝栈顶方向旋转n个位置
-        /// </summary>
-        public void Rotate(int idx, int n)
-        {
-            var t = Top - 1;
-            var p = Stack.AbsIndex(idx) - 1;
-            var m = n >= 0 ? t - n : p - n - 1;
-            Stack.Reverse(p, m);
-            Stack.Reverse(m + 1, t);
-            Stack.Reverse(p, t);
-        }
-
-        /// <summary>
-        /// 将栈顶索引设置为指定值
-        /// </summary>
-        public void SetTop(int idx)
-        {
-            var func = CallInfo.Func;
-            if (idx >= 0)
-            {
-                Check(idx <= Top - (func + 1), "new top too large");
-            }
-        }
-
-        public void XMove(ILuaState to, int n)
-        {
-            if (to == this)
-                return;
-
-            var toState = to as LuaState;
-
-            LuaAPI.CheckNElems(this, n);
-            LuaAPI.Check(this, GlobalState == toState!.GlobalState,
-                "moving among independent states");
-            LuaAPI.Check(this, toState.Top >= n, "stack overflow");
-
-            for (var i = 0; i < n; i++)
-                toState.Stack.Push(this.Stack.Pop());
         }
     }
 }

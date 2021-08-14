@@ -5,6 +5,11 @@ using CsLua.Number;
 
 namespace CsLua.State
 {
+    /// <summary>
+    /// Data structure for lua table
+    /// TODO:
+    ///     1. add flags for tagmethod ~ lojbect.h 499
+    /// </summary>
     internal class LuaTable
     {
         private static readonly object KeysHead = new byte();
