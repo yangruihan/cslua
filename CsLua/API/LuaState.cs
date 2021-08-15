@@ -224,12 +224,52 @@ namespace CsLua.API
         /// [-0, +0, m]
         /// </summary>
         string? ToString(int idx);
+
+        /// <summary>
+        /// Returns the raw "length" of the value at the given index: 
+        /// for strings, this is the string length; for tables, 
+        /// this is the result of the length operator ('#') with no 
+        /// metamethods; for userdata, this is the size of the 
+        /// block of memory allocated for the userdata; for other values, 
+        /// it is 0.
+        /// [-0, +0, –]
+        /// </summary>
         uint RawLen(int idx);
+
+        /// <summary>
+        /// Converts a value at the given index to a C function. 
+        /// That value must be a C function; otherwise, returns NULL.
+        /// [-0, +0, –]
+        /// </summary>
         LuaCSFunction? ToCSFunction(int idx);
+
+        /// <summary>
+        /// If the value at the given index is a full userdata,
+        /// returns its block address. If the value is a light userdata,
+        /// returns its pointer. Otherwise, returns NULL
+        /// [-0, +0, –]
+        /// </summary>
         object? ToUserdata(int idx);
+
+        /// <summary>
+        /// Converts the value at the given index to a Lua thread 
+        /// (represented as lua_State*). This value must be a thread; 
+        /// otherwise, the function returns NULL.
+        /// [-0, +0, –]
+        /// </summary>
         ILuaState? ToThread(int idx);
+
+        /// <summary>
+        /// Converts the value at the given index to a generic 
+        /// C pointer (void*). The value can be a userdata, a table, 
+        /// a thread, or a function; otherwise, lua_topointer returns NULL. 
+        /// Different objects will give different pointers. There is no way to 
+        /// convert the pointer back to its original value.
+        /// [-0, +0, –]
+        /// </summary>
         ref object? ToPointer(int idx);
 
+        // TODO
         bool IsFunction(int idx);
 
         #endregion

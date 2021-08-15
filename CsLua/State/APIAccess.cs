@@ -12,13 +12,13 @@ namespace CsLua.State
         {
             var val = Index2Addr(idx)!;
             if (val.IsString())
-                return (uint)val.GetStrValue().Length;
+                return (uint)val.GetStrValue()!.Length;
 
             if (val.IsTable())
-                return (uint)val.GetTableValue().Len();
+                return (uint)val.GetTableValue()!.Len();
 
             if (val.IsFullUserData())
-                return (uint)val.GetUserDataValue().Size;
+                return (uint)val.GetUserDataValue()!.Size;
 
             return 0;
         }
@@ -227,7 +227,7 @@ namespace CsLua.State
             switch (v.Type.GetNoVariantsType())
             {
                 case ELuaType.UserData:
-                    return v.GetUserDataValue().Memory;
+                    return v.GetUserDataValue()!.Memory;
 
                 case ELuaType.LightUserData:
                     return v.GetObjValue();
@@ -240,11 +240,12 @@ namespace CsLua.State
         public ILuaState? ToThread(int idx)
         {
             var val = Index2Addr(idx)!;
-            return val.IsThread() ? val.GetValue() as ILuaState : null;
+            return val.IsThread() ? val.GetObjValue() as ILuaState : null;
         }
 
-        public ref object ToPointer(int idx)
+        public ref object? ToPointer(int idx)
         {
+            // TODO
             throw new NotImplementedException();
         }
     }
