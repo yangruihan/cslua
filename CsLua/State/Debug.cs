@@ -157,5 +157,20 @@ namespace CsLua.State
                 p2 = p1;
             RunError($"number{_Debug.VarInfo(this, p2)} has no integer representation");
         }
+
+        private void OrderError(int p1, int p2)
+        {
+            OrderError(Index2Addr(p1)!, Index2Addr(p2)!);
+        }
+
+        private void OrderError(LuaValue p1, LuaValue p2)
+        {
+            var t1 = ObjTypeName(p1);
+            var t2 = ObjTypeName(p2);
+            if (t1 == t2)
+                RunError($"attempt to compare two {t1} values");
+            else
+                RunError($"attempt to compare {t1} with {t2}");
+        }
     }
 }

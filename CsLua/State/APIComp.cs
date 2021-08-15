@@ -11,11 +11,11 @@ namespace CsLua.State
     {
         public bool RawEqual(int idx1, int idx2)
         {
-            var v1 = Index2Addr(idx1);
-            var v2 = Index2Addr(idx2);
+            var v1 = Index2Addr(idx1)!;
+            var v2 = Index2Addr(idx2)!;
 
             return (LuaAPI.IsValid(v1) && LuaAPI.IsValid(v2))
-                    ? EqualObj(v1!, v2!, null) 
+                    ? EqualObj(v1, v2)
                     : false;
         }
 
@@ -24,67 +24,25 @@ namespace CsLua.State
         /// </summary>
         public bool Compare(int idx1, int idx2, ECompOp op)
         {
-            if (!Stack.IsValid(idx1) || !Stack.IsValid(idx2))
-                return false;
+            var a = Index2Addr(idx1)!;
+            var b = Index2Addr(idx2)!;
 
-            var a = Stack[idx1];
-            var b = Stack[idx2];
-
-            switch (op)
+            if (LuaAPI.IsValid(a) && LuaAPI.IsValid(b))
             {
-                case ECompOp.Eq:
-                    return EqualObj(a, b, this);
-                case ECompOp.Lt:
-                    return Lt(a, b, this);
-                case ECompOp.Le:
-                    return Le(a, b, this);
-                default:
-                    Debug.Panic("invalid compare op!");
-                    return false;
-            }
-        }
-
-        private bool Lt(LuaValue a, LuaValue b, LuaState ls)
-        {
-            if (a.IsString())
-            {
-                return b.IsString() && string.Compare(a.GetStrValue(), b.GetStrValue(), StringComparison.Ordinal) < 0;
-            }
-            else if (a.IsNumber() && b.IsNumber())
-            {
-                return a.GetFloatValue() < b.GetFloatValue();
+                switch (op)
+                {
+                    case ECompOp.Eq:
+                        return EqualObj(a, b);
+                    case ECompOp.Lt:
+                        return LessThan(a, b);
+                    case ECompOp.Le:
+                        return LessEqual(a, b);
+                    default:
+                        Check(false, "invalid option");
+                        return false;
+                }
             }
 
-            if (LuaValue.CallMetaMethod(a, b, "__lt", ls, out var metaMethodRet))
-            {
-                return metaMethodRet.ToBoolean();
-            }
-
-            Debug.Panic("comparison error!");
-            return false;
-        }
-
-        private bool Le(LuaValue a, LuaValue b, LuaState ls)
-        {
-            if (a.IsString())
-            {
-                return b.IsString() && string.Compare(a.GetStrValue(), b.GetStrValue(), StringComparison.Ordinal) <= 0;
-            }
-            else if (a.IsNumber() && b.IsNumber())
-            {
-                return a.GetFloatValue() <= b.GetFloatValue();
-            }
-
-            if (LuaValue.CallMetaMethod(a, b, "__le", ls, out var metaMethodRet))
-            {
-                return metaMethodRet.ToBoolean();
-            }
-            else if (LuaValue.CallMetaMethod(b, a, "__lt", ls, out metaMethodRet))
-            {
-                return !metaMethodRet.ToBoolean();
-            }
-
-            Debug.Panic("comparison error!");
             return false;
         }
     }

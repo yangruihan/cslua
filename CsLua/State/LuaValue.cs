@@ -147,7 +147,7 @@ namespace CsLua.State
             Type = ELuaType.String;
         }
 
-        private LuaValue(object value) : this()
+        public LuaValue(object value) : this()
         {
             _numValue = 0;
             _boolValue = false;

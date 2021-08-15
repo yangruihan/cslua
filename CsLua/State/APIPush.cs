@@ -29,7 +29,7 @@ namespace CsLua.State
 
         public string PushString(string s)
         {
-            Push(new LuaValue(s, ELuaType.String));
+            Push(new LuaValue(s));
             return s;
         }
 
@@ -53,14 +53,22 @@ namespace CsLua.State
 
         public void PushCSClosure(LuaCSFunction f, int n)
         {
-            var closure = new CSClosure(f, n);
-            for (var i = n; i > 0; i--)
+            if (n == 0)
             {
-                var val = Stack.Pop();
-                closure.Upvals![i - 1] = new Upvalue {Val = val};
+                Push(new LuaValue(f, ELuaType.LCSFunction));
             }
-
-            Push(new LuaValue(closure, ELuaType.CSClosure));
+            else
+            {
+                CheckNElems(n);
+                Check(n <= LuaConst.MAXUPVAL, "upvalue index too large");
+                CSClosure cl = new CSClosure(f, n);
+                for (var i = n; i > 0; i--)
+                {
+                    var val = Stack.Pop();
+                    cl.Upvals![i - 1] = new Upvalue { Val = val };
+                }
+                Push(new LuaValue(cl, ELuaType.CSClosure));
+            }
         }
 
         public void PushLightUserdata(object userdata)
@@ -68,9 +76,10 @@ namespace CsLua.State
             Push(new LuaValue(userdata, ELuaType.LightUserData));
         }
 
-        public void PushThread()
+        public bool PushThread()
         {
             Push(new LuaValue(this, ELuaType.Thread));
+            return GlobalState.MainThread == this;
         }
     }
 }

@@ -124,15 +124,20 @@ namespace CsLua.State
             CallTM(funcV, p1v, p2v, p3, hasRes);
         }
 
-        private bool CallBinTM(int p1, int p2, int res, ETagMethods @event)
+        private bool CallBinTM(LuaValue p1, LuaValue p2, int res, ETagMethods @event)
         {
-            var tm = GetTMByObj(Index2Addr(p1)!, @event); // try first operand
+            var tm = GetTMByObj(p1, @event); // try first operand
             if (tm == null || tm.IsNil())
-                tm = GetTMByObj(Index2Addr(p2)!, @event); // try second operand
+                tm = GetTMByObj(p2, @event); // try second operand
             if (tm == null || tm.IsNil())
                 return false;
-            CallTM(tm, Index2Addr(p1)!, Index2Addr(p2)!, res, true);
+            CallTM(tm, p1, p2, res, true);
             return true;
+        }
+
+        private bool CallBinTM(int p1, int p2, int res, ETagMethods @event)
+        {
+            return CallBinTM(Index2Addr(p1)!, Index2Addr(p2)!, res, @event);
         }
 
         private void TryBinTM(int p1, int p2, int res, ETagMethods @event)
@@ -169,6 +174,14 @@ namespace CsLua.State
                         }
                 }
             }
+        }
+
+        private int CallOrderTM(LuaValue p1, LuaValue p2, ETagMethods @event)
+        {
+            if (!CallBinTM(p1, p2, Top, @event))
+                return -1;
+            else
+                return Index2Addr(Top)!.ToBoolean() ? 1 : 0;
         }
     }
 }

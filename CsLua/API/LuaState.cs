@@ -269,6 +269,30 @@ namespace CsLua.API
         /// </summary>
         ref object? ToPointer(int idx);
 
+        // TODO
+        bool IsNone(int idx);
+        // TODO
+        bool IsNil(int idx);
+        // TODO
+        bool IsNoneOrNil(int idx);
+        // TODO
+        bool IsBoolean(int idx);
+        // TODO
+        bool IsTable(int idx);
+        // TODO
+        bool IsThread(int idx);
+        // TODO
+        bool IsArray(int idx);
+        // TODO
+        bool IsFunction(int idx);
+
+        // TODO
+        LuaInt ToInteger(int idx);
+        // TODO
+        LuaFloat ToNumber(int idx);
+        // TODO
+        string? ToStringX(int idx, out bool isStr);
+
         #endregion
 
         #region Comparison and arithmetic functions
@@ -289,40 +313,101 @@ namespace CsLua.API
         /// </summary>
         void Arith(EArithOp op);
 
+        /// <summary>
+        /// Returns 1 if the two values in indices index1 and index2 are 
+        /// primitively equal (that is, without calling the __eq metamethod).
+        /// Otherwise returns 0. Also returns 0 if any of the indices are not
+        /// valid.
+        /// [-0, +0, –]
+        /// </summary>
         bool RawEqual(int idx1, int idx2);
 
+        /// <summary>
+        /// Compares two Lua values. Returns 1 if the value at index index1 
+        /// satisfies op when compared with the value at index index2, 
+        /// following the semantics of the corresponding Lua operator (that is,
+        /// it may call metamethods). Otherwise returns 0. Also returns 0 if 
+        /// any of the indices is not valid.
+        /// [-0, +0, e]
+        /// </summary>
         bool Compare(int idx1, int idx2, ECompOp op);
 
         #endregion
 
-        bool IsNone(int idx);
-        bool IsNil(int idx);
-        bool IsNoneOrNil(int idx);
-        bool IsBoolean(int idx);
-        bool IsTable(int idx);
-        bool IsThread(int idx);
-        bool IsArray(int idx);
-        // TODO
-        bool IsFunction(int idx);
+        #region push functions (C -> stack)
 
-        LuaInt ToInteger(int idx);
-        LuaFloat ToNumber(int idx);
-        string? ToStringX(int idx, out bool isStr);
-
+        // ---------------------------
         // ----- 将值推入栈中操作 -----
         // push functions (C -> stack)
-        void PushNil();
-        void PushNumber(LuaFloat n);
-        void PushInteger(LuaInt n);
-        string PushString(string s);
-        string PushFString(string fmt, params object[] args);
-        void PushCSClosure(LuaCSFunction f, int n);
-        void PushBoolean(bool b);
-        void PushLightUserdata(object userdata);
-        void PushThread();
+        // ----------------------------
 
+        /// <summary>
+        /// Pushes a nil value onto the stack.
+        /// [-0, +1, –]
+        /// </summary>
+        void PushNil();
+
+        /// <summary>
+        /// Pushes a float with value n onto the stack.
+        /// [-0, +1, –]
+        /// </summary>
+        void PushNumber(LuaFloat n);
+
+        /// <summary>
+        /// Pushes an integer with value n onto the stack.
+        /// [-0, +1, –]
+        /// </summary>
+        void PushInteger(LuaInt n);
+
+        /// <summary>
+        /// Pushes the string pointed to by s with size len onto the stack.
+        /// Lua makes (or reuses) an internal copy of the given string, 
+        /// so the memory at s can be freed or reused immediately after the 
+        /// function returns. The string can contain any binary data, 
+        /// including embedded zeros.
+        /// [-0, +1, m]
+        /// </summary>
+        string PushString(string s);
+
+        /// <summary>
+        /// Equivalent to lua_pushfstring, except that it receives a va_list 
+        /// instead of a variable number of arguments.
+        /// [-0, +1, m]
+        /// </summary>
+        string PushFString(string fmt, params object[] args);
+
+        /// <summary>
+        /// Pushes a new CS closure onto the stack.
+        /// [-n, +1, m]
+        /// </summary>
+        void PushCSClosure(LuaCSFunction f, int n);
+
+        /// <summary>
+        /// Pushes a boolean value with value b onto the stack.
+        /// [-0, +1, –]
+        /// </summary>
+        void PushBoolean(bool b);
+
+        /// <summary>
+        /// Pushes a light userdata onto the stack.
+        /// [-0, +1, –]
+        /// </summary>
+        void PushLightUserdata(object userdata);
+
+        /// <summary>
+        /// Pushes the thread represented by L onto the stack. Returns 1 
+        /// if this thread is the main thread of its state.
+        /// [-0, +1, –]
+        /// </summary>
+        bool PushThread();
+
+        // TODO
         void PushCSFunction(LuaCSFunction f);
+
+        // TODO
         void PushGlobalTable();
+
+        #endregion
 
         // ----- 取值操作 -----
         // get functions (Lua -> stack)
