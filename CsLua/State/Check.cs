@@ -7,27 +7,32 @@ namespace CsLua.State
     internal partial class LuaState
     {
         [Conditional("LUA_ENABLE_ASSERT")]
-        internal void Check(bool e, string msg)
+        private void Check(bool e, string msg = "")
         {
             Debug.Assert(e, msg);
         }
 
         [Conditional("LUA_ENABLE_ASSERT")]
-        internal void CheckNElems(int n)
+        private void CheckNElems(int n)
         {
             Check(n < Top - CallInfo.Func, "not enough elements in the stack");
         }
 
         [Conditional("LUA_ENABLE_ASSERT")]
-        internal void CheckStackIndex(int i, LuaValue v)
+        private void CheckStackIndex(int i, LuaValue v)
         {
             Check(LuaAPI.IsStackIndex(i, v), "index not in the stack");
         }
 
         [Conditional("LUA_ENABLE_ASSERT")]
-        internal void CheckValidIndex(LuaValue v)
+        private void CheckValidIndex(LuaValue v)
         {
             Check(LuaAPI.IsValid(v), "invalid index");
+        }
+
+        private bool IsUpvalue(int idx)
+        {
+            return idx < LuaConst.LUA_REGISTRYINDEX;
         }
     }
 }

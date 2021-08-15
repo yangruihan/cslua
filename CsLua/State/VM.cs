@@ -4,8 +4,10 @@ namespace CsLua.State
 {
     internal partial class LuaState
     {
-        private bool Eq(LuaValue a, LuaValue b, LuaState? ls)
+        private bool EqualObj(int indexA, int indexB, LuaState? ls)
         {
+            var a = Index2Addr(indexA)!;
+            var b = Index2Addr(indexB)!;
             if (a.Type != b.Type) // not the same variant?
             {
                 // only numbers can be equal with different variants
@@ -44,8 +46,8 @@ namespace CsLua.State
 
                 case ELuaType.UserData:
                     {
-                        var u1 = a.GetUserDataValue();
-                        var u2 = b.GetUserDataValue();
+                        var u1 = a.GetUserDataValue()!;
+                        var u2 = b.GetUserDataValue()!;
                         if (u1 == u2)
                             return true;
 
@@ -65,8 +67,8 @@ namespace CsLua.State
 
                 case ELuaType.Table:
                     {
-                        var u1 = a.GetTableValue();
-                        var u2 = a.GetTableValue();
+                        var u1 = a.GetTableValue()!;
+                        var u2 = a.GetTableValue()!;
                         if (u1 == u2)
                             return true;
 
@@ -92,7 +94,8 @@ namespace CsLua.State
             if (tm == null)
                 return false;
 
-            
+            CallTM(tm, indexA, indexB, Top, true);
+            return 
         }
     }
 }

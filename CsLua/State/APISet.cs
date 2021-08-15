@@ -83,7 +83,7 @@ namespace CsLua.State
         public void SerUserValue(int idx)
         {
             var o = Stack[idx];
-            LuaAPI.Check(this, o.IsUserData(), "full userdata expected");
+            LuaAPI.Check(this, o.IsFullUserData(), "full userdata expected");
             var v = Stack.Pop();
             (o.GetObjValue() as UserData)!.User = v;
         }

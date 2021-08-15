@@ -2,12 +2,13 @@ using System;
 using System.Globalization;
 using CsLua.API;
 using CsLua.Number;
+using CsLua.Misc;
 
 namespace CsLua.State
 {
     internal class LuaValue
     {
-        public static readonly LuaValue Nil = new LuaValue(null, ELuaType.Nil);
+        public static readonly LuaValue Nil = new LuaValue(0, ELuaType.Nil);
         public static readonly LuaValue True = new LuaValue(true);
         public static readonly LuaValue False = new LuaValue(false);
 
@@ -37,7 +38,8 @@ namespace CsLua.State
             if (val.IsTable())
             {
                 var lt = val.GetTableValue();
-                lt.MetaTable = mt;
+                Debug.Assert(lt != null);
+                lt!.MetaTable = mt;
                 return;
             }
 
@@ -48,7 +50,7 @@ namespace CsLua.State
         public static LuaTable? GetMetaTable(LuaValue val, LuaState ls)
         {
             if (val.IsTable())
-                return (val.GetTableValue()).MetaTable;
+                return val.GetTableValue()!.MetaTable;
 
             var key = $"_MT{val.Type.GetNoVariantsType()}";
             var mt = ls.Registry.Get(key);
@@ -56,7 +58,7 @@ namespace CsLua.State
         }
 
         public static bool CallMetaMethod(LuaValue a, LuaValue b, string mmName,
-            LuaState ls, out LuaValue ret)
+            LuaState ls, out LuaValue? ret)
         {
             ret = null;
 
@@ -68,7 +70,7 @@ namespace CsLua.State
                     return false;
             }
 
-            ls.Stack.Check(4);
+            ls.CheckStack(4);
             ls.Stack.Push(mm);
             ls.Stack.Push(a);
             ls.Stack.Push(b);
@@ -145,12 +147,20 @@ namespace CsLua.State
                 _objValue = value;
                 Type = ELuaType.Table;
             }
-            else if (value is Closure c)
+            else if (value is LuaClosure c)
             {
-                Type = c.LuaCsFunction != null
-                    ? c.Upvals == null ? ELuaType.LCSFunction : ELuaType.CSClosure
-                    : ELuaType.Closure;
+                Type = ELuaType.LuaClosure;
                 _objValue = c;
+            }
+            else if (value is CSClosure)
+            {
+                Type = ELuaType.CSClosure;
+                _objValue = value;
+            }
+            else if (value is LuaCSFunction)
+            {
+                Type = ELuaType.LCSFunction;
+                _objValue = value;
             }
             else if (value is LuaState)
             {
@@ -222,9 +232,9 @@ namespace CsLua.State
             return Type.IsFunction();
         }
 
-        public bool IsClosure()
+        public bool IsLuaClosure()
         {
-            return Type == ELuaType.Closure;
+            return Type == ELuaType.LuaClosure;
         }
 
         public bool IsLCSFunction()
@@ -237,7 +247,7 @@ namespace CsLua.State
             return Type == ELuaType.CSClosure;
         }
 
-        public bool IsUserData()
+        public bool IsFullUserData()
         {
             return Type == ELuaType.UserData;
         }
@@ -252,11 +262,6 @@ namespace CsLua.State
             return _boolValue;
         }
 
-        public object GetLightUserData()
-        {
-            return _objValue;
-        }
-
         public LuaInt GetIntValue()
         {
             return BitConverter.DoubleToInt64Bits(_numValue);
@@ -267,42 +272,52 @@ namespace CsLua.State
             return _numValue;
         }
 
-        public string GetStrValue()
+        public object? GetLightUserData()
+        {
+            return _objValue;
+        }
+
+        public string? GetStrValue()
         {
             return GetObjValue<string>();
         }
 
-        public LuaTable GetTableValue()
+        public LuaTable? GetTableValue()
         {
             return GetObjValue<LuaTable>();
         }
 
-        public Closure GetClosureValue()
+        public LuaClosure? GetLuaClosureValue()
         {
-            return GetObjValue<Closure>();
+            return GetObjValue<LuaClosure>();
         }
 
-        public LuaCSFunction GetLCSFunctionValue()
+        public LuaCSFunction? GetLCSFunctionValue()
         {
             return GetObjValue<LuaCSFunction>();
         }
 
-        public LuaCSFunction GetCSClosureFunctionValue()
+        public CSClosure? GetCSClosure()
         {
-            return GetObjValue<Closure>()!.LuaCsFunction;
+            return GetObjValue<CSClosure>();
         }
 
-        public UserData GetUserDataValue()
+        public LuaCSFunction? GetCSClosureFunctionValue()
+        {
+            return GetObjValue<CSClosure>()?.LuaCsFunction;
+        }
+
+        public UserData? GetUserDataValue()
         {
             return GetObjValue<UserData>();
         }
 
-        public LuaState GetThreadValue()
+        public LuaState? GetThreadValue()
         {
             return GetObjValue<LuaState>();
         }
 
-        public object GetObjValue()
+        public object? GetObjValue()
         {
             return _objValue;
         }
@@ -317,12 +332,12 @@ namespace CsLua.State
             return ref _numValue;
         }
 
-        public ref object GetObjRefValue()
+        public ref object? GetObjRefValue()
         {
             return ref _objValue;
         }
 
-        public object GetValue()
+        public object? GetValue()
         {
             if (IsBool())
                 return _boolValue;
@@ -332,7 +347,7 @@ namespace CsLua.State
             return _objValue;
         }
 
-        private T GetObjValue<T>() where T : class
+        private T? GetObjValue<T>() where T : class
         {
             return _objValue as T;
         }
@@ -346,7 +361,7 @@ namespace CsLua.State
             else if (IsBool())
                 return _boolValue.ToString(CultureInfo.CurrentCulture);
 
-            return _objValue == null ? "null" : _objValue.ToString();
+            return _objValue == null ? "null" : _objValue!.ToString()!;
         }
 
         public bool ToBoolean()
@@ -369,7 +384,7 @@ namespace CsLua.State
             }
             else if (IsString())
             {
-                return LuaFloat.TryParse((string) _objValue, out ret);
+                return LuaFloat.TryParse((string)_objValue!, out ret);
             }
 
             ret = 0;
@@ -389,7 +404,7 @@ namespace CsLua.State
             }
             else if (IsString())
             {
-                return StringToInteger((string) _objValue, out ret);
+                return StringToInteger((string)_objValue!, out ret);
             }
 
             ret = 0;

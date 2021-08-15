@@ -7,26 +7,17 @@ namespace CsLua.State
 {
     internal class LuaStack
     {
-        private readonly List<LuaValue> _slots;
-        public List<LuaValue> Slots => _slots;
+        private readonly List<LuaValue?> _slots;
+        public List<LuaValue?> Slots => _slots;
 
         public int Top;
 
-        public LuaState State;
-        public Closure Closure;
-        public LuaValue[] Varargs;
-        public Dictionary<int, Upvalue> Openuvs;
-
-        public int PC;
-        public LuaStack Prev;
-
-        public LuaStack(int size, LuaState state)
+        public LuaStack(int size)
         {
-            _slots = new List<LuaValue>(size);
+            _slots = new List<LuaValue?>(size);
             for (var i = 0; i < size; i++)
                 _slots.Add(null);
             Top = 0;
-            State = state;
         }
 
         public override string ToString()
@@ -45,11 +36,16 @@ namespace CsLua.State
             set => Set(i, value);
         }
 
-        public void Check(int n)
+        /// <summary>
+        /// check stack size and grow stack if needed
+        /// </summary>
+        public bool Check(int n)
         {
             var free = _slots.Capacity - Top;
             for (var i = free; i < n; i++)
-                _slots.Add(LuaValue.Nil);
+                _slots.Add(null);
+
+            return free >= n;
         }
 
         public void Push(bool b)
@@ -57,12 +53,32 @@ namespace CsLua.State
             Push(b ? LuaValue.True : LuaValue.False);
         }
 
+        public void Push(LuaFloat f)
+        {
+            Push(LuaValue.Create(f));
+        }
+
+        public void Push(LuaInt i)
+        {
+            Push(LuaValue.Create(i));
+        }
+
+        public void Push(string str)
+        {
+            Push(LuaValue.Create(str));
+        }
+
+        public void PushNil()
+        {
+            Push(LuaValue.Nil);
+        }
+
         public void Push(object o)
         {
             Push(LuaValue.Create(o));
         }
 
-        public void Push(LuaValue value)
+        public void Push(LuaValue? value)
         {
             if (Top == _slots.Capacity)
                 Debug.Panic("stack overflow!");
@@ -70,7 +86,7 @@ namespace CsLua.State
             _slots[Top++] = value;
         }
 
-        public LuaValue Pop()
+        public LuaValue? Pop()
         {
             if (Top < 1)
                 Debug.Panic("stack underflow!");
@@ -84,7 +100,7 @@ namespace CsLua.State
         {
             if (vals == null)
                 return;
-            
+
             var nVals = vals.Length;
             if (n < 0)
                 n = nVals;
@@ -95,87 +111,36 @@ namespace CsLua.State
             }
         }
 
-        public LuaValue[] PopN(int n)
+        public void PopN(int n)
         {
-            var vals = new LuaValue[n];
             for (var i = n - 1; i >= 0; i--)
             {
-                vals[i] = Pop();
+                Pop();
             }
-
-            return vals;
         }
 
-        public int AbsIndex(int idx)
+        public void PopN(int n, out LuaValue?[] ret)
         {
-            if (idx >= 0 || idx <= LuaConst.LUA_REGISTRYINDEX)
-                return idx;
-
-            return idx + Top + 1;
-        }
-
-        public bool IsValid(int idx)
-        {
-            // upvalues
-            if (idx < LuaConst.LUA_REGISTRYINDEX)
+            ret = new LuaValue?[n];
+            for (var i = n - 1; i >= 0; i--)
             {
-                var uvIdx = LuaConst.LUA_REGISTRYINDEX - idx - 1;
-                return Closure != null && uvIdx < Closure.Upvals.Length;
+                ret[i] = Pop();
             }
-
-            // registry
-            if (idx == LuaConst.LUA_REGISTRYINDEX)
-                return true;
-
-            var absIdx = AbsIndex(idx);
-            return absIdx > 0 && absIdx <= Top;
         }
 
         public LuaValue? Get(int idx)
         {
-            // upvalues
-            if (idx < LuaConst.LUA_REGISTRYINDEX)
-            {
-                var uvIdx = LuaConst.LUA_REGISTRYINDEX - idx - 1;
-                if (Closure is null || uvIdx > Closure.Upvals.Length)
-                    return null;
-
-                return Closure.Upvals[uvIdx].Val;
-            }
-
-            // registry
-            if (idx == LuaConst.LUA_REGISTRYINDEX)
-                return State.GetRegistry();
-
-            var absIndex = AbsIndex(idx);
-            if (absIndex > 0 && absIndex <= Top)
-                return _slots[absIndex - 1];
+            if (idx > 0 && idx <= Top)
+                return _slots[idx - 1];
 
             return null;
         }
 
-        public void Set(int idx, LuaValue val)
+        public void Set(int idx, LuaValue? val)
         {
-            // upvalues
-            if (idx < LuaConst.LUA_REGISTRYINDEX)
+            if (idx > 0 && idx <= Top)
             {
-                var uvIdx = LuaConst.LUA_REGISTRYINDEX - idx - 1;
-                if (Closure != null && uvIdx < Closure.Upvals.Length)
-                    Closure.Upvals[uvIdx].Val = val;
-                return;
-            }
-
-            // registry
-            if (idx == LuaConst.LUA_REGISTRYINDEX)
-            {
-                State.SetRegistry(val.GetTableValue());
-                return;
-            }
-
-            var absIndex = AbsIndex(idx);
-            if (absIndex > 0 && absIndex <= Top)
-            {
-                _slots[absIndex - 1] = val;
+                _slots[idx - 1] = val;
                 return;
             }
 

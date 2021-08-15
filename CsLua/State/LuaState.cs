@@ -1,4 +1,3 @@
-using System;
 using CsLua.API;
 
 namespace CsLua.State
@@ -7,13 +6,6 @@ namespace CsLua.State
     {
         public static int BASIC_STACK_SIZE = 2 * LuaConst.LUA_MINSTACK;
 
-        public static void PreInitThread(LuaState l, GlobalState g)
-        {
-            l.GlobalState = g;
-            l.NNy = 1;
-            l.NCcalls = 0;
-        }
-
         public static LuaState NewThread(LuaState l)
         {
             var l1 = new LuaState(l);
@@ -21,17 +13,24 @@ namespace CsLua.State
             return l1;
         }
 
+        public ushort NCi; // number of items in 'ci' list
+
         public EStatus Status;
 
         public LuaStack Stack { get; private set; }
-        public int Top => Stack.Top;
+        public int Top
+        {
+            get => Stack.Top;
+            set => Stack.Top = value;
+        }
+        public int StackLast => Stack.Slots.Capacity;
 
         public GlobalState GlobalState { get; private set; }
 
         public readonly CallInfo BaseCi;
         public CallInfo CallInfo;
 
-        public Int64 ErrFunc;
+        public int ErrFunc;
 
         public ushort NNy; // number of non-yieldable calls in stack
         public ushort NCcalls; // number of nested C calls 
@@ -43,31 +42,18 @@ namespace CsLua.State
         public LuaState(LuaState? parent = null)
         {
             Status = EStatus.Ok;
-            PreInitThread(this, parent == null ? new GlobalState(this) : parent.GlobalState);
+            PreInitThread(parent == null ? new GlobalState(this) : parent.GlobalState);
 
-            GlobalState.Init(this);
+            GlobalState!.Init(this);
 
-            PushLuaStack(new LuaStack(BASIC_STACK_SIZE, this));
+            Stack = parent == null ? new LuaStack(BASIC_STACK_SIZE) : parent.Stack;
 
-            BaseCi = new CallInfo();
+            BaseCi = new CallInfo(null);
             CallInfo = BaseCi;
             CallInfo.CallStatus = CallInfoStatus.INIT;
             CallInfo.Func = Top;
             PushNil(); // 'function' entry for this 'ci'
             CallInfo.Top = Top + LuaConst.LUA_MINSTACK;
-        }
-
-        public void PushLuaStack(LuaStack stack)
-        {
-            stack.Prev = Stack;
-            Stack = stack;
-        }
-
-        public void PopLuaStack()
-        {
-            var stack = Stack;
-            Stack = stack.Prev;
-            stack.Prev = null;
         }
 
         public LuaValue GetRegistry()
@@ -83,6 +69,18 @@ namespace CsLua.State
         public int LuaUpvalueIndex(int i)
         {
             return LuaConst.LUA_REGISTRYINDEX - i;
+        }
+
+        private void Push(LuaValue? v)
+        {
+            Stack.Push(v);
+            Check(Top <= CallInfo.Top, "stack overflow");
+        }
+
+        private LuaValue? Pop()
+        {
+            Check(Top > CallInfo.Func + 1, "stack underflow");
+            return Stack.Pop();
         }
 
         private LuaValue? Index2Addr(int idx)
@@ -120,7 +118,7 @@ namespace CsLua.State
                 }
                 else
                 {
-                    var c = Stack[CallInfo.Func].GetClosureValue();
+                    var c = Stack[CallInfo.Func].GetLuaClosureValue();
                     return absIdx <= c.Upvals.Length ? c.Upvals[absIdx - 1].Val : null;
                 }
             }

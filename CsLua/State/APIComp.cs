@@ -15,7 +15,7 @@ namespace CsLua.State
             var v2 = Index2Addr(idx2);
 
             return (LuaAPI.IsValid(v1) && LuaAPI.IsValid(v2))
-                    ? Eq(v1!, v2!, null) 
+                    ? EqualObj(v1!, v2!, null) 
                     : false;
         }
 
@@ -33,7 +33,7 @@ namespace CsLua.State
             switch (op)
             {
                 case ECompOp.Eq:
-                    return Eq(a, b, this);
+                    return EqualObj(a, b, this);
                 case ECompOp.Lt:
                     return Lt(a, b, this);
                 case ECompOp.Le:

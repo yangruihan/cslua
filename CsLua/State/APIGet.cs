@@ -89,7 +89,7 @@ namespace CsLua.State
         public ELuaType GetUserValue(int idx)
         {
             var val = Stack[idx];
-            LuaAPI.Check(this, val.IsUserData(), "full userdata expected");
+            LuaAPI.Check(this, val.IsFullUserData(), "full userdata expected");
             Stack.Push(val);
             return val.Type.GetNoVariantsType();
         }

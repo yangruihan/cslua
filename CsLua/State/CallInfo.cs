@@ -18,38 +18,49 @@ namespace CsLua.State
         FIN = 1 << 8, // call is running a finalizer
     }
 
-    internal unsafe struct YieldableLuaFunction
-    {
-        public int Base;
-        public UInt32* SavedPc;
-    }
-
-    internal struct YieldableCSFunction
-    {
-        public LuaKFunction K;
-        public Int64 OldErrFunc;
-        public LuaKContext Ctx;
-    }
-
     /// <summary>
     /// 调用信息
     /// </summary>
     internal class CallInfo
     {
+        public struct _LuaClosure
+        {
+            public int Base;
+            public UInt32[] Code;
+            public int SavedPc;
+        }
+
+        public struct _CSFunction
+        {
+            public LuaKFunction K;
+            public Int64 OldErrFunc;
+            public LuaKContext Ctx;
+        }
+
         // 调用信息在堆栈中的偏移
         public int Func; // function index in the stack
         public int Top; // top for this function
 
         // 动态调用链表
-        public CallInfo Previous;
-        public CallInfo Next;
+        public CallInfo? Previous;
+        public CallInfo? Next;
 
-        public YieldableLuaFunction LuaFunction;
-        public YieldableCSFunction CsFunction;
+        public _LuaClosure LuaClosure;
+        public _CSFunction CsFunction;
 
-        public short NResults; // expected number of results from this function
+        public int NResults; // expected number of results from this function
 
         public CallInfoStatus CallStatus;
+
+        public CallInfo(CallInfo? parent)
+        {
+            if (parent != null)
+            {
+                parent.Next = this;
+                this.Previous = parent;
+                this.Next = null;
+            }
+        }
 
         public bool IsLua()
         {

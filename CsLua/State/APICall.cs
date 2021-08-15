@@ -39,7 +39,7 @@ namespace CsLua.State
             if (proto == null)
                 return EStatus.ErrSyntax;
 
-            var c = new Closure(proto);
+            var c = new LuaClosure(proto);
             Stack.Push(c);
             if (proto.Upvalues.Length > 0)
             {
@@ -104,7 +104,7 @@ namespace CsLua.State
             if (k == null || NNy > 0)
             {
                 c.NResults = nResults;
-                status = PCall(FCall, c, SaveStack(c.Func), func);
+                status = PCall(_Do.FCall, c, SaveStack(c.Func), func);
             }
             else // prepare continuation (call is already protected by 'resume')
             {

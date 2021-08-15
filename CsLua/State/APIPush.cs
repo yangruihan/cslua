@@ -42,7 +42,7 @@ namespace CsLua.State
 
         public void PushCSFunction(LuaCSFunction f)
         {
-            Push(new LuaValue(new Closure(f, 0), ELuaType.LCSFunction));
+            Push(new LuaValue(f, ELuaType.LCSFunction));
         }
 
         public void PushGlobalTable()
@@ -53,11 +53,11 @@ namespace CsLua.State
 
         public void PushCSClosure(LuaCSFunction f, int n)
         {
-            var closure = new Closure(f, n);
+            var closure = new CSClosure(f, n);
             for (var i = n; i > 0; i--)
             {
                 var val = Stack.Pop();
-                closure.Upvals[i - 1] = new Upvalue {Val = val};
+                closure.Upvals![i - 1] = new Upvalue {Val = val};
             }
 
             Push(new LuaValue(closure, ELuaType.CSClosure));
@@ -71,12 +71,6 @@ namespace CsLua.State
         public void PushThread()
         {
             Push(new LuaValue(this, ELuaType.Thread));
-        }
-
-        private void Push(LuaValue v)
-        {
-            Stack.Push(v);
-            Check(Top <= CallInfo.Top, "stack overflow");
         }
     }
 }

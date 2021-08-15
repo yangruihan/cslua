@@ -22,7 +22,7 @@ namespace CsLua.API
         Float = Number | 0 << 4,
         Int = Number | 1 << 4,
 
-        Closure = Function | 0 << 4,
+        LuaClosure = Function | 0 << 4,
         LCSFunction = Function | 1 << 4,
         CSClosure = Function | 2 << 4,
     }
@@ -275,7 +275,7 @@ namespace CsLua.API
         public static readonly string LUA_SIGNATURE = "\x1bLua";
 
         // lua_pcall 和 lua_call 中返回多值选项
-        public static readonly int LUA_MULTRET = -1;
+        public const int LUA_MULTRET = -1;
 
         // 伪指数设计
         // -LUAI_MAXSTACK 是最小合法索引，这里再 -1000 是为了保证充足的空间进行栈溢出检测
@@ -291,6 +291,7 @@ namespace CsLua.API
 
         public static readonly Int64 LUA_MAXINTEGER = Int64.MaxValue;
 
+        internal static readonly int EXTRA_STACK = 5;
         internal static readonly int MAXCCALLS = 200;
         internal static readonly int MAXUPVAL = 255;
     }

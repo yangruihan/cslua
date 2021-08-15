@@ -12,13 +12,13 @@ namespace CsLua.State
         {
             var val = Index2Addr(idx)!;
             if (val.IsString())
-                return (uint) val.GetStrValue().Length;
+                return (uint)val.GetStrValue().Length;
 
             if (val.IsTable())
-                return (uint) val.GetTableValue().Len();
+                return (uint)val.GetTableValue().Len();
 
-            if (val.IsUserData())
-                return (uint) val.GetUserDataValue().Size;
+            if (val.IsFullUserData())
+                return (uint)val.GetUserDataValue().Size;
 
             return 0;
         }
@@ -64,7 +64,7 @@ namespace CsLua.State
         /// </summary>
         public ELuaType Type(int idx)
         {
-            var v = Index2Addr(idx, out var absIdx);
+            var v = Index2Addr(idx);
             if (LuaAPI.IsValid(v))
                 return v!.Type.GetNoVariantsType();
 
@@ -114,7 +114,8 @@ namespace CsLua.State
 
         public bool IsNumber(int idx)
         {
-            return ToNumberX(idx, out _);
+            ToNumberX(idx, out var isNum);
+            return isNum;
         }
 
         public bool IsInteger(int idx)
@@ -149,68 +150,65 @@ namespace CsLua.State
 
         public LuaInt ToInteger(int idx)
         {
-            ToIntegerX(idx, out var ret);
-            return ret;
+            return ToIntegerX(idx, out _);
         }
 
-        public bool ToIntegerX(int idx, out LuaInt ret)
+        public LuaInt ToIntegerX(int idx, out bool isInt)
         {
             var val = Index2Addr(idx)!;
-            var ok = val.IsInt();
-            ret = ok ? val.GetIntValue() : 0;
-            return ok;
+            isInt = val.IsInt();
+            return isInt ? val.GetIntValue() : 0;
         }
 
         public LuaFloat ToNumber(int idx)
         {
-            ToNumberX(idx, out var ret);
+            var ret = ToNumberX(idx, out _);
             return ret;
         }
 
-        public bool ToNumberX(int idx, out LuaFloat ret)
+        public LuaFloat ToNumberX(int idx, out bool isNum)
         {
             var val = Index2Addr(idx)!;
             if (val.IsFloat())
             {
-                ret = val.GetFloatValue();
-                return true;
+                isNum = true;
+                return val.GetFloatValue();
             }
 
             if (val.IsInt())
             {
-                ret = val.GetIntValue();
-                return true;
+                isNum = true;
+                return val.GetIntValue();
             }
 
-            ret = 0;
-            return false;
+            isNum = false;
+            return 0;
         }
 
         public string? ToString(int idx)
         {
-            if (ToStringX(idx, out var ret))
-                return ret;
-            return null;
+            return ToStringX(idx, out _);
         }
 
-        public bool ToStringX(int idx, out string ret)
+        public string? ToStringX(int idx, out bool isStr)
         {
             var val = Index2Addr(idx, out var absIdx)!;
             if (val.IsString())
             {
-                ret = val.GetStrValue();
-                return true;
+                isStr = true;
+                return val.GetStrValue();
             }
 
             if (val.IsNumber())
             {
-                ret = val.ToString();
+                var ret = val.ToString();
                 Stack[absIdx] = new LuaValue(ret, ELuaType.String);
-                return true;
+                isStr = true;
+                return ret;
             }
 
-            ret = "";
-            return false;
+            isStr = false;
+            return null;
         }
 
         public LuaCSFunction? ToCSFunction(int idx)

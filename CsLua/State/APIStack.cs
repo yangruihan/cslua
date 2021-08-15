@@ -33,6 +33,7 @@ namespace CsLua.State
             var func = CallInfo.Func;
             if (idx >= 0)
             {
+                Check(idx <= StackLast - (func + 1), "new top too large");
                 while (Top < (func + 1) + idx)
                     PushNil();
             }
@@ -48,8 +49,7 @@ namespace CsLua.State
         /// </summary>
         public void PushValue(int idx)
         {
-            var val = Index2Addr(idx);
-            Stack.Push(val);
+            Push(Index2Addr(idx));
         }
 
         /// <summary>
@@ -57,14 +57,14 @@ namespace CsLua.State
         /// </summary>
         public void Rotate(int idx, int n)
         {
-            var t = Top - 1;
-            var val = Index2Addr(idx, out var p)!;
+            var t = Top - 1; // end of stack segment being rotated
+            var val = Index2Addr(idx, out var p)!; // start of segment
             CheckStackIndex(idx, val);
             Check((n >= 0 ? n : -n) <= (t - p + 1), "invalid 'n'");
-            var m = n >= 0 ? t - n : p - n - 1;
-            Stack.Reverse(p, m);
-            Stack.Reverse(m + 1, t);
-            Stack.Reverse(p, t);
+            var m = n >= 0 ? t - n : p - n - 1; // end of prefix
+            Stack.Reverse(p, m); // reverse the prefix with length 'n'
+            Stack.Reverse(m + 1, t); // reverse the suffix
+            Stack.Reverse(p, t); // reverse the entire segment
         }
 
         /// <summary>
@@ -76,6 +76,12 @@ namespace CsLua.State
             var toVal = Index2Addr(toIdx, out var to)!;
             CheckValidIndex(toVal);
             Stack[to] = frVal;
+
+            if (IsUpvalue(toIdx)) // function upvalue?
+            {
+                // TODO
+                // LUA_REGISTRYINDEX does not need gc barrier (collector revisits it before finishing collection)
+            }
         }
 
         /// <summary>
@@ -85,9 +91,27 @@ namespace CsLua.State
         {
             var ci = CallInfo;
             Check(n >= 0, "negative 'n'");
-            Stack.Check(n);
-            ci.Top = Top + n;
-            return true;
+            if (Stack.Check(n))
+            {
+                return true;
+            }
+            else
+            {
+                int inuse = Top + LuaConst.EXTRA_STACK;
+                // can grow without overflow?
+                if (inuse > LuaConst.LUAI_MAXSTACK - n)
+                    return false;
+                else
+                {
+                    if (ci.Top < Top + n)
+                    {
+                        // adjust frame top
+                        ci.Top = Top + n;
+                    }
+
+                    return true;
+                }
+            }
         }
 
         /// <summary>

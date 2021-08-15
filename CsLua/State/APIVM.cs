@@ -46,14 +46,14 @@ namespace CsLua.State
             if (n < 0)
                 n = Stack.Varargs.Length;
 
-            Stack.Check(n);
+            CheckStack(n);
             Stack.PushN(Stack.Varargs, n);
         }
 
         public void LoadProto(int idx)
         {
             var proto = Stack.Closure.Proto.Protos[idx];
-            var closure = new Closure(proto);
+            var closure = new LuaClosure(proto);
             Stack.Push(closure);
 
             for (var i = 0; i < proto.Upvalues.Length; i++)
