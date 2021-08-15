@@ -85,7 +85,7 @@ namespace CsLua.State
 
         private LuaValue? Index2Addr(int idx)
         {
-            return Index2Addr(idx);
+            return Index2Addr(idx, out _);
         }
 
         private LuaValue? Index2Addr(int idx, out int absIdx)
@@ -112,14 +112,14 @@ namespace CsLua.State
             {
                 absIdx = LuaConst.LUA_REGISTRYINDEX - idx;
                 Check(absIdx <= LuaConst.MAXUPVAL + 1, "upvalue index too large");
-                if (Stack[CallInfo.Func].IsLCSFunction()) // light CSFunction has no upvalues
+                if (Stack[CallInfo.Func]!.IsLCSFunction()) // light CSFunction has no upvalues
                 {
                     return null;
                 }
                 else
                 {
-                    var c = Stack[CallInfo.Func].GetLuaClosureValue();
-                    return absIdx <= c.Upvals.Length ? c.Upvals[absIdx - 1].Val : null;
+                    var c = Stack[CallInfo.Func]!.GetLuaClosureValue()!;
+                    return absIdx <= c.Upvals!.Length ? c.Upvals[absIdx - 1].Val : null;
                 }
             }
         }

@@ -269,15 +269,31 @@ namespace CsLua.API
         /// </summary>
         ref object? ToPointer(int idx);
 
-        // TODO
-        bool IsFunction(int idx);
-
         #endregion
 
+        #region Comparison and arithmetic functions
+
+        // --------------------------
         // ----- 比较和算数操作 -----
         // Comparison and arithmetic functions
+        // --------------------------
+
+        /// <summary>
+        /// Performs an arithmetic or bitwise operation over the two values 
+        /// (or one, in the case of negations) at the top of the stack, 
+        /// with the value at the top being the second operand, 
+        /// pops these values, and pushes the result of the operation. 
+        /// The function follows the semantics of the corresponding 
+        /// Lua operator (that is, it may call metamethods).
+        /// [-(2|1), +1, e]
+        /// </summary>
         void Arith(EArithOp op);
+
         bool RawEqual(int idx1, int idx2);
+
+        bool Compare(int idx1, int idx2, ECompOp op);
+
+        #endregion
 
         bool IsNone(int idx);
         bool IsNil(int idx);
@@ -286,10 +302,12 @@ namespace CsLua.API
         bool IsTable(int idx);
         bool IsThread(int idx);
         bool IsArray(int idx);
+        // TODO
+        bool IsFunction(int idx);
 
         LuaInt ToInteger(int idx);
         LuaFloat ToNumber(int idx);
-        string ToStringX(int idx, out bool isStr);
+        string? ToStringX(int idx, out bool isStr);
 
         // ----- 将值推入栈中操作 -----
         // push functions (C -> stack)
@@ -340,7 +358,6 @@ namespace CsLua.API
         EStatus PCall(int nArgs, int nResults, int errFuncIdx);
 
         // ----- 算数运算操作 -----
-        bool Compare(int idx1, int idx2, ECompOp op);
 
         void Len(int idx);
         void Concat(int n);

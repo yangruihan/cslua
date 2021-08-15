@@ -205,7 +205,7 @@ namespace CsLua.State
         private void CallNoYield(int funcIdx, int nResults)
         {
             NNy++;
-            _Call(funcIdx, nResults);
+            InnerCall(funcIdx, nResults);
             NNy--;
         }
 
@@ -298,7 +298,7 @@ namespace CsLua.State
             }
         }
 
-        private void _Call(int funcIdx, int nResults)
+        private void InnerCall(int funcIdx, int nResults)
         {
             if (++NCcalls >= LuaConst.MAXCCALLS)
                 _Do.StackError(this);

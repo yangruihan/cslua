@@ -52,17 +52,17 @@ namespace CsLua.State
 
     internal partial class LuaState
     {
-        private LuaValue? GetTmByObj(LuaValue o, ETagMethods @event)
+        private LuaValue? GetTMByObj(LuaValue o, ETagMethods @event)
         {
             LuaTable mt;
             switch (o.Type.GetNoVariantsType())
             {
                 case ELuaType.Table:
-                    mt = o.GetTableValue().MetaTable;
+                    mt = o.GetTableValue()!.MetaTable;
                     break;
 
                 case ELuaType.UserData:
-                    mt = o.GetUserDataValue().MetaTable;
+                    mt = o.GetUserDataValue()!.MetaTable;
                     break;
 
                 default:
@@ -87,36 +87,87 @@ namespace CsLua.State
             return TypeName(o.Type.GetNoVariantsType());
         }
 
-        private void CallTM(LuaValue f, LuaValue p1, LuaValue p2, LuaValue p3, bool hasRes)
-        {
-            int func = Top;
-            Push()
-        }
-
-        private void CallTM(int f, int p1, int p2, int p3, bool hasRes)
+        private void CallTM(LuaValue funcV, LuaValue p1v, LuaValue p2v, int p3, bool hasRes)
         {
             var result = SaveStack(p3);
             var func = Top;
-            var funcV = Index2Addr(f)!;
-            var p1v = Index2Addr(p1)!;
-            var p2v = Index2Addr(p2)!;
-
             Stack.Push(funcV); // push function (assume EXTRA_STACK)
             Stack.Push(p1v); // 1st argument
             Stack.Push(p2v); // 2nd argument
 
             if (!hasRes) // no result? 'p3' is third argument
             {
+                // 3rd argument
                 var p3v = Index2Addr(p3)!;
                 Stack.Push(p3v);
             }
 
+            // metamethod may yield only when called from Lua code
             if (CallInfo.IsLua())
-            {
-
-            }
+                InnerCall(func, hasRes ? 1 : 0);
             else
+                CallNoYield(func, hasRes ? 1 : 0);
+
+            if (hasRes) // if has result, move it to its place
             {
+                p3 = RestoreStack(result);
+                SetValue(p3, Pop());
+            }
+        }
+
+        private void CallTM(int f, int p1, int p2, int p3, bool hasRes)
+        {
+            var funcV = Index2Addr(f)!;
+            var p1v = Index2Addr(p1)!;
+            var p2v = Index2Addr(p2)!;
+
+            CallTM(funcV, p1v, p2v, p3, hasRes);
+        }
+
+        private bool CallBinTM(int p1, int p2, int res, ETagMethods @event)
+        {
+            var tm = GetTMByObj(Index2Addr(p1)!, @event); // try first operand
+            if (tm == null || tm.IsNil())
+                tm = GetTMByObj(Index2Addr(p2)!, @event); // try second operand
+            if (tm == null || tm.IsNil())
+                return false;
+            CallTM(tm, Index2Addr(p1)!, Index2Addr(p2)!, res, true);
+            return true;
+        }
+
+        private void TryBinTM(int p1, int p2, int res, ETagMethods @event)
+        {
+            if (!CallBinTM(p1, p2, res, @event))
+            {
+                switch (@event)
+                {
+                    case ETagMethods.CONCAT:
+                        {
+                            ConcatError(p1, p2);
+                            break;
+                        }
+
+                    case ETagMethods.BAND:
+                    case ETagMethods.BOR:
+                    case ETagMethods.BXOR:
+                    case ETagMethods.SHL:
+                    case ETagMethods.SHR:
+                    case ETagMethods.BNOT:
+                        {
+                            if (InnerToNumber(p1, out var dummoy)
+                                && InnerToNumber(p2, out dummoy))
+                                ToIntError(p1, p2);
+                            else
+                                OpIntError(p1, p2, "perform bitwise operation on");
+                            break;
+                        }
+
+                    default:
+                        {
+                            OpIntError(p1, p2, "perform arithmetic on");
+                            break;
+                        }
+                }
             }
         }
     }

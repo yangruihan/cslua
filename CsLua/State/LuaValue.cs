@@ -12,14 +12,34 @@ namespace CsLua.State
         public static readonly LuaValue True = new LuaValue(true);
         public static readonly LuaValue False = new LuaValue(false);
 
+        public static LuaValue Create()
+        {
+            return Nil;
+        }
+
+        public static LuaValue Create(bool flag)
+        {
+            return flag ? True : False;
+        }
+
+        public static LuaValue Create(LuaInt i)
+        {
+            return new LuaValue(i);
+        }
+
+        public static LuaValue Create(LuaFloat f)
+        {
+            return new LuaValue(f);
+        }
+
+        public static LuaValue Create(string s)
+        {
+            return new LuaValue(s);
+        }
+
         public static LuaValue Create(object value)
         {
-            if (value == null)
-                return Nil;
-            else if (value is bool b)
-                return b ? True : False;
-            else
-                return new LuaValue(value);
+            return new LuaValue(value);
         }
 
         public static LuaValue CreateStr(string s)
@@ -119,6 +139,12 @@ namespace CsLua.State
             _numValue = 0;
             _objValue = null;
             Type = ELuaType.Boolean;
+        }
+
+        public LuaValue(string s) : this()
+        {
+            _objValue = s;
+            Type = ELuaType.String;
         }
 
         private LuaValue(object value) : this()
@@ -255,6 +281,11 @@ namespace CsLua.State
         public bool IsThread()
         {
             return Type == ELuaType.Thread;
+        }
+
+        public bool CanConvertToStr()
+        {
+            return IsNumber();
         }
 
         public bool GetBoolValue()

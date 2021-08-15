@@ -199,7 +199,7 @@ namespace CsLua.State
                 return val.GetStrValue();
             }
 
-            if (val.IsNumber())
+            if (val.CanConvertToStr())
             {
                 var ret = val.ToString();
                 Stack[absIdx] = new LuaValue(ret, ELuaType.String);

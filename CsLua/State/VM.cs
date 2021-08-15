@@ -4,6 +4,18 @@ namespace CsLua.State
 {
     internal partial class LuaState
     {
+        private bool InnerToNumber(int idx, out LuaFloat num)
+        {
+            num = ToNumberX(idx, out var isNum);
+            return isNum;
+        }
+
+        private bool InnerToInteger(int idx, out LuaInt num)
+        {
+            num = ToIntegerX(idx, out var isNum);
+            return isNum;
+        }
+
         private bool EqualObj(int indexA, int indexB, LuaState? ls)
         {
             var a = Index2Addr(indexA)!;

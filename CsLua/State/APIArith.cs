@@ -74,39 +74,19 @@ namespace CsLua.State
         /// </summary>
         public void Arith(EArithOp op)
         {
-            LuaValue a, b;
-
             // all other operations expect two operands
             if (op != EArithOp.Unm && op != EArithOp.BNot)
             {
                 CheckNElems(2);
-                b = Stack.Pop();
-                a = Stack.Pop();
             }
             else // for unary operations, add fake 2nd operand
             {
                 CheckNElems(1);
-                b = Stack.Pop();
-                a = Stack.Pop();
+                PushValue(Top);
             }
 
-            var o = Operators.Ops[(int)op];
-            var ret = InnerArith(a, b, o);
-            if (ret != null)
-            {
-                Stack.Push(ret);
-                return;
-            }
-
-            // could not perform raw operation; try metamethod
-            var mm = Operators.Ops[(int)op].MetaMethod;
-            if (LuaValue.CallMetaMethod(a, b, mm, this, out ret))
-            {
-                Stack.Push(ret);
-                return;
-            }
-
-            Debug.Panic("arithmetic error!", EStatus.ErrRun);
+            InnerArith(op, -2, -1, -2);
+            Pop();
         }
     }
 }

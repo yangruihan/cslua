@@ -136,5 +136,26 @@ namespace CsLua.State
             string t = ObjTypeName(o);
             RunError($"attempt to {op} a {t} value{_Debug.VarInfo(this, idx)}");
         }
+
+        private void ConcatError(int p1, int p2)
+        {
+            var p1v = Index2Addr(p1)!;
+            if (p1v.IsString() || p1v.CanConvertToStr()) p1 = p2;
+            TypeError(p1, "concatenate");
+        }
+
+        private void OpIntError(int p1, int p2, string msg)
+        {
+            if (!InnerToNumber(p1, out var temp))
+                p2 = p1;
+            RunError($"number{_Debug.VarInfo(this, p2)} has no integer representation");
+        }
+
+        private void ToIntError(int p1, int p2)
+        {
+            if (InnerToInteger(p1, out var temp))
+                p2 = p1;
+            RunError($"number{_Debug.VarInfo(this, p2)} has no integer representation");
+        }
     }
 }
