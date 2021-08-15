@@ -28,8 +28,8 @@ namespace CsLua.State
 
         public ELuaType GetTable(int idx)
         {
-            var t = Stack[idx];
-            var k = Stack.Pop();
+            var t = Index2Addr(idx)!;
+            var k = Stack.Pop()!;
             return InnerGetTable(t, k, false).GetNoVariantsType();
         }
 
@@ -98,7 +98,7 @@ namespace CsLua.State
         {
             if (t.IsTable())
             {
-                var table = t.GetTableValue();
+                var table = t.GetTableValue()!;
                 var v = table.Get(k);
 
                 if (raw || !v.IsNil() || !table.HasMetaField("__index"))

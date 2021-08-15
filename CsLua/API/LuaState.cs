@@ -409,9 +409,25 @@ namespace CsLua.API
 
         #endregion
 
+        #region get functions (Lua -> stack)
+
+        // ---------------------------
         // ----- 取值操作 -----
         // get functions (Lua -> stack)
+        // ---------------------------
+
+        /// <summary>
+        /// Pushes onto the stack the value of the global name. 
+        /// Returns the type of that value.
+        /// [-0, +1, e]
+        /// </summary>
         ELuaType GetGlobal(string name);
+
+        /// <summary>
+        /// Pushes onto the stack the value t[k], where t is the value 
+        /// at the given index and k is the value at the top of the stack.
+        /// [-1, +1, e]
+        /// </summary>
         ELuaType GetTable(int idx);
         ELuaType GetField(int idx, string key);
         ELuaType GetI(int idx, LuaInt i);
@@ -422,6 +438,8 @@ namespace CsLua.API
         IntPtr NewUserData(int size);
         bool GetMetaTable(int idx);
         ELuaType GetUserValue(int idx);
+
+        #endregion
 
         // ----- 赋值操作 -----
         // set functions (stack -> Lua)
