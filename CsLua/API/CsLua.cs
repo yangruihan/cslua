@@ -5,11 +5,6 @@ namespace CsLua
 {
     public static class CsLua
     {
-        public static ILuaVM CreateLuaVM()
-        {
-            return new LuaState();
-        }
-
         public static ILuaState CreateLuaState()
         {
             return new LuaState();

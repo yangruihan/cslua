@@ -112,14 +112,25 @@ namespace CsLua.State
             {
                 absIdx = LuaConst.LUA_REGISTRYINDEX - idx;
                 Check(absIdx <= LuaConst.MAXUPVAL + 1, "upvalue index too large");
-                if (Stack[CallInfo.Func]!.IsLCSFunction()) // light CSFunction has no upvalues
+                var val = Stack[CallInfo.Func]!;
+                if (val.IsLCSFunction()) // light CSFunction has no upvalues
                 {
                     return null;
                 }
                 else
                 {
-                    var c = Stack[CallInfo.Func]!.GetLuaClosureValue()!;
-                    return absIdx <= c.Upvals!.Length ? c.Upvals[absIdx - 1].Val : null;
+                    if (val.IsLuaClosure())
+                    {
+                        var c = val.GetLuaClosureValue()!;
+                        return absIdx <= c.Upvals!.Length ? c.Upvals[absIdx - 1].Val : null;
+                    }
+                    else if (val.IsCSClosure())
+                    {
+                        var c = val.GetCSClosure()!;
+                        return absIdx <= c.Upvals!.Length ? c.Upvals[absIdx - 1].Val : null;
+                    }
+
+                    TypeError(idx, "get upvalue");
                 }
             }
         }

@@ -214,6 +214,9 @@ namespace CsLua.State
         {
             int res = ci.Func; // res == final position of 1st result
             int wanted = ci.NResults;
+            ci.CsFunction = default;
+            ci.LuaClosure = default;
+            ci.Func = 0;
             CallInfo = ci.Previous!; // back to caller
             // move results to proper place
             return _Do.MoveResults(this, firstResult, res, nRes, wanted);
@@ -296,6 +299,7 @@ namespace CsLua.State
                     {
                         // ensure space for metamethod
                         CheckStack(1);
+
                         // try to get '__call' metamethod
                         _Do.TryFuncTM(this, func);
 

@@ -81,6 +81,11 @@ namespace CsLua.State
             }
         }
 
+        public void FinishCall(int first, int n)
+        {
+            PosCall(CallInfo, first, n);
+        }
+
         public void CloseUpvalues(int a)
         {
             for (var i = 0; i < CallInfo.LuaClosure.Openuvs.Count; i++)

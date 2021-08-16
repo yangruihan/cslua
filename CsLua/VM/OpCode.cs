@@ -94,10 +94,10 @@ namespace CsLua.VM
         public EOpArgMask ArgCMode;
         public EOpMode OpMode;
         public string Name;
-        public LuaAction Action;
+        public LuaAction? Action;
 
         public OpCode(byte testFlag, byte setAFlag, EOpArgMask argBMode, EOpArgMask argCMode, EOpMode opMode,
-            string name, LuaAction action)
+            string name, LuaAction? action)
         {
             TestFlag = testFlag;
             SetAFlag = setAFlag;

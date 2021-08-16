@@ -2,7 +2,7 @@ using System;
 
 namespace CsLua.API
 {
-    public interface ILuaVM : ILuaState
+    internal interface ILuaVM : ILuaState
     {
         int PC();
         void AddPC(int n);
@@ -14,6 +14,7 @@ namespace CsLua.API
         void LoadVararg(int n);
         void LoadProto(int idx);
 
+        void FinishCall(int first, int n);
         void CloseUpvalues(int a);
     }
 }

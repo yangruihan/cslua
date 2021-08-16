@@ -82,6 +82,8 @@ namespace CsLua.VM
             ins.ABC(out var a, out var b, out _);
             a += 1;
 
+            var top = vm.GetTop();
+
             if (b == 1)
             {
             }
@@ -95,6 +97,8 @@ namespace CsLua.VM
             {
                 FixStack(a, vm);
             }
+
+            vm.FinishCall(a, b);
         }
 
         /// <summary>
@@ -128,7 +132,7 @@ namespace CsLua.VM
 
         private static void FixStack(int a, ILuaVM vm)
         {
-            var x = (int) vm.ToInteger(-1);
+            var x = (int)vm.ToInteger(-1);
             vm.Pop(1);
 
             vm.CheckStack(x - a);
