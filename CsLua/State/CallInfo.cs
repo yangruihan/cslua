@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using CsLua.API;
+using CsLua.Binchunk;
 
 namespace CsLua.State
 {
@@ -25,8 +27,9 @@ namespace CsLua.State
     {
         public struct _LuaClosure
         {
-            public int Base;
-            public UInt32[] Code;
+            public LuaClosure Closure;
+            public LuaValue[] Varargs;
+            public Dictionary<int, Upvalue> Openuvs;
             public int SavedPc;
         }
 

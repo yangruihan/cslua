@@ -43,7 +43,7 @@ namespace CsLua.State
         /// <summary>
         /// metatables for basic types
         /// </summary>
-        public LuaTable[] Mt = new LuaTable[(int) ELuaType.NumTags];
+        public LuaTable?[] Mt = new LuaTable?[(int) ELuaType.NumTags];
 
         public GlobalState(LuaState mainThread)
         {

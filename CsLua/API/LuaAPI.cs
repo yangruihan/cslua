@@ -19,7 +19,7 @@ namespace CsLua.API
 
         public static void AdjustResults(this ILuaState l, int nRet)
         {
-            var state = l as LuaState;
+            var state = l as LuaState!;
             if (nRet == LuaConst.LUA_MULTRET && state.CallInfo.Top < state.Top)
                 state.CallInfo.Top = state.Top;
         }

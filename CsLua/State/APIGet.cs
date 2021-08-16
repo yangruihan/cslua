@@ -14,16 +14,14 @@ namespace CsLua.State
         public void CreateTable(int nArr, int nRec)
         {
             var t = new LuaTable(nArr, nRec);
-            Stack.Push(t);
+            Push(new LuaValue(t, ELuaType.Table));
         }
 
         public IntPtr NewUserData(int size)
         {
             var v = LuaValue.CreateUserData(size);
-            Stack.Push(v);
-            return v.GetObjValue() is UserData u
-                ? u.Memory
-                : default;
+            Push(v);
+            return v.GetUserDataValue()!.Memory;
         }
 
         public ELuaType GetTable(int idx)
@@ -35,34 +33,36 @@ namespace CsLua.State
 
         public ELuaType GetField(int idx, string key)
         {
-            var t = Stack[idx];
-            return InnerGetTable(t, new LuaValue(key, ELuaType.String), false)
+            var t = Index2Addr(idx)!;
+            return InnerGetTable(t, new LuaValue(key), false)
                 .GetNoVariantsType();
         }
 
         public ELuaType RawGet(int idx)
         {
-            var t = Stack[idx];
-            var k = Stack.Pop();
-            return InnerGetTable(t, k, true).GetNoVariantsType().GetNoVariantsType();
+            var t = Index2Addr(idx)!;
+            Check(t.IsTable(), "table expected");
+            var k = Stack.Pop()!;
+            return InnerGetTable(t, k, true).GetNoVariantsType();
         }
 
         public ELuaType RawGetI(int idx, LuaInt i)
         {
-            var t = Stack[idx];
+            var t = Index2Addr(idx)!;
+            Check(t.IsTable(), "table expected");
             return InnerGetTable(t, new LuaValue(i), true).GetNoVariantsType();
         }
 
         public ELuaType RawGetP(int idx, object p)
         {
-            var t = Stack[idx];
-            LuaAPI.Check(this, t.IsTable(), "table expected");
-            return InnerGetTable(t, LuaValue.Create(p), true).GetNoVariantsType();
+            var t = Index2Addr(idx)!;
+            Check(t.IsTable(), "table expected");
+            return InnerGetTable(t, new LuaValue(p, ELuaType.LightUserData), true).GetNoVariantsType();
         }
 
         public ELuaType GetI(int idx, LuaInt i)
         {
-            var t = Stack[idx];
+            var t = Index2Addr(idx)!;
             return InnerGetTable(t, new LuaValue(i), false).GetNoVariantsType();
         }
 
@@ -75,11 +75,11 @@ namespace CsLua.State
 
         public bool GetMetaTable(int idx)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx)!;
             var mt = LuaValue.GetMetaTable(val, this);
             if (mt != null)
             {
-                Stack.Push(mt);
+                Push(new LuaValue(mt, ELuaType.Table));
                 return true;
             }
 
@@ -88,12 +88,16 @@ namespace CsLua.State
 
         public ELuaType GetUserValue(int idx)
         {
-            var val = Stack[idx];
-            LuaAPI.Check(this, val.IsFullUserData(), "full userdata expected");
-            Stack.Push(val);
+            var val = Index2Addr(idx)!;
+            Check(val.IsFullUserData(), "full userdata expected");
+            Push(val);
             return val.Type.GetNoVariantsType();
         }
 
+        /// <summary>
+        /// 内部获取 LuaTable 值方法
+        /// 可以按照 Key 类型进行优化，避免 GC
+        /// </summary>
         private ELuaType InnerGetTable(LuaValue t, LuaValue k, bool raw)
         {
             if (t.IsTable())
@@ -124,13 +128,14 @@ namespace CsLua.State
                         Stack.Push(t);
                         Stack.Push(k);
                         Call(2, 1);
-                        var v = Stack.Get(-1);
-                        return v.Type;
+                        var v = Stack[-1];
+                        Check(v != null, "__index not return valid value");
+                        return v!.Type;
                     }
                 }
             }
 
-            Debug.Panic("index error!");
+            RunError("index error!");
             return ELuaType.None;
         }
     }

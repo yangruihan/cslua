@@ -7,24 +7,24 @@ namespace CsLua.State
     {
         public int PC()
         {
-            return Stack.PC;
+            return CallInfo.LuaClosure.SavedPc;
         }
 
         public void AddPC(int n)
         {
-            Stack.PC += n;
+            CallInfo.LuaClosure.SavedPc += n;
         }
 
         public uint Fetch()
         {
-            var i = Stack.Closure.Proto.Code[Stack.PC];
-            Stack.PC++;
+            var i = CallInfo.LuaClosure.Closure.Proto.Code[PC()];
+            AddPC(1);
             return i;
         }
 
         public void GetConst(int idx)
         {
-            var c = Stack.Closure.Proto.Constatns[idx];
+            var c = _VM.GetCurrentCIClosure(this)!.Proto.Constatns[idx];
             Stack.Push(c);
         }
 
@@ -38,21 +38,21 @@ namespace CsLua.State
 
         public int RegisterCount()
         {
-            return (int) Stack.Closure.Proto.MaxStackSize;
+            return (int)_VM.GetCurrentCIClosure(this)!.Proto.MaxStackSize;
         }
 
-        public void LoadVararg(int n)
+        public void LoadVararg(int count)
         {
-            if (n < 0)
-                n = Stack.Varargs.Length;
+            if (count < 0)
+                count = CallInfo.LuaClosure.Varargs.Length;
 
-            CheckStack(n);
-            Stack.PushN(Stack.Varargs, n);
+            CheckStack(count);
+            Stack.PushN(CallInfo.LuaClosure.Varargs, count);
         }
 
         public void LoadProto(int idx)
         {
-            var proto = Stack.Closure.Proto.Protos[idx];
+            var proto = CallInfo.LuaClosure.Closure.Proto.Protos[idx];
             var closure = new LuaClosure(proto);
             Stack.Push(closure);
 
@@ -61,33 +61,33 @@ namespace CsLua.State
                 var uvInfo = proto.Upvalues[i];
                 if (uvInfo.Instack == 1)
                 {
-                    if (Stack.Openuvs is null)
-                        Stack.Openuvs = new Dictionary<int, Upvalue>();
+                    if (CallInfo.LuaClosure.Openuvs is null)
+                        CallInfo.LuaClosure.Openuvs = new Dictionary<int, Upvalue>();
 
-                    if (Stack.Openuvs.ContainsKey(uvInfo.Idx))
+                    if (CallInfo.LuaClosure.Openuvs.ContainsKey(uvInfo.Idx))
                     {
-                        closure.Upvals[i] = Stack.Openuvs[uvInfo.Idx];
+                        closure.Upvals[i] = CallInfo.LuaClosure.Openuvs[uvInfo.Idx];
                     }
                     else
                     {
-                        closure.Upvals[i] = new Upvalue {Val = Stack.Slots[uvInfo.Idx]};
-                        Stack.Openuvs[uvInfo.Idx] = closure.Upvals[i];
+                        closure.Upvals[i] = new Upvalue { Val = Stack.Slots[uvInfo.Idx] };
+                        CallInfo.LuaClosure.Openuvs[uvInfo.Idx] = closure.Upvals[i];
                     }
                 }
                 else
                 {
-                    closure.Upvals[i] = Stack.Closure.Upvals[uvInfo.Idx];
+                    closure.Upvals[i] = CallInfo.LuaClosure.Closure.Upvals[uvInfo.Idx];
                 }
             }
         }
 
         public void CloseUpvalues(int a)
         {
-            for (var i = 0; i < Stack.Openuvs.Count; i++)
+            for (var i = 0; i < CallInfo.LuaClosure.Openuvs.Count; i++)
             {
                 if (i >= a - 1)
                 {
-                    Stack.Openuvs.Remove(i);
+                    CallInfo.LuaClosure.Openuvs.Remove(i);
                 }
             }
         }

@@ -5,8 +5,8 @@ namespace CsLua.State
 {
     internal class UserData
     {
-        public LuaTable MetaTable;
-        public LuaValue User;
+        public LuaTable? MetaTable;
+        public LuaValue? User;
 
         public int Size { get; }
         public IntPtr Memory { get; }

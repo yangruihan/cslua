@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using CsLua.API;
 using CsLua.Number;
-using CsLua.Misc;
+using System.Runtime.CompilerServices;
 
 namespace CsLua.State
 {
@@ -12,59 +12,64 @@ namespace CsLua.State
         public static readonly LuaValue True = new LuaValue(true);
         public static readonly LuaValue False = new LuaValue(false);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LuaValue Create()
         {
             return Nil;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LuaValue Create(bool flag)
         {
             return flag ? True : False;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LuaValue Create(LuaInt i)
         {
             return new LuaValue(i);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LuaValue Create(LuaFloat f)
         {
             return new LuaValue(f);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LuaValue Create(string s)
         {
             return new LuaValue(s);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LuaValue Create(object value)
         {
             return new LuaValue(value);
         }
 
-        public static LuaValue CreateStr(string s)
-        {
-            return new LuaValue(s, ELuaType.String);
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LuaValue CreateUserData(int size)
         {
             var userData = new UserData(size);
             return new LuaValue(userData, ELuaType.UserData);
         }
 
-        public static void SetMetaTable(LuaValue val, LuaTable mt, LuaState ls)
+        public static void SetMetaTable(LuaValue val, LuaTable? mt, LuaState ls)
         {
             if (val.IsTable())
             {
-                var lt = val.GetTableValue();
-                Debug.Assert(lt != null);
-                lt!.MetaTable = mt;
+                val.GetTableValue()!.MetaTable = mt;
                 return;
             }
 
-            var key = $"_MT{val.Type.GetNoVariantsType()}";
-            ls.Registry.Put(key, mt);
+            if (val.IsFullUserData())
+            {
+                val.GetUserDataValue()!.MetaTable = mt;
+                return;
+            }
+
+            ls.GlobalState.Mt[(int)val.Type.GetNoVariantsType()] = mt;
         }
 
         public static LuaTable? GetMetaTable(LuaValue val, LuaState ls)
@@ -72,9 +77,11 @@ namespace CsLua.State
             if (val.IsTable())
                 return val.GetTableValue()!.MetaTable;
 
-            var key = $"_MT{val.Type.GetNoVariantsType()}";
-            var mt = ls.Registry.Get(key);
-            return mt?.GetTableValue();
+            if (val.IsFullUserData())
+                return val.GetUserDataValue()!.MetaTable;
+
+            var mt = ls.GlobalState.Mt[(int)val.Type.GetNoVariantsType()];
+            return mt;
         }
 
         public static bool CallMetaMethod(LuaValue a, LuaValue b, string mmName,
@@ -208,161 +215,193 @@ namespace CsLua.State
             Type = type;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsValid()
         {
             return Type != ELuaType.None;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsNil()
         {
             return Type == ELuaType.Nil;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsBool()
         {
             return Type == ELuaType.Boolean;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLightUserData()
         {
             return Type == ELuaType.LightUserData;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsNumber()
         {
             return Type.IsNumber();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsInt()
         {
             return Type == ELuaType.Int;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsFloat()
         {
             return Type == ELuaType.Float;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsString()
         {
             return Type == ELuaType.String;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsTable()
         {
             return Type == ELuaType.Table;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsFunction()
         {
             return Type.IsFunction();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLuaClosure()
         {
             return Type == ELuaType.LuaClosure;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsLCSFunction()
         {
             return Type == ELuaType.LCSFunction;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsCSClosure()
         {
             return Type == ELuaType.CSClosure;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsFullUserData()
         {
             return Type == ELuaType.UserData;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool IsThread()
         {
             return Type == ELuaType.Thread;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanConvertToStr()
         {
             return IsNumber();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool GetBoolValue()
         {
             return _boolValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LuaInt GetIntValue()
         {
             return BitConverter.DoubleToInt64Bits(_numValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LuaFloat GetFloatValue()
         {
             return _numValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object? GetLightUserData()
         {
             return _objValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public string? GetStrValue()
         {
             return GetObjValue<string>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LuaTable? GetTableValue()
         {
             return GetObjValue<LuaTable>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LuaClosure? GetLuaClosureValue()
         {
             return GetObjValue<LuaClosure>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LuaCSFunction? GetLCSFunctionValue()
         {
             return GetObjValue<LuaCSFunction>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public CSClosure? GetCSClosure()
         {
             return GetObjValue<CSClosure>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LuaCSFunction? GetCSClosureFunctionValue()
         {
             return GetObjValue<CSClosure>()?.LuaCsFunction;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public UserData? GetUserDataValue()
         {
             return GetObjValue<UserData>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public LuaState? GetThreadValue()
         {
             return GetObjValue<LuaState>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object? GetObjValue()
         {
             return _objValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref bool GetBoolRefValue()
         {
             return ref _boolValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref LuaFloat GetNumRefValue()
         {
             return ref _numValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref object? GetObjRefValue()
         {
             return ref _objValue;

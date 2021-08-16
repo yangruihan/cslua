@@ -429,45 +429,187 @@ namespace CsLua.API
         /// [-1, +1, e]
         /// </summary>
         ELuaType GetTable(int idx);
+
+        /// <summary>
+        /// Pushes onto the stack the value t[k], where t is the value at the 
+        /// given index. As in Lua, this function may trigger a metamethod for 
+        /// the "index" event 
+        /// (see https://www.lua.org/manual/5.3/manual.html#2.4).
+        /// [-0, +1, e]
+        /// </summary>
         ELuaType GetField(int idx, string key);
+
+        /// <summary>
+        /// Pushes onto the stack the value t[i], where t is the value at the 
+        /// given index. As in Lua, this function may trigger a metamethod 
+        /// for the "index" event
+        /// (see https://www.lua.org/manual/5.3/manual.html#2.4).
+        /// [-0, +1, e]
+        /// </summary>
         ELuaType GetI(int idx, LuaInt i);
+
+        /// <summary>
+        /// Similar to lua_gettable, but does a raw access
+        /// (i.e., without metamethods).
+        /// [-1, +1, –]
+        /// </summary>
         ELuaType RawGet(int idx);
+
+        /// <summary>
+        /// Pushes onto the stack the value t[n], where t is the table at 
+        /// the given index. The access is raw, that is, it does not invoke 
+        /// the __index metamethod.
+        /// [-0, +1, –]
+        /// </summary>
         ELuaType RawGetI(int idx, LuaInt i);
+
+        /// <summary>
+        /// Pushes onto the stack the value t[k], where t is the table at 
+        /// the given index and k is the pointer p represented as a 
+        /// light userdata. The access is raw; that is, it does not invoke 
+        /// the __index metamethod.
+        /// [-0, +1, –]
+        /// </summary>
         ELuaType RawGetP(int idx, object p);
+
+        /// <summary>
+        /// Creates a new empty table and pushes it onto the stack. 
+        /// Parameter narr is a hint for how many elements the table will 
+        /// have as a sequence; parameter nrec is a hint for how many other 
+        /// elements the table will have. Lua may use these hints to preallocate
+        /// memory for the new table. This preallocation is useful for 
+        /// performance when you know in advance how many elements the table 
+        /// will have. Otherwise you can use the function lua_newtable.
+        /// [-0, +1, m]
+        /// </summary>
         void CreateTable(int nArr, int nRec);
+
+        /// <summary>
+        /// This function allocates a new block of memory with the given size, 
+        /// pushes onto the stack a new full userdata with the block address, 
+        /// and returns this address. The host program can freely use this memory.
+        /// [-0, +1, m]
+        /// </summary>
         IntPtr NewUserData(int size);
+
+        /// <summary>
+        /// If the value at the given index has a metatable, the function pushes 
+        /// that metatable onto the stack and returns 1. Otherwise, 
+        /// the function returns 0 and pushes nothing on the stack.
+        /// [-0, +(0|1), –]
+        /// </summary>
         bool GetMetaTable(int idx);
+
+        /// <summary>
+        /// Pushes onto the stack the Lua value associated with the full 
+        /// userdata at the given index.
+        /// [-0, +1, –]
+        /// </summary>
         ELuaType GetUserValue(int idx);
 
         #endregion
 
+        #region set functions (stack -> Lua)
+
+        // ---------------------------
         // ----- 赋值操作 -----
         // set functions (stack -> Lua)
+        // ---------------------------
+
+        /// <summary>
+        /// Pops a value from the stack and sets it as the new value of 
+        /// global name.
+        /// [-1, +0, e]
+        /// </summary>
         void SetGlobal(string name);
+
+        /// <summary>
+        /// Does the equivalent to t[k] = v, where t is the value at 
+        /// the given index, v is the value at the top of the stack, 
+        /// and k is the value just below the top.
+        /// [-2, +0, e]
+        /// </summary>
         void SetTable(int idx);
+
+        /// <summary>
+        /// Does the equivalent to t[k] = v, where t is the value at the 
+        /// given index and v is the value at the top of the stack.
+        /// [-1, +0, e]
+        /// </summary>
         void SetField(int idx, string k);
+
+        /// <summary>
+        /// Does the equivalent to t[n] = v, where t is the value at the 
+        /// given index and v is the value at the top of the stack.
+        /// [-1, +0, e]
+        /// </summary>
         void SetI(int idx, LuaInt i);
+
+        /// <summary>
+        /// Similar to lua_settable, but does a raw assignment 
+        /// (i.e., without metamethods).
+        /// [-2, +0, m]
+        /// </summary>
         void RawSet(int idx);
+
+        /// <summary>
+        /// Does the equivalent of t[i] = v, where t is the table at the 
+        /// given index and v is the value at the top of the stack.
+        /// [-1, +0, m]
+        /// </summary>
         void RawSetI(int idx, LuaInt i);
+
+        /// <summary>
+        /// Does the equivalent of t[p] = v, where t is the table at the 
+        /// given index, p is encoded as a light userdata, and v is the 
+        /// value at the top of the stack.
+        /// [-1, +0, m]
+        /// </summary>
         void RawSetP(int idx, object p);
-        void SetMetaTable(int idx);
+
+        /// <summary>
+        /// Pops a table from the stack and sets it as the new metatable for 
+        /// the value at the given index.
+        /// [-1, +0, –]
+        /// </summary>
+        bool SetMetaTable(int idx);
+
+        /// <summary>
+        /// Pops a value from the stack and sets it as the new value associated
+        /// to the full userdata at the given index.
+        /// [-1, +0, –]
+        /// </summary>
         void SerUserValue(int idx);
 
+        #endregion
+
+        #region 'load' and 'call' functions (load and run Lua code)
+
+        // ---------------------------
         // ----- 加载及调用操作 -----
         // 'load' and 'call' functions (load and run Lua code)
+        // ---------------------------
+
+        /// <summary>
+        /// This function behaves exactly like lua_call, but allows the 
+        /// called function to yield 
+        /// (see https://www.lua.org/manual/5.3/manual.html#4.7).
+        /// [-(nargs + 1), +nresults, e]
+        /// </summary>
         void CallK(int nArgs, int nResults, LuaKContext ctx, LuaKFunction? k);
+
         void Call(int nArgs, int nResults);
         EStatus PCallK(int nArgs, int nResults, int errFuncIdx, LuaKContext ctx, LuaKFunction? k);
         EStatus PCall(int nArgs, int nResults, int errFuncIdx);
 
-        // ----- 算数运算操作 -----
+        EStatus Load(byte[] chunk, string chunkName, string mode);
+
+        #endregion
 
         void Len(int idx);
         void Concat(int n);
 
         void NewTable();
-
-        EStatus Load(byte[] chunk, string chunkName, string mode);
 
         void Register(string name, LuaCSFunction f);
 

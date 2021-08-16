@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace CsLua.API
@@ -48,6 +49,7 @@ namespace CsLua.API
         }
 
         public static implicit operator Int64(LuaInt i) => i.Value;
+        public static implicit operator int(LuaInt i) => (int)i.Value;
         public static implicit operator LuaInt(Int64 v) => new LuaInt(v);
         public static implicit operator LuaInt(LuaFloat v) => new LuaInt(v);
 
@@ -60,7 +62,7 @@ namespace CsLua.API
 
         public LuaInt(LuaFloat v)
         {
-            Value = (Int64) v.Value;
+            Value = (Int64)v.Value;
         }
 
         public override string ToString()
@@ -94,7 +96,7 @@ namespace CsLua.API
 
         public LuaUInt(Int64 v)
         {
-            Value = (ulong) v;
+            Value = (ulong)v;
         }
 
         public override string ToString()
@@ -183,26 +185,31 @@ namespace CsLua.API
         /// <summary>
         /// 获取无变体类型
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ELuaType GetNoVariantsType(this ELuaType type)
         {
-            return (ELuaType) ((int) type & 0x0F);
+            return (ELuaType)((int)type & 0x0F);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNumber(this ELuaType type)
         {
             return type.GetNoVariantsType() == ELuaType.Number;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsFunction(this ELuaType type)
         {
             return type.GetNoVariantsType() == ELuaType.Function;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsUserdata(this ELuaType type)
         {
             return type == ELuaType.UserData || type == ELuaType.LightUserData;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsCSFunction(this ELuaType type)
         {
             return type == ELuaType.LCSFunction;

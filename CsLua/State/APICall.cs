@@ -44,29 +44,32 @@ namespace CsLua.State
             if (proto.Upvalues.Length > 0)
             {
                 var env = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
-                c.Upvals[0] = new Upvalue {Val = env};
+                c.Upvals[0] = new Upvalue { Val = env };
             }
 
             return EStatus.Ok;
         }
 
-
         public void CallK(int nArgs, int nResults, LuaKContext ctx, LuaKFunction? k)
         {
-            LuaAPI.Check(this, k == null || !CallInfo.IsLua(), "cannot use continuations inside hooks");
-            LuaAPI.CheckNElems(this, nArgs + 1);
-            LuaAPI.Check(this, Status == EStatus.Ok, "cannot do calls on non-normal thread");
-            CheckResults(nArgs, nResults);
+            Check(k == null || !CallInfo.IsLua(), "cannot use continuations inside hooks");
+            CheckNElems(nArgs + 1);
+            Check(Status == EStatus.Ok, "cannot do calls on non-normal thread");
+            _Do.CheckResults(this, nArgs, nResults);
 
-            var funcIdx = Top - (nArgs + 1);
+            var func = Top - (nArgs + 1);
             if (k != null && NNy == 0) // need to prepare continuation?
             {
+                // save continuation
                 CallInfo.CsFunction.K = k;
+                // save context
                 CallInfo.CsFunction.Ctx = ctx;
+                // do the calll
+                InnerCall(func, nResults);
             }
             else // no continuation or no yieldable
             {
-                CallNoYield(funcIdx, nResults);
+                CallNoYield(func, nResults);
             }
 
             LuaAPI.AdjustResults(this, nResults);
@@ -82,7 +85,7 @@ namespace CsLua.State
             LuaAPI.Check(this, k == null || !CallInfo.IsLua(), "cannot use continuations inside hooks");
             LuaAPI.CheckNElems(this, nArgs + 1);
             LuaAPI.Check(this, this.Status == EStatus.Ok, "cannot do calls on non-normal thread");
-            CheckResults(nArgs, nResults);
+            _Do.CheckResults(this, nArgs, nResults);
 
             Calls c;
             var status = EStatus.Ok;

@@ -14,12 +14,12 @@ namespace CsLua.State
     {
         private static readonly object KeysHead = new byte();
 
-        public LuaTable MetaTable;
+        public LuaTable? MetaTable;
 
-        private List<LuaValue> _arr;
-        private Dictionary<object, LuaValue> _map;
-        private Dictionary<object, LuaValue> _keys;
-        private object _lastKey;
+        private List<LuaValue>? _arr;
+        private Dictionary<object, LuaValue>? _map;
+        private Dictionary<object, LuaValue>? _keys;
+        private object? _lastKey;
         private bool _changed;
 
         public LuaTable(int nArr, int nRec)
@@ -62,7 +62,7 @@ namespace CsLua.State
             if (idx >= 1 && idx <= Len())
                 return _arr[(int) (idx - 1)];
 
-            return _map != null && _map.TryGetValue(key.GetValue(), out var ret) ? ret : LuaValue.Nil;
+            return _map != null && _map.TryGetValue(key.GetValue()!, out var ret) ? ret : LuaValue.Nil;
         }
 
         public void Put(object k, object v)

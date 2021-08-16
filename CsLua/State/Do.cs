@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using CsLua.API;
 using CsLua.Binchunk;
 using CsLua.Misc;
@@ -37,11 +38,11 @@ namespace CsLua.State
                 switch (errCode)
                 {
                     case EStatus.ErrMem:
-                        l.SetValue(oldTop, LuaValue.CreateStr(l.GlobalState.MemErrMsg));
+                        l.SetValue(oldTop, LuaValue.Create(l.GlobalState.MemErrMsg));
                         break;
 
                     case EStatus.ErrErr:
-                        l.SetValue(oldTop, LuaValue.CreateStr("error in error handling"));
+                        l.SetValue(oldTop, LuaValue.Create("error in error handling"));
                         break;
 
                     default:
@@ -58,9 +59,9 @@ namespace CsLua.State
                     "results from function overflow current stack size");
             }
 
-            public static void TryFuncTm(LuaState l, int func)
+            public static void TryFuncTM(LuaState l, int func)
             {
-                var tm = l.GetTmByObj(l.Index2Addr(func)!, ETagMethods.CALL);
+                var tm = l.GetTMByObj(l.Index2Addr(func)!, ETagMethods.CALL);
                 if (tm == null || !tm.IsFunction())
                     l.TypeError(func, "call");
 
@@ -125,7 +126,7 @@ namespace CsLua.State
                 return true;
             }
 
-            public static CallInfo NextCi(LuaState l)
+            public static CallInfo NextCI(LuaState l)
             {
                 return l.CallInfo = l.CallInfo.Next ?? l.ExtendCI();
             }
@@ -239,7 +240,7 @@ namespace CsLua.State
                         // ensure minimum stack size
                         CheckStack(LuaConst.LUA_MINSTACK);
 
-                        ci = _Do.NextCi(this);
+                        ci = _Do.NextCI(this);
                         ci.NResults = nResults;
                         ci.Func = func;
                         ci.Top = Top + LuaConst.LUA_MINSTACK;
@@ -266,7 +267,14 @@ namespace CsLua.State
                         CheckStack(fsize);
                         if (p.IsVararg == 1)
                         {
-                            @base = _Do.AdjustVarargs(this., n);
+                            @base = _Do.AdjustVarargs(this, p, n);
+                            var varargs = new List<LuaValue>();
+                            int cnt = n - p.NumParams;
+                            if (cnt > 0)
+                            {
+                                Stack.PopN(cnt, out var vars);
+                                CallInfo.LuaClosure.Varargs = vars!;
+                            }
                         }
                         else // non vararg function
                         {
@@ -274,12 +282,11 @@ namespace CsLua.State
                                 PushNil();
                             @base = func + 1;
                         }
-                        ci = _Do.NextCi(this);
+                        ci = _Do.NextCI(this);
                         ci.NResults = nResults;
                         ci.Func = func;
-                        ci.LuaClosure.Base = @base;
                         Top = ci.Top = @base + fsize;
-                        ci.LuaClosure.Code = p.Code;
+                        ci.LuaClosure.Closure = Index2Addr(func)!.GetLuaClosureValue()!;
                         ci.LuaClosure.SavedPc = 0;
                         ci.CallStatus = CallInfoStatus.LUA;
                         // TODO hook
@@ -290,7 +297,7 @@ namespace CsLua.State
                         // ensure space for metamethod
                         CheckStack(1);
                         // try to get '__call' metamethod
-                        _Do.TryFuncTm(this, func);
+                        _Do.TryFuncTM(this, func);
 
                         // now it must be a function
                         return PreCall(func, nResults);

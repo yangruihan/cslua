@@ -7,53 +7,60 @@ namespace CsLua.State
     {
         public void SetTable(int idx)
         {
-            var t = Stack[idx];
-            var v = Stack.Pop();
-            var k = Stack.Pop();
+            CheckNElems(2);
+            var t = Index2Addr(idx)!;
+            var v = Pop()!;
+            var k = Pop()!;
             InnerSetTable(t, k, v, false);
         }
 
         public void SetField(int idx, string k)
         {
-            var t = Stack[idx];
-            var v = Stack.Pop();
-            InnerSetTable(t, new LuaValue(k, ELuaType.String), v, false);
+            var t = Index2Addr(idx)!;
+            var v = Pop()!;
+            InnerSetTable(t, new LuaValue(k), v, false);
         }
 
         public void RawSet(int idx)
         {
-            var t = Stack[idx];
-            var v = Stack.Pop();
-            var k = Stack.Pop();
+            CheckNElems(2);
+            var t = Index2Addr(idx)!;
+            Check(t.IsTable(), "table expected");
+            var v = Pop()!;
+            var k = Pop()!;
             InnerSetTable(t, k, v, true);
         }
 
         public void RawSetI(int idx, LuaInt i)
         {
-            var t = Stack[idx];
-            var v = Stack.Pop();
+            CheckNElems(1);
+            var t = Index2Addr(idx)!;
+            var v = Pop()!;
             InnerSetTable(t, new LuaValue(i), v, true);
         }
 
         public void RawSetP(int idx, object p)
         {
-            var t = Stack[idx];
-            var v = Stack.Pop();
-            InnerSetTable(t, LuaValue.Create(p), v, true);
+            CheckNElems(1);
+            var t = Index2Addr(idx)!;
+            Check(t.IsTable(), "table expected");
+            var v = Pop()!;
+            InnerSetTable(t, new LuaValue(p, ELuaType.LightUserData), v, true);
         }
 
         public void SetI(int idx, LuaInt i)
         {
-            var t = Stack[idx];
-            var v = Stack.Pop();
+            CheckNElems(1);
+            var t = Index2Addr(idx)!;
+            var v = Pop()!;
             InnerSetTable(t, new LuaValue(i), v, false);
         }
 
         public void SetGlobal(string name)
         {
             var t = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
-            var v = Stack.Pop();
-            InnerSetTable(t, new LuaValue(name, ELuaType.String), v, false);
+            var v = Stack.Pop()!;
+            InnerSetTable(t, new LuaValue(name), v, false);
         }
 
         public void Register(string name, LuaCSFunction f)
@@ -62,11 +69,12 @@ namespace CsLua.State
             SetGlobal(name);
         }
 
-        public void SetMetaTable(int idx)
+        public bool SetMetaTable(int idx)
         {
-            var val = Stack[idx];
-            var mtVal = Stack.Pop();
-            if (mtVal is null)
+            CheckNElems(1);
+            var val = Index2Addr(idx)!;
+            var mtVal = Pop()!;
+            if (mtVal is null || mtVal.IsNil())
             {
                 LuaValue.SetMetaTable(val, null, this);
             }
@@ -76,15 +84,17 @@ namespace CsLua.State
             }
             else
             {
-                Debug.Panic("table expected!");
+                Check(false, "table expected");
             }
+            return true;
         }
 
         public void SerUserValue(int idx)
         {
-            var o = Stack[idx];
-            LuaAPI.Check(this, o.IsFullUserData(), "full userdata expected");
-            var v = Stack.Pop();
+            CheckNElems(1);
+            var o = Index2Addr(idx)!;
+            Check(o.IsFullUserData(), "full userdata expected");
+            var v = Pop();
             (o.GetObjValue() as UserData)!.User = v;
         }
 

@@ -1,4 +1,5 @@
 using CsLua.API;
+using CsLua.VM;
 
 namespace CsLua.State
 {
@@ -58,6 +59,11 @@ namespace CsLua.State
                     else
                         return !LTIntFloat(r.GetIntValue(), lf); // not (r < l) ?
                 }
+            }
+
+            public static LuaClosure? GetCurrentCIClosure(LuaState ls)
+            {
+                return ls.Index2Addr(ls.CallInfo.Func)!.GetLuaClosureValue();
             }
         }
 
@@ -203,6 +209,17 @@ namespace CsLua.State
                 if (ret < 0)
                     OrderError(l, r);
                 return !(ret == 0 ? false : true); // result is negated
+            }
+        }
+
+        private void Execute()
+        {
+            for (; ; )
+            {
+                var inst = new Instruction(Fetch());
+                inst.Execute(this);
+                if (inst.Opcode() == EOpCode.OP_RETURN)
+                    break;
             }
         }
     }
