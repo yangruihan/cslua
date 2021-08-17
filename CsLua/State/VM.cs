@@ -65,6 +65,8 @@ namespace CsLua.State
             {
                 return ls.Index2Addr(ls.CallInfo.Func)!.GetLuaClosureValue();
             }
+
+
         }
 
         private bool InnerToNumber(int idx, out LuaFloat num)
@@ -209,6 +211,119 @@ namespace CsLua.State
                 if (ret < 0)
                     OrderError(l, r);
                 return !(ret == 0 ? false : true); // result is negated
+            }
+        }
+
+        private void FinishOp()
+        {
+            CallInfo ci = CallInfo;
+            var i = ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc - 1];
+            var ins = new Instruction(i);
+            var op = ins.Opcode();
+            switch (op)
+            {
+                case EOpCode.OP_ADD:
+                case EOpCode.OP_SUB:
+                case EOpCode.OP_MUL:
+                case EOpCode.OP_DIV:
+                case EOpCode.OP_IDIV:
+                case EOpCode.OP_BAND:
+                case EOpCode.OP_BOR:
+                case EOpCode.OP_BXOR:
+                case EOpCode.OP_SHL:
+                case EOpCode.OP_SHR:
+                case EOpCode.OP_MOD:
+                case EOpCode.OP_POW:
+                case EOpCode.OP_UNM:
+                case EOpCode.OP_BNOT:
+                case EOpCode.OP_LEN:
+                case EOpCode.OP_GETTABUP:
+                case EOpCode.OP_GETTABLE:
+                case EOpCode.OP_SELF:
+                    {
+                        ins.ABC(out var a, out _, out _);
+                        a += 1;
+                        Replace(a);
+                        break;
+                    }
+
+                case EOpCode.OP_LE:
+                case EOpCode.OP_LT:
+                case EOpCode.OP_EQ:
+                    {
+                        var ret = Pop()!.ToBoolean();
+                        // "<=" using "<" instead?
+                        if ((ci.CallStatus & CallInfoStatus.LEQ) == CallInfoStatus.LEQ)
+                        {
+                            Assert(op == EOpCode.OP_LE);
+                            ci.CallStatus ^= CallInfoStatus.LEQ; // clear mark
+                            ret = !ret; // negate result
+                        }
+
+                        Assert(
+                            new Instruction(ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc]).Opcode()
+                            == EOpCode.OP_JMP);
+
+                        // condition failed?
+                        if (ret != (ins.A == 0 ? false : true))
+                            ci.LuaClosure.SavedPc++; // skip jump instruction
+                        break;
+                    }
+
+                case EOpCode.OP_CONCAT:
+                    {
+                        // top when 'luaT_trybinTM' was called
+                        var top = Top - 1;
+                        // first element to concatenate
+                        ins.ABC(out var a, out var b, out var c);
+                        a += 1;
+                        // yet to concatenate
+                        var total = top - 1 - (ci.Func + 1 + b);
+                        // put TM result in proper position
+                        Copy(-3, -1);
+
+                        // are there elements to concat?
+                        if (total > 1)
+                        {
+                            Pop(); // top is one after last element (at top-2)
+                            Concat(total); // concat them (may yield again)
+                        }
+
+                        // move final result to final position
+                        Copy(-1, a);
+                        // restore top
+                        SetTop(ci.Top);
+                        break;
+                    }
+
+                case EOpCode.OP_TFORCALL:
+                    {
+                        Instruction opCode = ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc];
+                        Assert(opCode.Opcode() == EOpCode.OP_TFORLOOP);
+                        SetTop(ci.Top); // correct top
+                        break;
+                    }
+
+                case EOpCode.OP_CALL:
+                    {
+                        ins.ABC(out _, out _, out var c);
+                        if (c - 1 >= 0) // nresults >= 0?
+                            SetTop(ci.Top); // adjust results
+                        break;
+                    }
+
+                case EOpCode.OP_TAILCALL:
+                case EOpCode.OP_SETTABUP:
+                case EOpCode.OP_SETTABLE:
+                    {
+                        break;
+                    }
+
+                default:
+                    {
+                        Assert(false);
+                        break;
+                    }
             }
         }
 

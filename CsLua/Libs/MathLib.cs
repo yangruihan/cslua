@@ -74,7 +74,9 @@ namespace CsLua.Libs
 
         private static readonly LuaCSFunction ToInt = ls =>
         {
-            if (ls.ToIntegerX(1, out var ret))
+            var ret = ls.ToIntegerX(1, out var isInt);
+
+            if (isInt)
             {
                 ls.PushInteger(ret);
             }
@@ -110,7 +112,7 @@ namespace CsLua.Libs
             }
             else
             {
-                ls.PushInteger((long) Math.Ceiling(ls.CheckNumber(1)));
+                ls.PushInteger((long)Math.Ceiling(ls.CheckNumber(1)));
             }
 
             return 1;
@@ -121,7 +123,7 @@ namespace CsLua.Libs
             if (ls.IsInteger(1) && ls.IsInteger(2))
             {
                 var d = ls.ToInteger(2);
-                if ((LuaUInt) d + 1u <= 1u) /* special cases: -1 or 0 */
+                if ((LuaUInt)d + 1u <= 1u) /* special cases: -1 or 0 */
                 {
                     if (d == 0)
                         ls.Error("div zero");
@@ -165,7 +167,7 @@ namespace CsLua.Libs
         {
             var a = ls.CheckInteger(1);
             var b = ls.CheckInteger(2);
-            ls.PushBoolean((LuaUInt) a < (LuaUInt) b);
+            ls.PushBoolean((LuaUInt)a < (LuaUInt)b);
             return 1;
         };
 
@@ -264,14 +266,14 @@ namespace CsLua.Libs
             ls.ArgCheck(low <= up, 1, "interval is empty");
             ls.ArgCheck(low >= 0 || up <= LuaConst.LUA_MAXINTEGER + low, 1, "interval too large");
 
-            r *= (LuaFloat) (up - low) + 1.0f;
-            ls.PushInteger((LuaInt) r + low);
+            r *= (LuaFloat)(up - low) + 1.0f;
+            ls.PushInteger((LuaInt)r + low);
             return 1;
         };
 
         private static readonly LuaCSFunction RandomSeed = ls =>
         {
-            _csRandom = new Random((int) (LuaInt) ls.CheckNumber(1));
+            _csRandom = new Random((int)(LuaInt)ls.CheckNumber(1));
             _csRandom.Next();
             return 0;
         };

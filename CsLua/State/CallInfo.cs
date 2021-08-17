@@ -36,7 +36,7 @@ namespace CsLua.State
         public struct _CSFunction
         {
             public LuaKFunction K;
-            public Int64 OldErrFunc;
+            public int OldErrFunc;
             public LuaKContext Ctx;
         }
 
@@ -50,6 +50,8 @@ namespace CsLua.State
 
         public _LuaClosure LuaClosure;
         public _CSFunction CsFunction;
+
+        public int Extra;
 
         public int NResults; // expected number of results from this function
 

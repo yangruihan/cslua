@@ -14,10 +14,10 @@ namespace CsLua.State
         /// <param name="idx"></param>
         public void Len(int idx)
         {
-            var val = Stack[idx];
+            var val = Index2Addr(idx)!;
             if (val.IsString())
             {
-                Stack.Push((LuaInt) val.GetStrValue().Length);
+                Stack.Push((LuaInt)val.GetStrValue()!.Length);
             }
             else if (LuaValue.CallMetaMethod(val, val, "__len", this,
                 out var metaMethodRet))
@@ -26,11 +26,11 @@ namespace CsLua.State
             }
             else if (val.IsTable())
             {
-                Stack.Push((LuaInt) val.GetTableValue().Len());
+                Stack.Push((LuaInt)val.GetTableValue()!.Len());
             }
             else
             {
-                Debug.Panic("length error!");
+                RunError("length error!");
             }
         }
 
@@ -39,6 +39,7 @@ namespace CsLua.State
         /// </summary>
         public void Concat(int n)
         {
+            CheckNElems(n);
             if (n == 0)
             {
                 Stack.Push("");
@@ -57,8 +58,8 @@ namespace CsLua.State
                         continue;
                     }
 
-                    var b = Stack.Pop();
-                    var a = Stack.Pop();
+                    var b = Stack.Pop()!;
+                    var a = Stack.Pop()!;
                     if (LuaValue.CallMetaMethod(a, b, "__concat", this,
                         out var metaMethodRet))
                     {
@@ -66,43 +67,57 @@ namespace CsLua.State
                         continue;
                     }
 
-                    Debug.Panic("concatenation error!");
+                    RunError("concatenation error!");
                 }
             }
         }
 
         public bool Next(int idx)
         {
-            var val = Stack[idx];
-            if (val.IsTable())
-            {
-                var lt = val.GetTableValue();
-                var key = Stack.Pop();
-                var nextKey = lt.NextKey(key);
-                if (!nextKey.IsNil())
-                {
-                    Stack.Push(nextKey);
-                    Stack.Push(lt.Get(nextKey));
-                    return true;
-                }
+            var val = Index2Addr(idx)!;
+            Check(val.IsTable(), "table expected");
 
-                return false;
+            var lt = val.GetTableValue()!;
+            var key = Stack.Pop()!;
+            var nextKey = lt.NextKey(key);
+            if (!nextKey.IsNil())
+            {
+                Stack.Push(nextKey);
+                Stack.Push(lt.Get(nextKey));
+                return true;
             }
 
-            Debug.Panic("table expected!");
             return false;
         }
 
         public int Error()
         {
-            var err = Stack.Pop();
-            Debug.Panic(err.ToString());
-            return -1;
+            CheckNElems(1);
+            var err = Stack.Pop()!;
+            ErrorMsg();
+            return 0;
         }
 
         public void Assert(bool cond)
         {
             Check(cond, "");
+        }
+
+        public int StringToNumber(string s)
+        {
+            // TODO
+            if (LuaInt.TryParse(s, out var i))
+            {
+                PushInteger(i);
+                return s.Length;
+            }
+            else if (LuaFloat.TryParse(s, out var f))
+            {
+                PushNumber(f);
+                return s.Length;
+            }
+
+            return 0;
         }
     }
 }

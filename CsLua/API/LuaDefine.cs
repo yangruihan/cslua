@@ -311,7 +311,7 @@ namespace CsLua.API
     /// <summary>
     /// 持续运行函数 Delegate
     /// </summary>
-    public delegate int LuaKFunction(ILuaState luaState, int status,
+    public delegate int LuaKFunction(ILuaState luaState, EStatus status,
         LuaKContext ctx);
 
     public delegate string LuaReader(ILuaState l, object ud, int sz);

@@ -96,6 +96,11 @@ namespace CsLua.State
             return Type(idx) == ELuaType.Table;
         }
 
+        public bool IsLightUserData(int idx)
+        {
+            return Type(idx) == ELuaType.LightUserData;
+        }
+
         public bool IsFunction(int idx)
         {
             return Type(idx).IsFunction();
@@ -136,12 +141,6 @@ namespace CsLua.State
             return Type(idx).IsUserdata();
         }
 
-        public bool IsArray(int idx)
-        {
-            if (!IsTable(idx)) return false;
-            return Stack[idx].GetTableValue().IsArray();
-        }
-
         public bool ToBoolean(int idx)
         {
             var val = Index2Addr(idx)!;
@@ -157,7 +156,7 @@ namespace CsLua.State
         {
             var val = Index2Addr(idx)!;
             isInt = val.IsInt();
-            return isInt ? val.GetIntValue() : 0;
+            return isInt ? val.GetIntValue() : (LuaInt)0;
         }
 
         public LuaFloat ToNumber(int idx)
@@ -188,27 +187,6 @@ namespace CsLua.State
         public string? ToString(int idx)
         {
             return ToStringX(idx, out _);
-        }
-
-        public string? ToStringX(int idx, out bool isStr)
-        {
-            var val = Index2Addr(idx, out var absIdx)!;
-            if (val.IsString())
-            {
-                isStr = true;
-                return val.GetStrValue();
-            }
-
-            if (val.CanConvertToStr())
-            {
-                var ret = val.ToString();
-                Stack[absIdx] = new LuaValue(ret, ELuaType.String);
-                isStr = true;
-                return ret;
-            }
-
-            isStr = false;
-            return null;
         }
 
         public LuaCSFunction? ToCSFunction(int idx)
@@ -247,6 +225,27 @@ namespace CsLua.State
         {
             // TODO
             throw new NotImplementedException();
+        }
+
+        private string? ToStringX(int idx, out bool isStr)
+        {
+            var val = Index2Addr(idx, out var absIdx)!;
+            if (val.IsString())
+            {
+                isStr = true;
+                return val.GetStrValue();
+            }
+
+            if (val.CanConvertToStr())
+            {
+                var ret = val.ToString();
+                Stack[absIdx] = new LuaValue(ret, ELuaType.String);
+                isStr = true;
+                return ret;
+            }
+
+            isStr = false;
+            return null;
         }
     }
 }

@@ -112,13 +112,36 @@ namespace CsLua.API
         /// </summary>
         void XMove(ILuaState to, int n);
 
-        // TODO 
+        /// <summary>
+        /// Pops n elements from the stack.
+        /// [-n, +0, –]
+        /// </summary>
         void Pop(int n);
-        // TODO
+
+        /// <summary>
+        /// Moves the top element into the given valid index without shifting 
+        /// any element (therefore replacing the value at that given index),
+        /// and then pops the top element.
+        /// [-1, +0, -]
+        /// </summary>
         void Replace(int idx);
-        // TODO
+        
+        /// <summary>
+        /// Moves the top element into the given valid index, shifting up 
+        /// the elements above this index to open space. This function cannot 
+        /// be called with a pseudo-index, because a pseudo-index is not 
+        /// an actual stack position.
+        /// [-1, +1, -]
+        /// </summary>
         void Insert(int idx);
-        // TODO
+        
+        /// <summary>
+        /// Removes the element at the given valid index, shifting down the 
+        /// elements above this index to fill the gap. This function cannot 
+        /// be called with a pseudo-index, because a pseudo-index is not 
+        /// an actual stack position.
+        /// [-1, +0, -]
+        /// </summary>
         void Remove(int idx);
 
         #endregion
@@ -269,29 +292,71 @@ namespace CsLua.API
         /// </summary>
         ref object? ToPointer(int idx);
 
-        // TODO
-        bool IsNone(int idx);
-        // TODO
-        bool IsNil(int idx);
-        // TODO
-        bool IsNoneOrNil(int idx);
-        // TODO
-        bool IsBoolean(int idx);
-        // TODO
-        bool IsTable(int idx);
-        // TODO
-        bool IsThread(int idx);
-        // TODO
-        bool IsArray(int idx);
-        // TODO
-        bool IsFunction(int idx);
-
-        // TODO
-        LuaInt ToInteger(int idx);
-        // TODO
+        /// <summary>
+        /// Equivalent to lua_tonumberx with isnum equal to NULL.
+        /// [-0, +0, –]
+        /// </summary>
         LuaFloat ToNumber(int idx);
-        // TODO
-        string? ToStringX(int idx, out bool isStr);
+
+        /// <summary>
+        /// Equivalent to lua_tointegerx with isnum equal to NULL.
+        /// [-0, +0, –]
+        /// </summary>
+        LuaInt ToInteger(int idx);
+
+        /// <summary>
+        /// Returns 1 if the given index is not valid, and 0 otherwise.
+        /// [-0, +0, -]
+        /// </summary>
+        bool IsNone(int idx);
+        
+        /// <summary>
+        /// Returns 1 if the value at the given index is nil, and 0 otherwise.
+        /// [-0, +0, -]
+        /// </summary>
+        bool IsNil(int idx);
+        
+        /// <summary>
+        /// Returns 1 if the given index is not valid or if the value at this
+        /// index is nil, and 0 otherwise.
+        /// [-0, +0, –]
+        /// </summary>
+        bool IsNoneOrNil(int idx);
+        
+        /// <summary>
+        /// Returns 1 if the value at the given index is a boolean, 
+        /// and 0 otherwise.
+        /// [-0, +0, -]
+        /// </summary>
+        bool IsBoolean(int idx);
+
+        /// <summary>
+        /// Returns 1 if the value at the given index is a table, 
+        /// and 0 otherwise.
+        /// [-0, +0, –]
+        /// </summary>
+        bool IsTable(int idx);
+
+        /// <summary>
+        /// Returns 1 if the value at the given index is a light userdata, 
+        /// and 0 otherwise.
+        /// [-0, +0, –]
+        /// </summary>
+        bool IsLightUserData(int idx);
+        
+        /// <summary>
+        /// Returns 1 if the value at the given index is a thread, 
+        /// and 0 otherwise.
+        /// [-0, +0, –]
+        /// </summary>
+        bool IsThread(int idx);
+
+        /// <summary>
+        /// Returns 1 if the value at the given index is a function 
+        /// (either CS or Lua), and 0 otherwise.
+        /// [-0, +0, –]
+        /// </summary>
+        bool IsFunction(int idx);
 
         #endregion
 
@@ -370,6 +435,13 @@ namespace CsLua.API
         string PushString(string s);
 
         /// <summary>
+        /// This macro is equivalent to lua_pushstring, but should be used 
+        /// only when s is a literal string.
+        /// [-0 +1, m]
+        /// </summary>
+        string PushLiteral(string s);
+
+        /// <summary>
         /// Equivalent to lua_pushfstring, except that it receives a va_list 
         /// instead of a variable number of arguments.
         /// [-0, +1, m]
@@ -401,11 +473,26 @@ namespace CsLua.API
         /// </summary>
         bool PushThread();
 
-        // TODO
+        /// <summary>
+        /// Pushes a CS function onto the stack. This function receives a 
+        /// pointer to a CS function and pushes onto the stack a Lua value of
+        /// type function that, when called, invokes the corresponding 
+        /// CS function.
+        /// [-0, +1, –]
+        /// </summary>
         void PushCSFunction(LuaCSFunction f);
 
-        // TODO
+        /// <summary>
+        /// Pushes the global environment onto the stack.
+        /// [-0, +1, –]
+        /// </summary>
         void PushGlobalTable();
+
+        /// <summary>
+        /// Sets the CS function f as the new value of global name.
+        /// [-0, +0, e]
+        /// </summary>
+        void Register(string name, LuaCSFunction f);
 
         #endregion
 
@@ -507,6 +594,13 @@ namespace CsLua.API
         /// </summary>
         ELuaType GetUserValue(int idx);
 
+        /// <summary>
+        /// Creates a new empty table and pushes it onto the stack. 
+        /// It is equivalent to lua_createtable(L, 0, 0).
+        /// [-0, +1, m]
+        /// </summary>
+        void NewTable();
+
         #endregion
 
         #region set functions (stack -> Lua)
@@ -598,26 +692,155 @@ namespace CsLua.API
         /// </summary>
         void CallK(int nArgs, int nResults, LuaKContext ctx, LuaKFunction? k);
 
+        /// <summary>
+        /// Calls a function.
+        /// [-(nargs+1), +nresults, e]
+        /// </summary>
         void Call(int nArgs, int nResults);
+
+        /// <summary>
+        /// This function behaves exactly like lua_pcall, but allows the called
+        /// function to yield 
+        /// (see https://www.lua.org/manual/5.3/manual.html#4.7).
+        /// [-(nargs + 1), +(nresults|1), –]
+        /// </summary>
         EStatus PCallK(int nArgs, int nResults, int errFuncIdx, LuaKContext ctx, LuaKFunction? k);
+
+        /// <summary>
+        /// Calls a function in protected mode.
+        /// [-(nargs + 1), +(nresults|1), –]
+        /// </summary>
         EStatus PCall(int nArgs, int nResults, int errFuncIdx);
 
+        /// <summary>
+        /// Loads a Lua chunk without running it. If there are no errors, 
+        /// lua_load pushes the compiled chunk as a Lua function on top of 
+        /// the stack. Otherwise, it pushes an error message.
+        /// [-0, +1, –]
+        /// </summary>
         EStatus Load(byte[] chunk, string chunkName, string mode);
 
         #endregion
 
-        void Len(int idx);
+        #region coroutine functions
+
+        // ---------------------------
+        // ----- 协程相关 -----
+        // coroutine functions
+        // ---------------------------
+
+        /// <summary>
+        /// Yields a coroutine (thread).
+        /// [-?, +?, e]
+        /// </summary>
+        EStatus YieldK(int nResults, LuaKContext ctx, LuaKFunction? k);
+
+        /// <summary>
+        /// tarts and resumes a coroutine in the given thread L.
+        /// [-?, +?, –]
+        /// </summary>
+        EStatus Resume(ILuaState from, int nArgs);
+
+        /// <summary>
+        /// Returns the status of the thread L.
+        /// [-0, +0, –]
+        /// </summary>
+        EStatus Status();
+
+        /// <summary>
+        /// Returns 1 if the given coroutine can yield, and 0 otherwise.
+        /// [-0, +0, –]
+        /// </summary>
+        bool IsYieldable();
+
+        /// <summary>
+        /// Yields a coroutine (thread).
+        /// [-?, +?, e]
+        /// </summary>
+        EStatus Yield(int nResults);
+
+        #endregion
+
+        #region garbage-collection function
+
+        // ---------------------------
+        // ----- GC相关 -----
+        // garbage-collection function 
+        // ---------------------------
+
+        /// <summary>
+        /// Controls the garbage collector.
+        /// [+0, -0, m]
+        /// </summary>
+        bool GC();
+
+        #endregion
+
+        #region miscellaneous functions
+
+        // ---------------------------
+        // ----- 其他杂项 -----
+        // miscellaneous functions
+        // ---------------------------
+
+        /// <summary>
+        /// Generates a Lua error, using the value at the top of the stack as 
+        /// the error object. This function does a long jump, and therefore 
+        /// never returns (see luaL_error).
+        /// [-1, +0, v]
+        /// </summary>
+        int Error();
+
+        /// <summary>
+        /// Pops a key from the stack, and pushes a key–value pair from 
+        /// the table at the given index (the "next" pair after the given key).
+        /// If there are no more elements in the table, then lua_next 
+        /// returns 0 (and pushes nothing).
+        /// [-1, +(2|0), e]
+        /// </summary>
+        bool Next(int idx);
+
+        /// <summary>
+        /// Concatenates the n values at the top of the stack, pops them, 
+        /// and leaves the result at the top. If n is 1, the result is the 
+        /// single value on the stack (that is, the function does nothing);
+        /// if n is 0, the result is the empty string. Concatenation is 
+        /// performed following the usual semantics of Lua 
+        /// (see https://www.lua.org/manual/5.3/manual.html#3.4.6).
+        /// [-n, +1, e]
+        /// </summary>
         void Concat(int n);
 
-        void NewTable();
+        /// <summary>
+        /// Returns the length of the value at the given index. It is equivalent
+        ///  to the '#' operator in Lua 
+        /// (see https://www.lua.org/manual/5.3/manual.html#3.4.7) and may 
+        /// trigger a metamethod for the "length" event 
+        /// (see https://www.lua.org/manual/5.3/manual.html#2.4). 
+        /// The result is pushed on the stack.
+        /// [-0, +1, e]
+        /// </summary>
+        void Len(int idx);
 
-        void Register(string name, LuaCSFunction f);
+        /// <summary>
+        /// Converts the zero-terminated string s to a number, pushes that 
+        /// number into the stack, and returns the total size of the string, 
+        /// that is, its length plus one. The conversion can result in an 
+        /// integer or a float, according to the lexical conventions of Lua 
+        /// (see https://www.lua.org/manual/5.3/manual.html#3.1). 
+        /// The string may have leading and trailing spaces and a sign. 
+        /// If the string is not a valid numeral, returns 0 and pushes nothing. 
+        /// (Note that the result can be used as a boolean, true if the 
+        /// conversion succeeds.)
+        /// [-0, +1, –]
+        /// </summary>
+        int StringToNumber(string s);
+
+        #endregion
+
 
         int LuaUpvalueIndex(int i);
 
-        bool Next(int idx);
-
-        int Error();
         void Assert(bool cond);
     }
 }

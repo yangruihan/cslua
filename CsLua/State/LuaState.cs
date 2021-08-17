@@ -15,7 +15,7 @@ namespace CsLua.State
 
         public ushort NCi; // number of items in 'ci' list
 
-        public EStatus Status;
+        public EStatus RunningStatus;
 
         public LuaStack Stack { get; private set; }
         public int Top
@@ -27,7 +27,7 @@ namespace CsLua.State
 
         public GlobalState GlobalState { get; private set; }
 
-        public readonly CallInfo BaseCi;
+        public readonly CallInfo BaseCI;
         public CallInfo CallInfo;
 
         public int ErrFunc;
@@ -41,15 +41,15 @@ namespace CsLua.State
 
         public LuaState(LuaState? parent = null)
         {
-            Status = EStatus.Ok;
+            RunningStatus = EStatus.Ok;
             PreInitThread(parent == null ? new GlobalState(this) : parent.GlobalState);
 
             GlobalState!.Init(this);
 
             Stack = parent == null ? new LuaStack(BASIC_STACK_SIZE) : parent.Stack;
 
-            BaseCi = new CallInfo(null);
-            CallInfo = BaseCi;
+            BaseCI = new CallInfo(null);
+            CallInfo = BaseCI;
             CallInfo.CallStatus = CallInfoStatus.INIT;
             CallInfo.Func = Top;
             PushNil(); // 'function' entry for this 'ci'
@@ -133,6 +133,8 @@ namespace CsLua.State
                     TypeError(idx, "get upvalue");
                 }
             }
+
+            return null;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace CsLua.State
             NCi = 0;
             NNy = 1;
             NCcalls = 0;
-            Status = EStatus.Ok;
+            RunningStatus = EStatus.Ok;
             ErrFunc = 0;
         }
 

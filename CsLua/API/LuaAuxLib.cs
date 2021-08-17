@@ -70,7 +70,8 @@ namespace CsLua.API
 
         public static LuaInt CheckInteger(this ILuaState ls, int arg)
         {
-            if (!ls.ToIntegerX(arg, out var ret))
+            var ret = ls.ToIntegerX(arg, out var isNum);
+            if (!isNum)
                 IntError(ls, arg);
 
             return ret;
@@ -78,7 +79,8 @@ namespace CsLua.API
 
         public static LuaFloat CheckNumber(this ILuaState ls, int arg)
         {
-            if (!ls.ToNumberX(arg, out var ret))
+            var ret = ls.ToNumberX(arg, out var isNum);
+            if (!isNum)
                 ls.TagError(arg, ELuaType.Number);
 
             return ret;

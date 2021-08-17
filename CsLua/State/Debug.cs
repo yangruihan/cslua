@@ -39,7 +39,7 @@ namespace CsLua.State
 
             public static bool IsInStack(CallInfo ci, int idx)
             {
-                return (0 <= idx && idx < (ci.Top - ci.LuaClosure.Base));
+                return (0 <= idx && idx < (ci.Top - ci.Func - 1));
             }
 
             public static int CurrentPc(LuaState l, CallInfo ci)
@@ -67,7 +67,7 @@ namespace CsLua.State
                         var luaClosure = l.Index2Addr(ci.Func)!.GetLuaClosureValue()!;
                         kind = GetObjName(l, luaClosure.Proto,
                                           CurrentPc(l, ci),
-                                          idx + ci.Func - ci.LuaClosure.Base,
+                                          idx + ci.Func - ci.Func - 1,
                                           out name);
                     }
                 }

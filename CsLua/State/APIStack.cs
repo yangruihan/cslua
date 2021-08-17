@@ -148,7 +148,7 @@ namespace CsLua.State
         public void Replace(int idx)
         {
             var val = Stack.Pop();
-            Stack[idx] = val;
+            SetValue(idx, val);
         }
 
         /// <summary>

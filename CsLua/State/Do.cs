@@ -154,6 +154,146 @@ namespace CsLua.State
                 return @base;
             }
 
+            public static EStatus ResumeError(LuaState l, string msg, int nArg)
+            {
+                l.SetTop(l.Top - nArg);
+                l.PushString(msg);
+                return EStatus.ErrRun;
+            }
+
+            public static void FinishCSCall(LuaState l, EStatus status)
+            {
+                CallInfo ci = l.CallInfo;
+                // must have a continuation and must be able to call it
+                l.Assert(ci.CsFunction.K != null && l.NNy == 0);
+                // error status can only happen in a protected call
+                l.Assert((ci.CallStatus & CallInfoStatus.YPCALL) == CallInfoStatus.YPCALL
+                || status == EStatus.Yield);
+
+                // was inside a pcall?
+                if ((ci.CallStatus & CallInfoStatus.YPCALL) == CallInfoStatus.YPCALL)
+                {
+                    // continuation is also inside it
+                    ci.CallStatus &= ~CallInfoStatus.YPCALL;
+                    // with the same error function
+                    l.ErrFunc = ci.CsFunction.OldErrFunc;
+                }
+
+                // finish 'lua_callk'/'lua_pcall'; CIST_YPCALL and 'errfunc' 
+                // already handled
+                l.AdjustResults(ci.NResults);
+                // call continuation function
+                var n = ci.CsFunction.K!(l, status, ci.CsFunction.Ctx);
+                l.CheckNElems(n);
+                // finish 'luaD_precall'
+                l.PosCall(ci, l.Top - n, n);
+            }
+
+            public static void UnRoll(LuaState l, object userData)
+            {
+                // error status?
+                if (userData != null)
+                    FinishCSCall(l, (EStatus)userData); // finish 'lua_pcallk' callee
+
+                // something in the stack
+                while (l.CallInfo != l.BaseCI)
+                {
+                    // CS Function?
+                    if (!l.CallInfo.IsLua())
+                    {
+                        // complete its execution
+                        FinishCSCall(l, EStatus.Yield);
+                    }
+                    else // Lua function
+                    {
+                        // finish interrupted instruction
+                        l.FinishOp();
+                        // execute down to higher C 'boundary'
+                        l.Execute();
+                    }
+                }
+            }
+
+            public static void Resume(LuaState l, object userData)
+            {
+                // number of arguments
+                var n = (int)userData;
+                // first argument
+                var firstArg = l.Top - n;
+                CallInfo ci = l.CallInfo;
+
+                // starting a coroutine?
+                if (l.RunningStatus == EStatus.Ok)
+                {
+                    // Lua function?
+                    if (!l.PreCall(firstArg - 1, LuaConst.LUA_MULTRET))
+                        l.Execute(); // call it
+                }
+                else
+                {
+                    // resuming from previous yield
+                    l.Assert(l.RunningStatus == EStatus.Yield);
+
+                    // mark that it is running (again)
+                    l.RunningStatus = EStatus.Ok;
+                    ci.Func = l.RestoreStack(ci.Extra);
+
+                    // yielded inside a hook?
+                    if (ci.IsLua())
+                    {
+                        // just continue running Lua code
+                        l.Execute();
+                    }
+                    else // 'common' yield
+                    {
+                        // does it have a continuation function?
+                        if (ci.CsFunction.K != null)
+                        {
+                            // call continuation
+                            n = ci.CsFunction.K!(l, EStatus.Yield, ci.CsFunction.Ctx);
+                            l.CheckNElems(n);
+                            // yield results come from continuation
+                            firstArg = l.Top - n;
+                        }
+                        // finish 'luaD_precall'
+                        l.PosCall(ci, firstArg, n);
+                    }
+                }
+            }
+
+            public static CallInfo? FindPCall(LuaState l)
+            {
+                CallInfo? ci;
+                for (ci = l.CallInfo; ci != null; ci = ci.Previous)
+                {
+                    if ((ci.CallStatus & CallInfoStatus.YPCALL) == CallInfoStatus.YPCALL)
+                        return ci;
+                }
+
+                return null;
+            }
+
+            public static bool Recover(LuaState l, EStatus status)
+            {
+                CallInfo? ci = FindPCall(l);
+                if (ci == null) return false; // no recovery point
+
+                // "finish" pcall
+                var oldTop = l.RestoreStack(ci.Extra);
+                l.CloseUpvalues(oldTop);
+                SetErrorObj(l, status, oldTop);
+                l.CallInfo = ci;
+                // TODO hook
+                l.NNy = 0; // should be zero to be yieldable
+                // TODO shrink stack
+                l.ErrFunc = ci.CsFunction.OldErrFunc;
+                return true;
+            }
+
+            public static bool IsErrorStatus(EStatus status)
+            {
+                return status > EStatus.Yield;
+            }
         }
 
         private int SaveStack(int idx)
@@ -323,6 +463,7 @@ namespace CsLua.State
 
         private void Throw(EStatus errorCode, string msg = "")
         {
+            // TODO 完善错误跳转
             throw new LuaException(msg, errorCode);
         }
     }

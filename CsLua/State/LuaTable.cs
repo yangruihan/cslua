@@ -40,11 +40,6 @@ namespace CsLua.State
             return _arr?.Count ?? 0;
         }
 
-        public bool IsArray()
-        {
-            return _map == null || _map != null && _map.Count == 0;
-        }
-
         public LuaValue Get(object key)
         {
             return Get(LuaValue.Create(key));
@@ -60,7 +55,7 @@ namespace CsLua.State
                     idx = fi;
 
             if (idx >= 1 && idx <= Len())
-                return _arr[(int) (idx - 1)];
+                return _arr![(int)(idx - 1)];
 
             return _map != null && _map.TryGetValue(key.GetValue()!, out var ret) ? ret : LuaValue.Nil;
         }
@@ -87,7 +82,7 @@ namespace CsLua.State
             if (key is null || key.IsNil())
                 Debug.Panic("table index is nil!");
 
-            if (key.IsFloat() && LuaFloat.IsNaN(key.GetFloatValue()))
+            if (key!.IsFloat() && LuaFloat.IsNaN(key.GetFloatValue()))
                 Debug.Panic("table index is Nan!");
 
             _changed = true;
@@ -104,7 +99,7 @@ namespace CsLua.State
                 var arrLen = Len();
                 if (idx <= arrLen)
                 {
-                    _arr[(int) (idx - 1)] = val;
+                    _arr![(int)(idx - 1)] = val;
                     if (idx == arrLen && val.IsNil())
                         ShrinkArray();
                     return;
@@ -133,11 +128,11 @@ namespace CsLua.State
                 if (_map == null)
                     _map = new Dictionary<object, LuaValue>();
 
-                _map[key.GetValue()] = val;
+                _map[key!.GetValue()!] = val;
             }
             else
             {
-                _map.Remove(key.GetValue());
+                _map!.Remove(key!.GetValue()!);
             }
         }
 
@@ -156,9 +151,9 @@ namespace CsLua.State
 
             var nextKey = LuaValue.Nil;
             if (key.IsNil())
-                nextKey = _keys[KeysHead];
-            else if (_keys.ContainsKey(key.GetValue()))
-                nextKey = _keys[key.GetValue()];
+                nextKey = _keys![KeysHead];
+            else if (_keys!.ContainsKey(key!.GetValue()!))
+                nextKey = _keys[key!.GetValue()!];
 
             if (nextKey.IsNil() && key.GetValue() != null && key.GetValue() != _lastKey)
             {
@@ -166,6 +161,11 @@ namespace CsLua.State
             }
 
             return nextKey;
+        }
+
+        public bool IsArray()
+        {
+            return _map == null || _map != null && _map.Count == 0;
         }
 
         private void ShrinkArray()
@@ -182,13 +182,13 @@ namespace CsLua.State
 
         private void ExpandArray()
         {
-            for (var idx = Len() + 1;; idx++)
+            for (var idx = Len() + 1; ; idx++)
             {
                 if (_map != null && _map.ContainsKey(idx))
                 {
                     var val = _map[idx];
                     _map.Remove(idx);
-                    _arr.Add(val);
+                    _arr!.Add(val);
                 }
                 else
                 {
@@ -209,10 +209,10 @@ namespace CsLua.State
                     var value = _arr[i];
                     if (value.GetValue() != null)
                     {
-                        var newValue = new LuaValue((LuaInt) (i + 1));
+                        var newValue = new LuaValue((LuaInt)(i + 1));
                         ;
                         _keys.Add(key, newValue);
-                        key = newValue.GetValue();
+                        key = newValue!.GetValue()!;
                     }
                 }
             }
@@ -225,7 +225,7 @@ namespace CsLua.State
                     {
                         var value = LuaValue.Create(kv.Key);
                         _keys.Add(key, value);
-                        key = value.GetValue();
+                        key = value!.GetValue()!;
                     }
                 }
             }

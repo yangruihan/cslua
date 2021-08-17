@@ -33,6 +33,11 @@ namespace CsLua.State
             return s;
         }
 
+        public string PushLiteral(string s)
+        {
+            return PushString(s);
+        }
+
         public string PushFString(string fmt, params object[] args)
         {
             var s = string.Format(fmt, args);

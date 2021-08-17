@@ -37,6 +37,8 @@ namespace CsLua.VM
             return instruction._data;
         }
 
+        public int A => (int) (_data >> 6 & 0xff);
+
         public Instruction(UInt32 data)
         {
             this._data = data;

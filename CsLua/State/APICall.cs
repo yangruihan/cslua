@@ -13,7 +13,7 @@ namespace CsLua.State
             if (string.IsNullOrEmpty(mode))
                 mode = "bt";
 
-            ProtoType proto = null;
+            ProtoType? proto = null;
             do
             {
                 if (mode.Contains("b"))
@@ -44,7 +44,7 @@ namespace CsLua.State
             if (proto.Upvalues.Length > 0)
             {
                 var env = Registry.Get(LuaConst.LUA_RIDX_GLOBALS);
-                c.Upvals[0] = new Upvalue { Val = env };
+                c.Upvals![0] = new Upvalue { Val = env };
             }
 
             return EStatus.Ok;
@@ -54,7 +54,7 @@ namespace CsLua.State
         {
             Check(k == null || !CallInfo.IsLua(), "cannot use continuations inside hooks");
             CheckNElems(nArgs + 1);
-            Check(Status == EStatus.Ok, "cannot do calls on non-normal thread");
+            Check(RunningStatus == EStatus.Ok, "cannot do calls on non-normal thread");
             _Do.CheckResults(this, nArgs, nResults);
 
             var func = Top - (nArgs + 1);
@@ -82,9 +82,9 @@ namespace CsLua.State
 
         public EStatus PCallK(int nArgs, int nResults, int errFuncIdx, LuaKContext ctx, LuaKFunction? k)
         {
-            LuaAPI.Check(this, k == null || !CallInfo.IsLua(), "cannot use continuations inside hooks");
-            LuaAPI.CheckNElems(this, nArgs + 1);
-            LuaAPI.Check(this, this.Status == EStatus.Ok, "cannot do calls on non-normal thread");
+            Check(k == null || !CallInfo.IsLua(), "cannot use continuations inside hooks");
+            CheckNElems(nArgs + 1);
+            Check(RunningStatus == EStatus.Ok, "cannot do calls on non-normal thread");
             _Do.CheckResults(this, nArgs, nResults);
 
             Calls c;
@@ -98,14 +98,18 @@ namespace CsLua.State
             }
             else
             {
-                var o = Index2Addr(errFuncIdx);
+                var o = Index2Addr(errFuncIdx)!;
                 CheckStackIndex(errFuncIdx, o);
                 func = SaveStack(errFuncIdx);
             }
 
+            // function to be called
             c.Func = Top - nArgs;
+
+            // no continuation or no yieldable?
             if (k == null || NNy > 0)
             {
+                // do a 'conventional' protected call
                 c.NResults = nResults;
                 status = PCall(_Do.FCall, c, SaveStack(c.Func), func);
             }
@@ -114,23 +118,23 @@ namespace CsLua.State
                 var ci = CallInfo;
                 ci.CsFunction.K = k; // save continuation
                 ci.CsFunction.Ctx = ctx; // save context
-            }
+                // save information for error recovery
+                ci.Extra = SaveStack(c.Func);
+                ci.CsFunction.OldErrFunc = ErrFunc;
+                ErrFunc = func;
 
-            // var caller = Stack;
-            // var status = EStatus.ErrRun;
-            //
-            // try
-            // {
-            //     Call(nArgs, nResults);
-            //     status = EStatus.Ok;
-            // }
-            // catch (Exception e)
-            // {
-            //     while (Stack != caller)
-            //         PopLuaStack();
-            //
-            //     Stack.Push(e.Message);
-            // }
+                // TODO hook
+
+                // function can do error recovery
+                ci.CallStatus |= CallInfoStatus.YPCALL;
+                // do the call
+                InnerCall(c.Func, nResults);
+                ci.CallStatus &= ~CallInfoStatus.YPCALL;
+                ErrFunc = ci.CsFunction.OldErrFunc;
+
+                // if it is here, there were no errors
+                status = EStatus.Ok;
+            }
 
             this.AdjustResults(nResults);
             return status;
