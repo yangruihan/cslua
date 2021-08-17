@@ -96,7 +96,7 @@ namespace CsLua.State
             return val;
         }
 
-        public void PushN(LuaValue[] vals, int n)
+        public void PushN(LuaValue[]? vals, int n)
         {
             if (vals == null)
                 return;
@@ -128,15 +128,26 @@ namespace CsLua.State
             }
         }
 
-        public LuaValue? Get(int idx)
+        public void Reverse(int from, int to)
         {
-            if (idx > 0 && idx <= Top)
-                return _slots[idx - 1];
+            var slots = _slots;
+            while (from < to)
+            {
+                (slots[@from], slots[to]) = (slots[to], slots[@from]);
+                from++;
+                to--;
+            }
+        }
+
+        private LuaValue? Get(int idx)
+        {
+            if (idx >= 0 && idx < Top)
+                return _slots[idx];
 
             return null;
         }
 
-        public void Set(int idx, LuaValue? val)
+        private void Set(int idx, LuaValue? val)
         {
             if (idx > 0 && idx <= Top)
             {
@@ -145,19 +156,6 @@ namespace CsLua.State
             }
 
             Debug.Panic("invalid index!");
-        }
-
-        public void Reverse(int from, int to)
-        {
-            var slots = _slots;
-            while (from < to)
-            {
-                var temp = slots[from];
-                slots[from] = slots[to];
-                slots[to] = temp;
-                from++;
-                to--;
-            }
         }
     }
 }

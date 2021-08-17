@@ -104,7 +104,7 @@ namespace CsLua.State
             }
 
             // function to be called
-            c.Func = Top - nArgs;
+            c.Func = Top - (nArgs + 1);
 
             // no continuation or no yieldable?
             if (k == null || NNy > 0)

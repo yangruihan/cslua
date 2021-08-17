@@ -449,13 +449,13 @@ namespace CsLua.State
             }
         }
 
-        private void InnerCall(int funcIdx, int nResults)
+        private void InnerCall(int func, int nResults)
         {
             if (++NCcalls >= LuaConst.MAXCCALLS)
                 _Do.StackError(this);
 
             // is a Lua function?
-            if (!PreCall(funcIdx, nResults))
+            if (!PreCall(func, nResults))
                 Execute(); // call it
 
             NCcalls--;

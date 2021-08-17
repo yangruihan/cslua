@@ -52,8 +52,8 @@ namespace CsLua.State
             CallInfo = BaseCI;
             CallInfo.CallStatus = CallInfoStatus.INIT;
             CallInfo.Func = Top;
-            PushNil(); // 'function' entry for this 'ci'
             CallInfo.Top = Top + LuaConst.LUA_MINSTACK;
+            PushNil(); // 'function' entry for this 'ci'
         }
 
         public LuaValue GetRegistry()
