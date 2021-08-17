@@ -16,7 +16,7 @@ namespace CsLua.State
 
             public static string? GetUpvalName(LuaState l, CallInfo ci, LuaValue o, out string name)
             {
-                LuaClosure c = l.Index2Addr(ci.Func)!.GetLuaClosureValue()!;
+                LuaClosure c = l.GetValueByRelIdx(ci.Func)!.GetLuaClosureValue()!;
                 for (int i = 0; i < c.Upvals!.Length; i++)
                 {
                     if (c.Upvals[i].Val == o)
@@ -50,7 +50,7 @@ namespace CsLua.State
 
             public static int CurrentLine(LuaState l, CallInfo ci)
             {
-                return l.GetFuncLine(l.Index2Addr(ci.Func)!.GetLuaClosureValue()!.Proto, CurrentPc(l, ci));
+                return l.GetFuncLine(l.GetValueByRelIdx(ci.Func)!.GetLuaClosureValue()!.Proto, CurrentPc(l, ci));
             }
 
             public static string VarInfo(LuaState l, int idx)
@@ -60,11 +60,11 @@ namespace CsLua.State
                 string name = "";
                 if (ci.IsLua())
                 {
-                    var o = l.Index2Addr(idx)!;
+                    var o = l.GetValueByRelIdx(idx)!;
                     kind = GetUpvalName(l, ci, o, out name); // check whether 'o' is an upvalue
                     if (kind == null && IsInStack(ci, idx)) // no? try a register
                     {
-                        var luaClosure = l.Index2Addr(ci.Func)!.GetLuaClosureValue()!;
+                        var luaClosure = l.GetValueByRelIdx(ci.Func)!.GetLuaClosureValue()!;
                         kind = GetObjName(l, luaClosure.Proto,
                                           CurrentPc(l, ci),
                                           idx + ci.Func - ci.Func - 1,
@@ -104,7 +104,7 @@ namespace CsLua.State
         {
             if (ErrFunc != 0)
             {
-                var errFunc = Index2Addr(ErrFunc)!;
+                var errFunc = GetValueByRelIdx(ErrFunc)!;
                 // [..., ErrFunc, Msg]
                 Push(errFunc);
                 Insert(-2);
@@ -120,7 +120,7 @@ namespace CsLua.State
             PushString(msg);
             if (CallInfo.IsLua())
             {
-                AddInfo(msg, Index2Addr(CallInfo.Func)!.GetLuaClosureValue()!.Proto.Source, _Debug.CurrentLine(this, CallInfo));
+                AddInfo(msg, GetValueByRelIdx(CallInfo.Func)!.GetLuaClosureValue()!.Proto.Source, _Debug.CurrentLine(this, CallInfo));
             }
             ErrorMsg();
         }
@@ -132,14 +132,14 @@ namespace CsLua.State
 
         private void TypeError(int idx, string op)
         {
-            var o = Index2Addr(idx)!;
+            var o = GetValueByRelIdx(idx)!;
             string t = ObjTypeName(o);
             RunError($"attempt to {op} a {t} value{_Debug.VarInfo(this, idx)}");
         }
 
         private void ConcatError(int p1, int p2)
         {
-            var p1v = Index2Addr(p1)!;
+            var p1v = GetValueByRelIdx(p1)!;
             if (p1v.IsString() || p1v.CanConvertToStr()) p1 = p2;
             TypeError(p1, "concatenate");
         }
@@ -160,7 +160,7 @@ namespace CsLua.State
 
         private void OrderError(int p1, int p2)
         {
-            OrderError(Index2Addr(p1)!, Index2Addr(p2)!);
+            OrderError(GetValueByRelIdx(p1)!, GetValueByRelIdx(p2)!);
         }
 
         private void OrderError(LuaValue p1, LuaValue p2)

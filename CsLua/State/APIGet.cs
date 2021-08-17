@@ -26,21 +26,21 @@ namespace CsLua.State
 
         public ELuaType GetTable(int idx)
         {
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             var k = Stack.Pop()!;
             return InnerGetTable(t, k, false).GetNoVariantsType();
         }
 
         public ELuaType GetField(int idx, string key)
         {
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             return InnerGetTable(t, new LuaValue(key), false)
                 .GetNoVariantsType();
         }
 
         public ELuaType RawGet(int idx)
         {
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             Check(t.IsTable(), "table expected");
             var k = Stack.Pop()!;
             return InnerGetTable(t, k, true).GetNoVariantsType();
@@ -48,21 +48,21 @@ namespace CsLua.State
 
         public ELuaType RawGetI(int idx, LuaInt i)
         {
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             Check(t.IsTable(), "table expected");
             return InnerGetTable(t, new LuaValue(i), true).GetNoVariantsType();
         }
 
         public ELuaType RawGetP(int idx, object p)
         {
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             Check(t.IsTable(), "table expected");
             return InnerGetTable(t, new LuaValue(p, ELuaType.LightUserData), true).GetNoVariantsType();
         }
 
         public ELuaType GetI(int idx, LuaInt i)
         {
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             return InnerGetTable(t, new LuaValue(i), false).GetNoVariantsType();
         }
 
@@ -75,7 +75,7 @@ namespace CsLua.State
 
         public bool GetMetaTable(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             var mt = LuaValue.GetMetaTable(val, this);
             if (mt != null)
             {
@@ -88,7 +88,7 @@ namespace CsLua.State
 
         public ELuaType GetUserValue(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             Check(val.IsFullUserData(), "full userdata expected");
             Push(val);
             return val.Type.GetNoVariantsType();

@@ -11,8 +11,8 @@ namespace CsLua.State
     {
         public bool RawEqual(int idx1, int idx2)
         {
-            var v1 = Index2Addr(idx1)!;
-            var v2 = Index2Addr(idx2)!;
+            var v1 = GetValueByRelIdx(idx1)!;
+            var v2 = GetValueByRelIdx(idx2)!;
 
             return (LuaAPI.IsValid(v1) && LuaAPI.IsValid(v2))
                     ? EqualObj(v1, v2)
@@ -24,8 +24,8 @@ namespace CsLua.State
         /// </summary>
         public bool Compare(int idx1, int idx2, ECompOp op)
         {
-            var a = Index2Addr(idx1)!;
-            var b = Index2Addr(idx2)!;
+            var a = GetValueByRelIdx(idx1)!;
+            var b = GetValueByRelIdx(idx2)!;
 
             if (LuaAPI.IsValid(a) && LuaAPI.IsValid(b))
             {

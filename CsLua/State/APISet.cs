@@ -8,7 +8,7 @@ namespace CsLua.State
         public void SetTable(int idx)
         {
             CheckNElems(2);
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             var v = Pop()!;
             var k = Pop()!;
             InnerSetTable(t, k, v, false);
@@ -16,7 +16,7 @@ namespace CsLua.State
 
         public void SetField(int idx, string k)
         {
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             var v = Pop()!;
             InnerSetTable(t, new LuaValue(k), v, false);
         }
@@ -24,7 +24,7 @@ namespace CsLua.State
         public void RawSet(int idx)
         {
             CheckNElems(2);
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             Check(t.IsTable(), "table expected");
             var v = Pop()!;
             var k = Pop()!;
@@ -34,7 +34,7 @@ namespace CsLua.State
         public void RawSetI(int idx, LuaInt i)
         {
             CheckNElems(1);
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             var v = Pop()!;
             InnerSetTable(t, new LuaValue(i), v, true);
         }
@@ -42,7 +42,7 @@ namespace CsLua.State
         public void RawSetP(int idx, object p)
         {
             CheckNElems(1);
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             Check(t.IsTable(), "table expected");
             var v = Pop()!;
             InnerSetTable(t, new LuaValue(p, ELuaType.LightUserData), v, true);
@@ -51,7 +51,7 @@ namespace CsLua.State
         public void SetI(int idx, LuaInt i)
         {
             CheckNElems(1);
-            var t = Index2Addr(idx)!;
+            var t = GetValueByRelIdx(idx)!;
             var v = Pop()!;
             InnerSetTable(t, new LuaValue(i), v, false);
         }
@@ -72,7 +72,7 @@ namespace CsLua.State
         public bool SetMetaTable(int idx)
         {
             CheckNElems(1);
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             var mtVal = Pop()!;
             if (mtVal is null || mtVal.IsNil())
             {
@@ -92,7 +92,7 @@ namespace CsLua.State
         public void SerUserValue(int idx)
         {
             CheckNElems(1);
-            var o = Index2Addr(idx)!;
+            var o = GetValueByRelIdx(idx)!;
             Check(o.IsFullUserData(), "full userdata expected");
             var v = Pop();
             (o.GetObjValue() as UserData)!.User = v;

@@ -50,7 +50,7 @@ namespace CsLua.State
                         break;
                 }
 
-                l.SetTop(oldTop);
+                l.SetTopByAbsIdx(oldTop);
             }
 
             public static void CheckResults(LuaState l, int na, int nr)
@@ -61,7 +61,7 @@ namespace CsLua.State
 
             public static void TryFuncTM(LuaState l, int func)
             {
-                var tm = l.GetTMByObj(l.Index2Addr(func)!, ETagMethods.CALL);
+                var tm = l.GetTMByObj(l.GetValueByRelIdx(func)!, ETagMethods.CALL);
                 if (tm == null || !tm.IsFunction())
                     l.TypeError(func, "call");
 
@@ -95,7 +95,7 @@ namespace CsLua.State
                             {
                                 l.SetValue(res + i, firstResult + i);
                             }
-                            l.SetTop(res + nRes);
+                            l.SetTopByAbsIdx(res + nRes);
                             return false;
                         }
 
@@ -122,7 +122,7 @@ namespace CsLua.State
                         }
                 }
 
-                l.SetTop(res + wanted); // top points after the last result
+                l.SetTopByAbsIdx(res + wanted); // top points after the last result
                 return true;
             }
 
@@ -143,7 +143,7 @@ namespace CsLua.State
                 int i;
                 for (i = 0; i < nFixArgs && i < actual; i++)
                 {
-                    l.Push(l.Index2Addr(@fixed + i)!);
+                    l.Push(l.GetValueByRelIdx(@fixed + i)!);
                     l.SetValue(@fixed + i, LuaValue.Nil);
                 }
 
@@ -156,7 +156,7 @@ namespace CsLua.State
 
             public static EStatus ResumeError(LuaState l, string msg, int nArg)
             {
-                l.SetTop(l.Top - nArg);
+                l.SetTopByAbsIdx(l.Top - nArg);
                 l.PushString(msg);
                 return EStatus.ErrRun;
             }
@@ -367,7 +367,7 @@ namespace CsLua.State
             LuaCSFunction? f = null;
             CallInfo? ci = null;
 
-            var funcVal = Index2Addr(func)!;
+            var funcVal = GetValueByRelIdx(func)!;
 
             switch (funcVal.Type)
             {
@@ -404,7 +404,7 @@ namespace CsLua.State
                     {
                         int @base;
 
-                        var p = Index2Addr(func)!.GetLuaClosureValue()!.Proto;
+                        var p = GetValueByRelIdx(func)!.GetLuaClosureValue()!.Proto;
                         int n = Top - func - 1; // number of real arguments
                         int fsize = p.MaxStackSize; // frame size
                         CheckStack(fsize);
@@ -425,11 +425,12 @@ namespace CsLua.State
                                 PushNil();
                             @base = func + 1;
                         }
+                        var closure = GetValueByRelIdx(func)!.GetLuaClosureValue();
                         ci = _Do.NextCI(this);
                         ci.NResults = nResults;
                         ci.Func = func;
                         Top = ci.Top = @base + fsize;
-                        ci.LuaClosure.Closure = Index2Addr(func)!.GetLuaClosureValue()!;
+                        ci.LuaClosure.Closure = closure;
                         ci.LuaClosure.SavedPc = 0;
                         ci.CallStatus = CallInfoStatus.LUA;
                         // TODO hook

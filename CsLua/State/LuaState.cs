@@ -83,12 +83,31 @@ namespace CsLua.State
             return Stack.Pop();
         }
 
-        private LuaValue? Index2Addr(int idx)
+        private void SetTopByAbsIdx(int absIdx)
         {
-            return Index2Addr(idx, out _);
+            if (Top < absIdx)
+            {
+                while (Top < absIdx)
+                    PushNil();
+            }
+            else
+            {
+                while (Top > absIdx)
+                    Pop();
+            }
         }
 
-        private LuaValue? Index2Addr(int idx, out int absIdx)
+        private LuaValue? GetValueByAbsIdx(int absIdx)
+        {
+            return Stack[absIdx];
+        }
+
+        private LuaValue? GetValueByRelIdx(int idx)
+        {
+            return GetValueByRelIdx(idx, out _);
+        }
+
+        private LuaValue? GetValueByRelIdx(int idx, out int absIdx)
         {
             if (idx > 0)
             {

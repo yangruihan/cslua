@@ -98,7 +98,7 @@ namespace CsLua.State
             if (!hasRes) // no result? 'p3' is third argument
             {
                 // 3rd argument
-                var p3v = Index2Addr(p3)!;
+                var p3v = GetValueByRelIdx(p3)!;
                 Stack.Push(p3v);
             }
 
@@ -117,9 +117,9 @@ namespace CsLua.State
 
         private void CallTM(int f, int p1, int p2, int p3, bool hasRes)
         {
-            var funcV = Index2Addr(f)!;
-            var p1v = Index2Addr(p1)!;
-            var p2v = Index2Addr(p2)!;
+            var funcV = GetValueByRelIdx(f)!;
+            var p1v = GetValueByRelIdx(p1)!;
+            var p2v = GetValueByRelIdx(p2)!;
 
             CallTM(funcV, p1v, p2v, p3, hasRes);
         }
@@ -137,7 +137,7 @@ namespace CsLua.State
 
         private bool CallBinTM(int p1, int p2, int res, ETagMethods @event)
         {
-            return CallBinTM(Index2Addr(p1)!, Index2Addr(p2)!, res, @event);
+            return CallBinTM(GetValueByRelIdx(p1)!, GetValueByRelIdx(p2)!, res, @event);
         }
 
         private void TryBinTM(int p1, int p2, int res, ETagMethods @event)
@@ -181,7 +181,7 @@ namespace CsLua.State
             if (!CallBinTM(p1, p2, Top, @event))
                 return -1;
             else
-                return Index2Addr(Top)!.ToBoolean() ? 1 : 0;
+                return GetValueByRelIdx(Top)!.ToBoolean() ? 1 : 0;
         }
     }
 }

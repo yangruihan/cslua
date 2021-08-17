@@ -49,7 +49,7 @@ namespace CsLua.State
         /// </summary>
         public void PushValue(int idx)
         {
-            Push(Index2Addr(idx));
+            Push(GetValueByRelIdx(idx));
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace CsLua.State
         public void Rotate(int idx, int n)
         {
             var t = Top - 1; // end of stack segment being rotated
-            var val = Index2Addr(idx, out var p)!; // start of segment
+            var val = GetValueByRelIdx(idx, out var p)!; // start of segment
             CheckStackIndex(idx, val);
             Check((n >= 0 ? n : -n) <= (t - p + 1), "invalid 'n'");
             var m = n >= 0 ? t - n : p - n - 1; // end of prefix
@@ -72,8 +72,8 @@ namespace CsLua.State
         /// </summary>
         public void Copy(int fromIdx, int toIdx)
         {
-            var frVal = Index2Addr(fromIdx, out var fr)!;
-            var toVal = Index2Addr(toIdx, out var to)!;
+            var frVal = GetValueByRelIdx(fromIdx, out var fr)!;
+            var toVal = GetValueByRelIdx(toIdx, out var to)!;
             CheckValidIndex(toVal);
             Stack[to] = frVal;
 

@@ -6,14 +6,14 @@ namespace CsLua.State
     {
         private void SetValue(int idx, int idx2)
         {
-            Index2Addr(idx, out var absIdx);
-            Index2Addr(idx2, out var absIdx2);
+            GetValueByRelIdx(idx, out var absIdx);
+            GetValueByRelIdx(idx2, out var absIdx2);
             Stack[absIdx] = Stack[absIdx2];
         }
 
         private void SetValue(int idx, LuaValue? v)
         {
-            Index2Addr(idx, out var absIdx);
+            GetValueByRelIdx(idx, out var absIdx);
             Stack[absIdx] = v;
         }
 

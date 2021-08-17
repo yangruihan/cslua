@@ -63,10 +63,8 @@ namespace CsLua.State
 
             public static LuaClosure? GetCurrentCIClosure(LuaState ls)
             {
-                return ls.Index2Addr(ls.CallInfo.Func)!.GetLuaClosureValue();
+                return ls.GetValueByAbsIdx(ls.CallInfo.Func)!.GetLuaClosureValue();
             }
-
-
         }
 
         private bool InnerToNumber(int idx, out LuaFloat num)
@@ -170,13 +168,13 @@ namespace CsLua.State
                 return false;
 
             CallTM(tm, a, b, Top, true);
-            return Index2Addr(Top)!.ToBoolean();
+            return GetValueByRelIdx(Top)!.ToBoolean();
         }
 
         private bool EqualObj(int indexA, int indexB)
         {
-            var a = Index2Addr(indexA)!;
-            var b = Index2Addr(indexB)!;
+            var a = GetValueByRelIdx(indexA)!;
+            var b = GetValueByRelIdx(indexB)!;
             return EqualObj(a, b);
         }
 
@@ -292,7 +290,7 @@ namespace CsLua.State
                         // move final result to final position
                         Copy(-1, a);
                         // restore top
-                        SetTop(ci.Top);
+                        SetTopByAbsIdx(ci.Top);
                         break;
                     }
 
@@ -300,7 +298,7 @@ namespace CsLua.State
                     {
                         Instruction opCode = ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc];
                         Assert(opCode.Opcode() == EOpCode.OP_TFORLOOP);
-                        SetTop(ci.Top); // correct top
+                        SetTopByAbsIdx(ci.Top); // correct top
                         break;
                     }
 
@@ -308,7 +306,7 @@ namespace CsLua.State
                     {
                         ins.ABC(out _, out _, out var c);
                         if (c - 1 >= 0) // nresults >= 0?
-                            SetTop(ci.Top); // adjust results
+                            SetTopByAbsIdx(ci.Top); // adjust results
                         break;
                     }
 

@@ -10,7 +10,7 @@ namespace CsLua.State
     {
         public uint RawLen(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             if (val.IsString())
                 return (uint)val.GetStrValue()!.Length;
 
@@ -64,7 +64,7 @@ namespace CsLua.State
         /// </summary>
         public ELuaType Type(int idx)
         {
-            var v = Index2Addr(idx);
+            var v = GetValueByRelIdx(idx);
             if (LuaAPI.IsValid(v))
                 return v!.Type.GetNoVariantsType();
 
@@ -125,25 +125,25 @@ namespace CsLua.State
 
         public bool IsInteger(int idx)
         {
-            var v = Index2Addr(idx);
+            var v = GetValueByRelIdx(idx);
             return v!.IsInt();
         }
 
         public bool IsCSFunction(int idx)
         {
-            var val = Index2Addr(idx);
+            var val = GetValueByRelIdx(idx);
             return val!.IsLCSFunction() || val!.IsCSClosure();
         }
 
         public bool IsUserdata(int idx)
         {
-            var v = Index2Addr(idx);
+            var v = GetValueByRelIdx(idx);
             return Type(idx).IsUserdata();
         }
 
         public bool ToBoolean(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             return val.ToBoolean();
         }
 
@@ -154,7 +154,7 @@ namespace CsLua.State
 
         public LuaInt ToIntegerX(int idx, out bool isInt)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             isInt = val.IsInt();
             return isInt ? val.GetIntValue() : (LuaInt)0;
         }
@@ -167,7 +167,7 @@ namespace CsLua.State
 
         public LuaFloat ToNumberX(int idx, out bool isNum)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             if (val.IsFloat())
             {
                 isNum = true;
@@ -191,7 +191,7 @@ namespace CsLua.State
 
         public LuaCSFunction? ToCSFunction(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             if (val.IsLCSFunction())
                 return val.GetLCSFunctionValue();
             else if (val.IsCSClosure())
@@ -201,7 +201,7 @@ namespace CsLua.State
 
         public object? ToUserdata(int idx)
         {
-            var v = Index2Addr(idx)!;
+            var v = GetValueByRelIdx(idx)!;
             switch (v.Type.GetNoVariantsType())
             {
                 case ELuaType.UserData:
@@ -217,7 +217,7 @@ namespace CsLua.State
 
         public ILuaState? ToThread(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             return val.IsThread() ? val.GetObjValue() as ILuaState : null;
         }
 
@@ -229,7 +229,7 @@ namespace CsLua.State
 
         private string? ToStringX(int idx, out bool isStr)
         {
-            var val = Index2Addr(idx, out var absIdx)!;
+            var val = GetValueByRelIdx(idx, out var absIdx)!;
             if (val.IsString())
             {
                 isStr = true;

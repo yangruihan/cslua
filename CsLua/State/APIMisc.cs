@@ -14,7 +14,7 @@ namespace CsLua.State
         /// <param name="idx"></param>
         public void Len(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             if (val.IsString())
             {
                 Stack.Push((LuaInt)val.GetStrValue()!.Length);
@@ -74,7 +74,7 @@ namespace CsLua.State
 
         public bool Next(int idx)
         {
-            var val = Index2Addr(idx)!;
+            var val = GetValueByRelIdx(idx)!;
             Check(val.IsTable(), "table expected");
 
             var lt = val.GetTableValue()!;

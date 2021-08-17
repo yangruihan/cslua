@@ -82,23 +82,7 @@ namespace CsLua.VM
             ins.ABC(out var a, out var b, out _);
             a += 1;
 
-            var top = vm.GetTop();
-
-            if (b == 1)
-            {
-            }
-            else if (b > 1)
-            {
-                vm.CheckStack(b - 1);
-                for (var i = a; i <= a + b - 2; i++)
-                    vm.PushValue(i);
-            }
-            else
-            {
-                FixStack(a, vm);
-            }
-
-            vm.FinishCall(a, b);
+            vm.FinishCall(a, b - 1);
         }
 
         /// <summary>
