@@ -81,7 +81,7 @@ namespace CsLua
                 if (firstLine && line[0] == '=') // compatibility with 5.2
                 {
                     l.PushString(
-                        $"return {line.Substring(1)}"); // change '=' to 'return'
+                        $"return {line[1..]}"); // change '=' to 'return'
                 }
                 else
                 {

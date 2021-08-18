@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using CsLua.API;
+﻿using CsLua.API;
 using CsLua.Binchunk;
-using CsLua.Misc;
-using CsLua.VM;
 
 namespace CsLua.State
 {
@@ -79,49 +75,49 @@ namespace CsLua.State
                 {
                     case 0: break; // nothing to move
                     case 1:
-                    {
-                        if (nRes == 0)
-                            l.SetValueAbsIdx(firstResultAbsIdx, null);
+                        {
+                            if (nRes == 0)
+                                l.SetValueAbsIdx(firstResultAbsIdx, null);
 
-                        // move it to proper place
-                        l.SetValueAbsIdx(resAbsIdx, firstResultAbsIdx);
-                        break;
-                    }
+                            // move it to proper place
+                            l.SetValueAbsIdx(resAbsIdx, firstResultAbsIdx);
+                            break;
+                        }
 
                     case LuaConst.LUA_MULTRET:
-                    {
-                        // move all results to correct place
-                        for (int i = 0; i < nRes; i++)
                         {
-                            l.SetValueAbsIdx(resAbsIdx + i, firstResultAbsIdx + i);
-                        }
+                            // move all results to correct place
+                            for (int i = 0; i < nRes; i++)
+                            {
+                                l.SetValueAbsIdx(resAbsIdx + i, firstResultAbsIdx + i);
+                            }
 
-                        l.SetTopByAbsIdx(resAbsIdx + nRes);
-                        return false;
-                    }
+                            l.SetTopByAbsIdx(resAbsIdx + nRes);
+                            return false;
+                        }
 
                     default:
-                    {
-                        if (wanted <= nRes) // enough results?
                         {
-                            //  move wanted results to correct place
-                            for (int i = 0; i < wanted; i++)
-                                l.SetValueAbsIdx(resAbsIdx + i, firstResultAbsIdx + i);
-                        }
-                        else // not enough results; use all of them plus nils
-                        {
-                            int i;
-                            // move all results to correct place
-                            for (i = 0; i < nRes; i++)
-                                l.SetValueAbsIdx(resAbsIdx + i, firstResultAbsIdx + i);
+                            if (wanted <= nRes) // enough results?
+                            {
+                                //  move wanted results to correct place
+                                for (int i = 0; i < wanted; i++)
+                                    l.SetValueAbsIdx(resAbsIdx + i, firstResultAbsIdx + i);
+                            }
+                            else // not enough results; use all of them plus nils
+                            {
+                                int i;
+                                // move all results to correct place
+                                for (i = 0; i < nRes; i++)
+                                    l.SetValueAbsIdx(resAbsIdx + i, firstResultAbsIdx + i);
 
-                            // complete wanted number of results
-                            for (; i < wanted; i++)
-                                l.SetValueAbsIdx(resAbsIdx + i, LuaValue.Nil);
-                        }
+                                // complete wanted number of results
+                                for (; i < wanted; i++)
+                                    l.SetValueAbsIdx(resAbsIdx + i, LuaValue.Nil);
+                            }
 
-                        break;
-                    }
+                            break;
+                        }
                 }
 
                 l.SetTopByAbsIdx(resAbsIdx + wanted); // top points after the last result
@@ -376,79 +372,79 @@ namespace CsLua.State
             {
                 case ELuaType.CSClosure: // CS Closure
                 case ELuaType.LCSFunction: // light cs function
-                {
-                    f = funcVal.Type == ELuaType.CSClosure
-                        ? funcVal.GetCSClosureFunctionValue()!
-                        : funcVal.GetLCSFunctionValue()!;
+                    {
+                        f = funcVal.Type == ELuaType.CSClosure
+                            ? funcVal.GetCSClosureFunctionValue()!
+                            : funcVal.GetLCSFunctionValue()!;
 
-                    // number of returns
-                    int n;
-                    // ensure minimum stack size
-                    CheckStack(LuaConst.LUA_MINSTACK);
+                        // number of returns
+                        int n;
+                        // ensure minimum stack size
+                        CheckStack(LuaConst.LUA_MINSTACK);
 
-                    ci = _Do.NextCI(this);
-                    ci.NResults = nResults;
-                    ci.Func = func;
-                    ci.Top = Top + LuaConst.LUA_MINSTACK;
-                    ci.CallStatus = CallInfoStatus.INIT;
+                        ci = _Do.NextCI(this);
+                        ci.NResults = nResults;
+                        ci.Func = func;
+                        ci.Top = Top + LuaConst.LUA_MINSTACK;
+                        ci.CallStatus = CallInfoStatus.INIT;
 
-                    // TODO hook
+                        // TODO hook
 
-                    // do the actual call
-                    n = f(this);
+                        // do the actual call
+                        n = f(this);
 
-                    CheckNElems(n);
+                        CheckNElems(n);
 
-                    PosCall(ci, Top - n, n);
-                    return true;
-                }
+                        PosCall(ci, Top - n, n);
+                        return true;
+                    }
 
                 case ELuaType.LuaClosure: // lua function
-                {
-                    int @base;
-
-                    var p = funcVal.GetLuaClosureValue()!.Proto;
-                    int n = Top - func - 1; // number of real arguments
-                    int fSize = p.MaxStackSize; // frame size
-                    CheckStack(fSize);
-                    if (p.IsVararg == 1)
                     {
-                        @base = _Do.AdjustVarargs(this, p, n);
-                        int cnt = n - p.NumParams;
-                        if (cnt > 0)
+                        int @base;
+
+                        var p = funcVal.GetLuaClosureValue()!.Proto;
+                        int n = Top - func - 1; // number of real arguments
+                        int fSize = p.MaxStackSize; // frame size
+                        CheckStack(fSize);
+
+                        ci = _Do.NextCI(this);
+                        ci.NResults = nResults;
+                        ci.Func = func;
+                        if (p.IsVararg == 1)
                         {
-                            Stack.PopN(cnt, out var vars);
-                            CallInfo.LuaClosure.Varargs = vars!;
+                            @base = _Do.AdjustVarargs(this, p, n);
+                            int cnt = n - p.NumParams;
+                            if (cnt > 0)
+                            {
+                                Stack.PopN(cnt, out var vars);
+                                CallInfo.LuaClosure.Varargs = vars!;
+                            }
                         }
+                        else // non vararg function
+                        {
+                            for (; n < p.NumParams; n++)
+                                PushNil();
+                            @base = func + 1;
+                        }
+                        Top = ci.Top = @base + fSize;
+                        ci.LuaClosure.Closure = GetValueByAbsIdx(func)!.GetLuaClosureValue()!;
+                        ci.LuaClosure.SavedPc = 0;
+                        ci.CallStatus = CallInfoStatus.LUA;
+                        // TODO hook
+                        return false;
                     }
-                    else // non vararg function
-                    {
-                        for (; n < p.NumParams; n++)
-                            PushNil();
-                        @base = func + 1;
-                    }
-
-                    ci = _Do.NextCI(this);
-                    ci.NResults = nResults;
-                    ci.Func = func;
-                    Top = ci.Top = @base + fSize;
-                    ci.LuaClosure.Closure = GetValueByAbsIdx(func)!.GetLuaClosureValue()!;
-                    ci.LuaClosure.SavedPc = 0;
-                    ci.CallStatus = CallInfoStatus.LUA;
-                    // TODO hook
-                    return false;
-                }
                 default: // not a function
-                {
-                    // ensure space for metamethod
-                    CheckStack(1);
+                    {
+                        // ensure space for metamethod
+                        CheckStack(1);
 
-                    // try to get '__call' metamethod
-                    _Do.TryFuncTM(this, func);
+                        // try to get '__call' metamethod
+                        _Do.TryFuncTM(this, func);
 
-                    // now it must be a function
-                    return PreCall(func, nResults);
-                }
+                        // now it must be a function
+                        return PreCall(func, nResults);
+                    }
             }
         }
 

@@ -13,12 +13,14 @@ namespace CsLua.State
 
         public void CreateTable(int nArr, int nRec)
         {
+            CheckStack(1);
             var t = new LuaTable(nArr, nRec);
             Push(new LuaValue(t, ELuaType.Table));
         }
 
         public IntPtr NewUserData(int size)
         {
+            CheckStack(1);
             var v = LuaValue.CreateUserData(size);
             Push(v);
             return v.GetUserDataValue()!.Memory;

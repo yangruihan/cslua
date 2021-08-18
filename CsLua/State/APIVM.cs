@@ -24,12 +24,14 @@ namespace CsLua.State
 
         public void GetConst(int idx)
         {
+            CheckStack(1);
             var c = _VM.GetCurrentCIClosure(this)!.Proto.Constatns[idx];
             Push(LuaValue.Create(c));
         }
 
         public void GetRK(int rk)
         {
+            CheckStack(1);
             if (rk > 0xff)
                 GetConst(rk & 0xff);
             else
@@ -52,9 +54,10 @@ namespace CsLua.State
 
         public void LoadProto(int idx)
         {
+            CheckStack(1);
             var proto = CallInfo.LuaClosure.Closure.Proto.Protos[idx];
             var closure = new LuaClosure(proto);
-            Stack.Push(closure);
+            Push(LuaValue.Create(closure));
 
             for (var i = 0; i < proto.Upvalues.Length; i++)
             {
@@ -66,17 +69,17 @@ namespace CsLua.State
 
                     if (CallInfo.LuaClosure.Openuvs.ContainsKey(uvInfo.Idx))
                     {
-                        closure.Upvals[i] = CallInfo.LuaClosure.Openuvs[uvInfo.Idx];
+                        closure.Upvals![i] = CallInfo.LuaClosure.Openuvs[uvInfo.Idx];
                     }
                     else
                     {
-                        closure.Upvals[i] = new Upvalue { Val = Stack.Slots[uvInfo.Idx] };
+                        closure.Upvals![i] = new Upvalue { Val = Stack.Slots[uvInfo.Idx] };
                         CallInfo.LuaClosure.Openuvs[uvInfo.Idx] = closure.Upvals[i];
                     }
                 }
                 else
                 {
-                    closure.Upvals[i] = CallInfo.LuaClosure.Closure.Upvals[uvInfo.Idx];
+                    closure.Upvals![i] = CallInfo.LuaClosure.Closure.Upvals![uvInfo.Idx];
                 }
             }
         }
