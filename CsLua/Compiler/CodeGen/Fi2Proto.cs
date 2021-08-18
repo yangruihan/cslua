@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CsLua.Binchunk;
+using CsLua.VM;
 
 namespace CsLua.Compiler.CodeGen
 {
@@ -9,9 +10,9 @@ namespace CsLua.Compiler.CodeGen
         {
             var proto = new ProtoType
             {
-                NumParams = (byte) fi.NumParams,
-                MaxStackSize = (byte) fi.MaxRegs,
-                Code = fi.Insts.ToArray(),
+                NumParams = (byte)fi.NumParams,
+                MaxStackSize = (byte)fi.MaxRegs,
+                Code = Instruction.FromIntArr(fi.Insts.ToArray()),
                 Constatns = GetConstants(fi),
                 Upvalues = GetUpvalues(fi),
                 Protos = ToProtos(fi.SubFuncs),
@@ -62,7 +63,7 @@ namespace CsLua.Compiler.CodeGen
                     upvals[kv.Value.Index] = new Upvalue
                     {
                         Instack = 1,
-                        Idx = (byte) kv.Value.LocVarSlot
+                        Idx = (byte)kv.Value.LocVarSlot
                     };
                 }
                 else
@@ -70,7 +71,7 @@ namespace CsLua.Compiler.CodeGen
                     upvals[kv.Value.Index] = new Upvalue
                     {
                         Instack = 0,
-                        Idx = (byte) kv.Value.UpvalIndex
+                        Idx = (byte)kv.Value.UpvalIndex
                     };
                 }
             }

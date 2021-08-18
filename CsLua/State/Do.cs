@@ -367,7 +367,7 @@ namespace CsLua.State
             LuaCSFunction? f = null;
             CallInfo? ci = null;
 
-            var funcVal = GetValueByRelIdx(func)!;
+            var funcVal = GetValueByAbsIdx(func)!;
 
             switch (funcVal.Type)
             {
@@ -404,14 +404,13 @@ namespace CsLua.State
                     {
                         int @base;
 
-                        var p = GetValueByRelIdx(func)!.GetLuaClosureValue()!.Proto;
+                        var p = funcVal.GetLuaClosureValue()!.Proto;
                         int n = Top - func - 1; // number of real arguments
-                        int fsize = p.MaxStackSize; // frame size
-                        CheckStack(fsize);
+                        int fSize = p.MaxStackSize; // frame size
+                        CheckStack(fSize);
                         if (p.IsVararg == 1)
                         {
                             @base = _Do.AdjustVarargs(this, p, n);
-                            var varargs = new List<LuaValue>();
                             int cnt = n - p.NumParams;
                             if (cnt > 0)
                             {
@@ -425,12 +424,11 @@ namespace CsLua.State
                                 PushNil();
                             @base = func + 1;
                         }
-                        var closure = GetValueByRelIdx(func)!.GetLuaClosureValue();
                         ci = _Do.NextCI(this);
                         ci.NResults = nResults;
                         ci.Func = func;
-                        Top = ci.Top = @base + fsize;
-                        ci.LuaClosure.Closure = closure;
+                        Top = ci.Top = @base + fSize;
+                        ci.LuaClosure.Closure = GetValueByAbsIdx(func)!.GetLuaClosureValue()!;
                         ci.LuaClosure.SavedPc = 0;
                         ci.CallStatus = CallInfoStatus.LUA;
                         // TODO hook

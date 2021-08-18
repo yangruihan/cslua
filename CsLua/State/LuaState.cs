@@ -18,11 +18,13 @@ namespace CsLua.State
         public EStatus RunningStatus;
 
         public LuaStack Stack { get; private set; }
+
         public int Top
         {
             get => Stack.Top;
-            set => Stack.Top = value;
+            set => SetTopByAbsIdx(value);
         }
+
         public int StackLast => Stack.Slots.Capacity;
 
         public GlobalState GlobalState { get; private set; }

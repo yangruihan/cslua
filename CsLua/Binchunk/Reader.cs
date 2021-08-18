@@ -1,6 +1,7 @@
 using System;
 using CsLua.API;
 using CsLua.Misc;
+using CsLua.VM;
 
 namespace CsLua.Binchunk
 {
@@ -141,9 +142,9 @@ namespace CsLua.Binchunk
         /// <summary>
         /// 读取指令表
         /// </summary>
-        private UInt32[] ReadCode()
+        private Instruction[] ReadCode()
         {
-            var code = new UInt32[ReadUint32()];
+            var code = new Instruction[ReadUint32()];
             for (var i = 0; i < code.Length; i++)
                 code[i] = ReadUint32();
             return code;

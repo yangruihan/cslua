@@ -98,7 +98,7 @@ namespace CsLua.State
             }
             else
             {
-                var o = GetValueByRelIdx(errFuncIdx)!;
+                var o = GetValueByAbsIdx(errFuncIdx)!;
                 CheckStackIndex(errFuncIdx, o);
                 func = SaveStack(errFuncIdx);
             }

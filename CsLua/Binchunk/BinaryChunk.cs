@@ -1,6 +1,7 @@
 using System;
 using CsLua.API;
 using CsLua.Misc;
+using CsLua.VM;
 
 namespace CsLua.Binchunk
 {
@@ -73,7 +74,7 @@ namespace CsLua.Binchunk
         public byte NumParams; // 固定参数个数
         public byte IsVararg; // 是否为变长函数
         public byte MaxStackSize; // 最大寄存器数量
-        public UInt32[] Code; // 指令表
+        public Instruction[] Code; // 指令表
         public object[] Constatns; // 常量表
         public Upvalue[] Upvalues; // upvalue 表
         public ProtoType[] Protos; // 子函数原型表
@@ -93,7 +94,7 @@ namespace CsLua.Binchunk
             return sign.ToStr() == LuaConst.LUA_SIGNATURE;
         }
 
-        public static ProtoType Undump(byte[] data)
+        public static ProtoType? Undump(byte[] data)
         {
             var reader = new Reader(data);
             if (reader.CheckHeader())
