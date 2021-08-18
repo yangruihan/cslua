@@ -25,7 +25,7 @@ namespace CsLua.State
         public void GetConst(int idx)
         {
             var c = _VM.GetCurrentCIClosure(this)!.Proto.Constatns[idx];
-            Stack.Push(c);
+            Push(LuaValue.Create(c));
         }
 
         public void GetRK(int rk)
@@ -83,7 +83,8 @@ namespace CsLua.State
 
         public void FinishCall(int first, int n)
         {
-            PosCall(CallInfo, first, n);
+            GetValueByRelIdx(first, out var absIdx);
+            PosCall(CallInfo, absIdx, n);
         }
 
         public void CloseUpvalues(int a)

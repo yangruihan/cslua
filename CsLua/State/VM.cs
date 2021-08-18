@@ -1,3 +1,4 @@
+using System;
 using CsLua.API;
 using CsLua.VM;
 
@@ -84,7 +85,8 @@ namespace CsLua.State
             if (a.Type != b.Type) // not the same variant?
             {
                 // only numbers can be equal with different variants
-                if (a.Type.GetNoVariantsType() != b.Type.GetNoVariantsType() || a.Type.GetNoVariantsType() != ELuaType.Number)
+                if (a.Type.GetNoVariantsType() != b.Type.GetNoVariantsType() ||
+                    a.Type.GetNoVariantsType() != ELuaType.Number)
                     return false;
                 else
                 {
@@ -118,46 +120,46 @@ namespace CsLua.State
                     return a.GetStrValue() == b.GetStrValue();
 
                 case ELuaType.UserData:
+                {
+                    var u1 = a.GetUserDataValue()!;
+                    var u2 = b.GetUserDataValue()!;
+                    if (u1 == u2)
+                        return true;
+
+                    // will try tm
+                    if (u1.MetaTable != null)
                     {
-                        var u1 = a.GetUserDataValue()!;
-                        var u2 = b.GetUserDataValue()!;
-                        if (u1 == u2)
-                            return true;
-
-                        // will try tm
-                        if (u1.MetaTable != null)
-                        {
-                            tm = u1.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
-                        }
-
-                        if (tm == null && u2.MetaTable != null)
-                        {
-                            tm = u2.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
-                        }
-
-                        break;
+                        tm = u1.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
                     }
+
+                    if (tm == null && u2.MetaTable != null)
+                    {
+                        tm = u2.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
+                    }
+
+                    break;
+                }
 
                 case ELuaType.Table:
+                {
+                    var u1 = a.GetTableValue()!;
+                    var u2 = a.GetTableValue()!;
+                    if (u1 == u2)
+                        return true;
+
+                    // will try tm
+                    if (u1.MetaTable != null)
                     {
-                        var u1 = a.GetTableValue()!;
-                        var u2 = a.GetTableValue()!;
-                        if (u1 == u2)
-                            return true;
-
-                        // will try tm
-                        if (u1.MetaTable != null)
-                        {
-                            tm = u1.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
-                        }
-
-                        if (tm == null && u2.MetaTable != null)
-                        {
-                            tm = u2.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
-                        }
-
-                        break;
+                        tm = u1.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
                     }
+
+                    if (tm == null && u2.MetaTable != null)
+                    {
+                        tm = u2.MetaTable.Get(TagMethods.Get(ETagMethods.EQ));
+                    }
+
+                    break;
+                }
 
                 default:
                     return a.GetObjValue() == b.GetObjValue();
@@ -168,14 +170,7 @@ namespace CsLua.State
                 return false;
 
             CallTM(tm, a, b, Top, true);
-            return GetValueByRelIdx(Top)!.ToBoolean();
-        }
-
-        private bool EqualObj(int indexA, int indexB)
-        {
-            var a = GetValueByRelIdx(indexA)!;
-            var b = GetValueByRelIdx(indexB)!;
-            return EqualObj(a, b);
+            return GetValueByAbsIdx(Top)!.ToBoolean();
         }
 
         private bool LessThan(LuaValue l, LuaValue r)
@@ -185,7 +180,7 @@ namespace CsLua.State
             if (l.IsNumber() && r.IsNumber())
                 return _VM.LTNum(l, r);
             else if (l.IsString() && r.IsString()) // both are strings
-                return string.Compare(l.GetStrValue(), r.GetStrValue()) < 0;
+                return string.Compare(l.GetStrValue(), r.GetStrValue(), StringComparison.Ordinal) < 0;
             else if ((ret = CallOrderTM(l, r, ETagMethods.LT)) < 0)
                 OrderError(l, r);
             return ret == 1 ? true : false;
@@ -198,7 +193,7 @@ namespace CsLua.State
             if (l.IsNumber() && r.IsNumber())
                 return _VM.LENum(l, r);
             else if (l.IsString() && r.IsString()) // both are strings
-                return string.Compare(l.GetStrValue(), r.GetStrValue()) <= 0;
+                return string.Compare(l.GetStrValue(), r.GetStrValue(), StringComparison.Ordinal) <= 0;
             else if ((ret = CallOrderTM(l, r, ETagMethods.LE)) >= 0) // try 'le'
                 return ret == 1 ? true : false;
             else // try 'lt':
@@ -208,7 +203,7 @@ namespace CsLua.State
                 CallInfo.CallStatus ^= CallInfoStatus.LEQ; // clear mark
                 if (ret < 0)
                     OrderError(l, r);
-                return !(ret == 0 ? false : true); // result is negated
+                return ret == 0x0; // result is negated
             }
         }
 
@@ -238,96 +233,96 @@ namespace CsLua.State
                 case EOpCode.OP_GETTABUP:
                 case EOpCode.OP_GETTABLE:
                 case EOpCode.OP_SELF:
-                    {
-                        ins.ABC(out var a, out _, out _);
-                        a += 1;
-                        Replace(a);
-                        break;
-                    }
+                {
+                    ins.ABC(out var a, out _, out _);
+                    a += 1;
+                    Replace(a);
+                    break;
+                }
 
                 case EOpCode.OP_LE:
                 case EOpCode.OP_LT:
                 case EOpCode.OP_EQ:
+                {
+                    var ret = Pop()!.ToBoolean();
+                    // "<=" using "<" instead?
+                    if ((ci.CallStatus & CallInfoStatus.LEQ) == CallInfoStatus.LEQ)
                     {
-                        var ret = Pop()!.ToBoolean();
-                        // "<=" using "<" instead?
-                        if ((ci.CallStatus & CallInfoStatus.LEQ) == CallInfoStatus.LEQ)
-                        {
-                            Assert(op == EOpCode.OP_LE);
-                            ci.CallStatus ^= CallInfoStatus.LEQ; // clear mark
-                            ret = !ret; // negate result
-                        }
-
-                        Assert(
-                            new Instruction(ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc]).Opcode()
-                            == EOpCode.OP_JMP);
-
-                        // condition failed?
-                        if (ret != (ins.A == 0 ? false : true))
-                            ci.LuaClosure.SavedPc++; // skip jump instruction
-                        break;
+                        Assert(op == EOpCode.OP_LE);
+                        ci.CallStatus ^= CallInfoStatus.LEQ; // clear mark
+                        ret = !ret; // negate result
                     }
+
+                    Assert(
+                        new Instruction(ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc]).Opcode()
+                        == EOpCode.OP_JMP);
+
+                    // condition failed?
+                    if (ret != (ins.A != 0))
+                        ci.LuaClosure.SavedPc++; // skip jump instruction
+                    break;
+                }
 
                 case EOpCode.OP_CONCAT:
+                {
+                    // top when 'luaT_trybinTM' was called
+                    var top = Top - 1;
+                    // first element to concatenate
+                    ins.ABC(out var a, out var b, out var c);
+                    a += 1;
+                    // yet to concatenate
+                    var total = top - 1 - (ci.Func + 1 + b);
+                    // put TM result in proper position
+                    Copy(-3, -1);
+
+                    // are there elements to concat?
+                    if (total > 1)
                     {
-                        // top when 'luaT_trybinTM' was called
-                        var top = Top - 1;
-                        // first element to concatenate
-                        ins.ABC(out var a, out var b, out var c);
-                        a += 1;
-                        // yet to concatenate
-                        var total = top - 1 - (ci.Func + 1 + b);
-                        // put TM result in proper position
-                        Copy(-3, -1);
-
-                        // are there elements to concat?
-                        if (total > 1)
-                        {
-                            Pop(); // top is one after last element (at top-2)
-                            Concat(total); // concat them (may yield again)
-                        }
-
-                        // move final result to final position
-                        Copy(-1, a);
-                        // restore top
-                        SetTopByAbsIdx(ci.Top);
-                        break;
+                        Pop(); // top is one after last element (at top-2)
+                        Concat(total); // concat them (may yield again)
                     }
+
+                    // move final result to final position
+                    Copy(-1, a);
+                    // restore top
+                    SetTopByAbsIdx(ci.Top);
+                    break;
+                }
 
                 case EOpCode.OP_TFORCALL:
-                    {
-                        Instruction opCode = ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc];
-                        Assert(opCode.Opcode() == EOpCode.OP_TFORLOOP);
-                        SetTopByAbsIdx(ci.Top); // correct top
-                        break;
-                    }
+                {
+                    Instruction opCode = ci.LuaClosure.Closure.Proto.Code[ci.LuaClosure.SavedPc];
+                    Assert(opCode.Opcode() == EOpCode.OP_TFORLOOP);
+                    SetTopByAbsIdx(ci.Top); // correct top
+                    break;
+                }
 
                 case EOpCode.OP_CALL:
-                    {
-                        ins.ABC(out _, out _, out var c);
-                        if (c - 1 >= 0) // nresults >= 0?
-                            SetTopByAbsIdx(ci.Top); // adjust results
-                        break;
-                    }
+                {
+                    ins.ABC(out _, out _, out var c);
+                    if (c - 1 >= 0) // nresults >= 0?
+                        SetTopByAbsIdx(ci.Top); // adjust results
+                    break;
+                }
 
                 case EOpCode.OP_TAILCALL:
                 case EOpCode.OP_SETTABUP:
                 case EOpCode.OP_SETTABLE:
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        Assert(false);
-                        break;
-                    }
+                {
+                    Assert(false);
+                    break;
+                }
             }
         }
 
         private void Execute()
         {
-            for (; ; )
+            for (;;)
             {
                 var inst = new Instruction(Fetch());
                 inst.Execute(this);

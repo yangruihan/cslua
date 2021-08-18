@@ -25,7 +25,7 @@ namespace CsLua.State
             var sb = new StringBuilder();
             sb.Append($"*Stack* size: {_slots.Count} top: {Top} items: [");
             for (var i = 0; i < Slots.Count - 1; i++)
-                sb.Append($"{i + 1}: {Slots[i]}, ");
+                sb.Append($"{i}: {Slots[i]}, ");
             sb.Append($"{Slots.Count}: {Slots[^1]}]");
             return sb.ToString();
         }
@@ -149,9 +149,9 @@ namespace CsLua.State
 
         private void Set(int idx, LuaValue? val)
         {
-            if (idx > 0 && idx <= Top)
+            if (idx >= 0 && idx < Top)
             {
-                _slots[idx - 1] = val;
+                _slots[idx] = val;
                 return;
             }
 

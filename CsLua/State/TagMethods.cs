@@ -115,15 +115,6 @@ namespace CsLua.State
             }
         }
 
-        private void CallTM(int f, int p1, int p2, int p3, bool hasRes)
-        {
-            var funcV = GetValueByRelIdx(f)!;
-            var p1v = GetValueByRelIdx(p1)!;
-            var p2v = GetValueByRelIdx(p2)!;
-
-            CallTM(funcV, p1v, p2v, p3, hasRes);
-        }
-
         private bool CallBinTM(LuaValue p1, LuaValue p2, int res, ETagMethods @event)
         {
             var tm = GetTMByObj(p1, @event); // try first operand
@@ -181,7 +172,7 @@ namespace CsLua.State
             if (!CallBinTM(p1, p2, Top, @event))
                 return -1;
             else
-                return GetValueByRelIdx(Top)!.ToBoolean() ? 1 : 0;
+                return GetValueByAbsIdx(Top)!.ToBoolean() ? 1 : 0;
         }
     }
 }

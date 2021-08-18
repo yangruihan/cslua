@@ -16,7 +16,7 @@ namespace CsLua.State
 
             public static string? GetUpvalName(LuaState l, CallInfo ci, LuaValue o, out string name)
             {
-                LuaClosure c = l.GetValueByRelIdx(ci.Func)!.GetLuaClosureValue()!;
+                LuaClosure c = l.GetValueByAbsIdx(ci.Func)!.GetLuaClosureValue()!;
                 for (int i = 0; i < c.Upvals!.Length; i++)
                 {
                     if (c.Upvals[i].Val == o)
@@ -50,7 +50,7 @@ namespace CsLua.State
 
             public static int CurrentLine(LuaState l, CallInfo ci)
             {
-                return l.GetFuncLine(l.GetValueByRelIdx(ci.Func)!.GetLuaClosureValue()!.Proto, CurrentPc(l, ci));
+                return l.GetFuncLine(l.GetValueByAbsIdx(ci.Func)!.GetLuaClosureValue()!.Proto, CurrentPc(l, ci));
             }
 
             public static string VarInfo(LuaState l, int idx)
@@ -64,7 +64,7 @@ namespace CsLua.State
                     kind = GetUpvalName(l, ci, o, out name); // check whether 'o' is an upvalue
                     if (kind == null && IsInStack(ci, idx)) // no? try a register
                     {
-                        var luaClosure = l.GetValueByRelIdx(ci.Func)!.GetLuaClosureValue()!;
+                        var luaClosure = l.GetValueByAbsIdx(ci.Func)!.GetLuaClosureValue()!;
                         kind = GetObjName(l, luaClosure.Proto,
                                           CurrentPc(l, ci),
                                           idx + ci.Func - ci.Func - 1,
@@ -104,7 +104,7 @@ namespace CsLua.State
         {
             if (ErrFunc != 0)
             {
-                var errFunc = GetValueByRelIdx(ErrFunc)!;
+                var errFunc = GetValueByAbsIdx(ErrFunc)!;
                 // [..., ErrFunc, Msg]
                 Push(errFunc);
                 Insert(-2);
@@ -120,7 +120,7 @@ namespace CsLua.State
             PushString(msg);
             if (CallInfo.IsLua())
             {
-                AddInfo(msg, GetValueByRelIdx(CallInfo.Func)!.GetLuaClosureValue()!.Proto.Source, _Debug.CurrentLine(this, CallInfo));
+                AddInfo(msg, GetValueByAbsIdx(CallInfo.Func)!.GetLuaClosureValue()!.Proto.Source, _Debug.CurrentLine(this, CallInfo));
             }
             ErrorMsg();
         }

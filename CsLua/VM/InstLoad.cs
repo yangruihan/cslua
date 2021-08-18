@@ -12,6 +12,7 @@ namespace CsLua.VM
             ins.ABC(out var a, out var b, out _);
             a += 1;
 
+            vm.CheckStack(1);
             vm.PushNil();
             for (var j = a; j <= a + b; j++)
                 vm.Copy(-1, j);
@@ -27,6 +28,7 @@ namespace CsLua.VM
             ins.ABC(out var a, out var b, out var c);
             a += 1;
 
+            vm.CheckStack(1);
             vm.PushBoolean(b != 0);
             vm.Replace(a);
 
@@ -42,6 +44,7 @@ namespace CsLua.VM
             ins.ABx(out var a, out var bx);
             a += 1;
 
+            vm.CheckStack(1);
             vm.GetConst(bx);
             vm.Replace(a);
         }
@@ -54,6 +57,7 @@ namespace CsLua.VM
             ins.ABx(out var a, out _);
             a += 1;
             new Instruction(vm.Fetch()).Ax(out var ax);
+            vm.CheckStack(1);
             vm.GetConst(ax);
             vm.Replace(a);
         }

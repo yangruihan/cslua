@@ -9,7 +9,7 @@ namespace CsLua.State
         public static LuaState NewThread(LuaState l)
         {
             var l1 = new LuaState(l);
-            l.Stack.Push(l1);
+            l.Push(new LuaValue(l1, ELuaType.Thread));
             return l1;
         }
 

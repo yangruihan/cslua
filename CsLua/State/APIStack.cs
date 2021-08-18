@@ -91,27 +91,15 @@ namespace CsLua.State
         {
             var ci = CallInfo;
             Check(n >= 0, "negative 'n'");
-            if (Stack.Check(n))
-            {
-                return true;
-            }
-            else
-            {
-                int inuse = Top + LuaConst.EXTRA_STACK;
-                // can grow without overflow?
-                if (inuse > LuaConst.LUAI_MAXSTACK - n)
-                    return false;
-                else
-                {
-                    if (ci.Top < Top + n)
-                    {
-                        // adjust frame top
-                        ci.Top = Top + n;
-                    }
+            Stack.Check(n);
 
-                    return true;
-                }
+            if (ci.Top < Top + n)
+            {
+                // adjust frame top
+                ci.Top = Top + n;
             }
+
+            return true;
         }
 
         /// <summary>

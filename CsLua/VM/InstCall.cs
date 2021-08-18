@@ -82,7 +82,7 @@ namespace CsLua.VM
             ins.ABC(out var a, out var b, out _);
             a += 1;
 
-            vm.FinishCall(a, b - 1);
+            vm.FinishCall(a, b != 0 ? b - 1 : vm.GetTop() - a);
         }
 
         /// <summary>
